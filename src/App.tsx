@@ -34,6 +34,7 @@ import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
 import { ScanTab } from "./components/app/ScanTab";
 import { StockTab } from "./components/app/StockTab";
 import { SyncNotice } from "./components/app/SyncNotice";
+import { GeminiAssistantDrawer } from "./components/GeminiAssistant/GeminiAssistantDrawer";
 
 
 type ActionModalState =
@@ -80,6 +81,7 @@ export default function App() {
   const [stockScanMode, setStockScanMode] = useState<StockScanMode>("add");
   const [scannerInputMode, setScannerInputMode] = useState<ScannerInputMode>("hardware");
   const [isCompactView, setIsCompactView] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
   const showToast = useCallback((text: string) => {
     const id = Date.now();
@@ -884,7 +886,7 @@ export default function App() {
         )}
       </main>
 
-      <AppNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <AppNavigation activeTab={activeTab} onTabChange={setActiveTab} onAssistantOpen={() => setIsAssistantOpen(true)} />
 
       {showCategoryModal && (
         <CategoryFilterModal
@@ -952,6 +954,7 @@ export default function App() {
         />
       )}
       <Toast message={toastMessage?.text || null} visible={!!toastMessage} />
+      <GeminiAssistantDrawer apiKey={import.meta.env.VITE_GEMINI_API_KEY ?? ""} initialOpen={isAssistantOpen} />
     </div>
   );
 }

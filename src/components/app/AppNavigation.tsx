@@ -1,5 +1,5 @@
 import type React from "react";
-import { Package, Scan, Tags, Zap } from "lucide-react";
+import { Package, Scan, Tags, Zap, Mic } from "lucide-react";
 
 export type AppTab = "scan" | "autoScan" | "stock" | "categories";
 
@@ -21,12 +21,13 @@ const navItems: NavItem[] = [
 type AppNavigationProps = {
   activeTab: AppTab;
   onTabChange: (tab: AppTab) => void;
+  onAssistantOpen?: () => void;
 };
 
-export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
+export function AppNavigation({ activeTab, onTabChange, onAssistantOpen }: AppNavigationProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe">
-      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-[1.75rem] border px-2 py-2 shadow-2xl shadow-stone-900/10">
+      <div className="glass-panel mx-auto flex max-w-md items-center justify-around rounded-[1.75rem] border px-2 py-2 shadow-2xl shadow-stone-900/10">
         {navItems.map(({ tab, label, activeClass, activeBgClass, icon: Icon }) => {
           const isActive = activeTab === tab;
           return (
@@ -44,6 +45,19 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
             </button>
           );
         })}
+        {onAssistantOpen && (
+          <button
+            type="button"
+            onClick={onAssistantOpen}
+            aria-label="Ouvrir l’assistant vocal"
+            className="touch-target flex flex-col items-center gap-1 rounded-2xl px-2 py-1.5 text-indigo-600 transition select-none tap-active"
+          >
+            <div className="p-1.5 rounded-xl bg-indigo-50">
+              <Mic className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold tracking-wide">Assistant</span>
+          </button>
+        )}
       </div>
     </nav>
   );
