@@ -3,7 +3,7 @@ const OUTPUT_SAMPLE_RATE = 24000;
 const DEBUG_SERVER_URL = "http://127.0.0.1:7777/event";
 const DEBUG_SESSION_ID = "voice-no-response";
 
-type ChunkHandler = (base64PcmChunk: string) => void;
+type ChunkHandler = (pcmChunk: Blob) => void;
 
 export type MicrophonePcmStream = {
   stop: () => Promise<void>;
@@ -24,16 +24,6 @@ function base64ToUint8Array(base64: string) {
   }
 
   return bytes;
-}
-
-function uint8ArrayToBase64(bytes: Uint8Array) {
-  let binary = "";
-
-  for (let index = 0; index < bytes.length; index += 1) {
-    binary += String.fromCharCode(bytes[index]);
-  }
-
-  return window.btoa(binary);
 }
 
 function downsampleFloat32ToInt16(
@@ -82,6 +72,9 @@ function parseSampleRate(mimeType?: string) {
 
 // #region debug-point A:audio-report
 function reportVoiceAudioDebug(hypothesisId: string, msg: string, data?: Record<string, unknown>) {
+  if (!(window as typeof window & { __VOICE_DEBUG__?: boolean }).__VOICE_DEBUG__) {
+    return;
+  }
   fetch(DEBUG_SERVER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -173,7 +166,7 @@ export async function startMicrophonePcmStream(
       // #endregion
     }
 
-    onChunk(uint8ArrayToBase64(new Uint8Array(pcm16.buffer)));
+    onChunk(new Blob([pcm16.buffer], { type: "audio/pcm;rate=16000" }));
   };
 
   source.connect(processor);

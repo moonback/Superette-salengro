@@ -224,6 +224,9 @@ function historyBubbleClasses(speaker: HistorySpeaker) {
 
 // #region debug-point C:session-report
 function reportVoiceSessionDebug(hypothesisId: string, msg: string, data?: Record<string, unknown>) {
+  if (!(window as typeof window & { __VOICE_DEBUG__?: boolean }).__VOICE_DEBUG__) {
+    return;
+  }
   fetch(DEBUG_SERVER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -287,7 +290,7 @@ export function GeminiAssistant({
       turnComplete?: boolean;
     }) => void;
     sendRealtimeInput: (params: {
-      audio?: { data: string; mimeType: string };
+      audio?: Blob;
       audioStreamEnd?: boolean;
     }) => void;
     sendToolResponse: (params: {
@@ -446,7 +449,15 @@ export function GeminiAssistant({
   }, [isSessionActive, open]);
 
   useEffect(() => {
+    // #region debug-point E:lifecycle-mount
+    reportVoiceSessionDebug("E", "Effet cycle de vie attache");
+    // #endregion
     return () => {
+      // #region debug-point E:lifecycle-cleanup
+      reportVoiceSessionDebug("E", "Cleanup composant GeminiAssistant", {
+        hasSession: Boolean(sessionRef.current),
+      });
+      // #endregion
       manualCloseRef.current = true;
       try {
         sessionRef.current?.close();
@@ -456,6 +467,17 @@ export function GeminiAssistant({
       void resetSessionState();
     };
   }, [resetSessionState]);
+
+  useEffect(() => {
+    // #region debug-point E:ui-state
+    reportVoiceSessionDebug("E", "Etat UI assistant", {
+      open,
+      minimized,
+      isSessionActive,
+      status,
+    });
+    // #endregion
+  }, [isSessionActive, minimized, open, status]);
 
   const sendToolResponse = useCallback((
     functionResponse: {
@@ -868,6 +890,13 @@ export function GeminiAssistant({
     userMessage = "Session vocale terminee.",
     closeDrawer = false,
   ) => {
+    // #region debug-point E:disconnect-called
+    reportVoiceSessionDebug("E", "disconnectSession appele", {
+      userMessage,
+      closeDrawer,
+      hasSession: Boolean(sessionRef.current),
+    });
+    // #endregion
     manualCloseRef.current = true;
 
     try {
@@ -989,10 +1018,13 @@ export function GeminiAssistant({
             setSessionError(message);
             showToast(message);
           },
-          onclose: () => {
+          onclose: (event) => {
             // #region debug-point E:onclose
             reportVoiceSessionDebug("E", "Connexion Gemini fermee", {
               manualClose: manualCloseRef.current,
+              code: event.code,
+              reason: event.reason,
+              wasClean: event.wasClean,
             });
             // #endregion
             const wasManualClose = manualCloseRef.current;
@@ -1020,15 +1052,13 @@ export function GeminiAssistant({
           // #region debug-point B:audio-send
           reportVoiceSessionDebug("B", "Chunk audio envoye a Gemini", {
             chunkCount: sentAudioChunkCountRef.current,
-            base64Length: chunk.length,
+            blobSize: chunk.size,
+            mimeType: chunk.type,
           });
           // #endregion
         }
         sessionRef.current?.sendRealtimeInput({
-          audio: {
-            data: chunk,
-            mimeType: "audio/pcm;rate=16000",
-          },
+          audio: chunk,
         });
       });
 

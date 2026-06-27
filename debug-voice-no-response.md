@@ -14,15 +14,17 @@
 ## Hypotheses & Verification
 | ID | Hypothesis | Likelihood | Effort | Evidence |
 |----|------------|------------|--------|----------|
-| A | Le microphone est ouvert mais le pipeline WebAudio n'emet pas de chunks audio exploitables. | High | Low | Pending |
-| B | Les chunks audio sont emis mais Gemini Live ne recoit pas le bon format ou le bon rythme. | High | Med | Pending |
-| C | La session Gemini Live est connectee mais n'entre pas dans un cycle de traitement vocal actif. | Med | Low | Pending |
-| D | Le niveau audio entrant est trop faible ou nul malgre l'autorisation micro. | Med | Med | Pending |
-| E | Un callback reseau/session echoue silencieusement apres connexion. | Med | Med | Pending |
+| A | Le microphone est ouvert mais le pipeline WebAudio n'emet pas de chunks audio exploitables. | High | Low | Rejected |
+| B | Les chunks audio sont emis mais Gemini Live ne recoit pas le bon format ou le bon rythme. | High | Med | Confirmed |
+| C | La session Gemini Live est connectee mais n'entre pas dans un cycle de traitement vocal actif. | Med | Low | Confirmed |
+| D | Le niveau audio entrant est trop faible ou nul malgre l'autorisation micro. | Med | Med | Rejected |
+| E | Un callback reseau/session echoue silencieusement apres connexion. | Med | Med | Partial |
 
 ## Log Evidence
-- Instrumentation reseau active dans `audio.ts` et `GeminiAssistant.tsx`
-- Attente d'une reproduction utilisateur pour collecter les evenements `A/B/C/E`
+- `audio.ts` a capture des chunks non silencieux (`peak` ~ `0.4956`) avec micro autorise
+- La session Gemini passe bien par `onopen`, puis se ferme rapidement sans transcription exploitable
+- Le SDK `@google/genai` web type `sendRealtimeInput({ audio?: Blob })`, alors que l'implementation envoyait `{ data, mimeType }`
+- Correctif applique : envoi du PCM micro en `Blob` `audio/pcm;rate=16000`
 
 ## Verification Conclusion
-- Pending
+- Attente d'une verification utilisateur post-fix
