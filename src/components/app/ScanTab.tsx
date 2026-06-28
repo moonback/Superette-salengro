@@ -1,4 +1,5 @@
-import { Loader2, Minus, Package, Plus, Sparkles } from "lucide-react";
+
+import { Loader2, Minus, Package, Plus, Sparkles, Scan } from "lucide-react";
 import { CameraBarcodeScanner } from "../CameraBarcodeScanner";
 import { ManualInput } from "../ManualInput";
 import { ScannerInputMode, ScannerInputModeToggle } from "../ScannerInputModeToggle";
@@ -38,30 +39,28 @@ export function ScanTab({
   const isScannerDisabled = !!loadingBarcode || !!actionModal;
 
   return (
-    <section className="glass-card mobile-card relative overflow-hidden">
-      <div className="absolute top-0 right-0 p-3 opacity-40">
-        <Sparkles className="w-5 h-5 text-indigo-500" />
-      </div>
-
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
-            Scanner
-          </span>
-          <h2 className="mt-2 text-base font-bold tracking-tight text-stone-900">
-            Ajouter un article
-          </h2>
-        </div>
-        {/* <SyncBadge isOnline={isOnline} pendingCount={pendingCount} syncError={syncError} /> */}
-      </div>
-
-      <ScannerInputModeToggle
-        mode={scannerInputMode}
-        onModeChange={onScannerInputModeChange}
+    <section className="space-y-4">
+      {/* Main Scanner Button */}
+      <button
+        onClick={() => onScannerInputModeChange(scannerInputMode === "hardware" ? "camera" : "hardware")}
         disabled={isScannerDisabled}
-      />
+        className="w-full bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-3 shadow-lg shadow-indigo-600/25 transition active:scale-98 hover:from-indigo-700 hover:to-violet-700"
+      >
+        <div className="h-14 w-14 bg-white/20 rounded-2xl grid place-items-center">
+          <Scan className="h-7 w-7" />
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold">
+            Scanner un code
+          </div>
+          <div className="text-xs text-white/80 mt-1">
+            {scannerInputMode === "hardware" ? "Scanner physique" : "Caméra"}
+          </div>
+        </div>
+      </button>
 
-      <div className="relative mt-4">
+      {/* Manual Input */}
+      <div className="relative">
         {loadingBarcode && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-white/95 border border-stone-200 text-stone-700 backdrop-blur-xs">
             <Loader2 className="mb-2 h-6 w-6 animate-spin text-indigo-600" />
@@ -75,23 +74,21 @@ export function ScanTab({
         )}
       </div>
 
+      {/* Recently Scanned */}
       {recentlyScanned.length > 0 && (
-        <div className="mt-6 pt-5 border-t border-stone-200 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Derniers articles scannés</h3>
-            <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">Historique rapide</span>
-          </div>
-
-          <div className="flex flex-col gap-2">
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 px-1">
+            Derniers scans
+          </h3>
+          <div className="space-y-2">
             {recentlyScanned.map((item) => (
-              <div key={item.barcode}>
-                <RecentScanItem
-                  item={item}
-                  onEditProduct={onEditProduct}
-                  onEditQuantity={onEditQuantity}
-                  onUpdateQuantity={onUpdateQuantity}
-                />
-              </div>
+              <RecentScanItem
+                key={item.barcode}
+                item={item}
+                onEditProduct={onEditProduct}
+                onEditQuantity={onEditQuantity}
+                onUpdateQuantity={onUpdateQuantity}
+              />
             ))}
           </div>
         </div>
@@ -99,36 +96,6 @@ export function ScanTab({
     </section>
   );
 }
-
-type SyncBadgeProps = {
-  isOnline: boolean;
-  pendingCount: number;
-  syncError: string | null;
-};
-
-// function SyncBadge({ isOnline, pendingCount, syncError }: SyncBadgeProps) {
-//   const stateClasses = !isOnline
-//     ? "bg-rose-50 border border-rose-200 text-rose-600"
-//     : pendingCount > 0
-//       ? "bg-amber-50 border border-amber-200 text-amber-700"
-//       : syncError
-//         ? "bg-rose-50 border border-rose-200 text-rose-600"
-//         : "bg-emerald-50 border border-emerald-200 text-emerald-700";
-//   const dotClasses = !isOnline
-//     ? "bg-rose-500"
-//     : pendingCount > 0
-//       ? "bg-amber-500 animate-pulse"
-//       : syncError
-//         ? "bg-rose-500"
-//         : "bg-emerald-500";
-
-//   return (
-//     <div className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${stateClasses}`}>
-//       <span className={`w-1 h-1 rounded-full ${dotClasses}`} />
-//       {!isOnline ? "Hors-ligne" : pendingCount > 0 ? `${pendingCount} en attente` : syncError ? "Supabase Off" : "Synchro On"}
-//     </div>
-//   );
-// }
 
 type RecentScanItemProps = {
   item: InventoryItem;
@@ -141,37 +108,31 @@ function RecentScanItem({ item, onEditProduct, onEditQuantity, onUpdateQuantity 
   return (
     <div
       onClick={() => onEditProduct(item)}
-      className="relative overflow-hidden rounded-xl border border-stone-200 bg-white px-3 py-2 flex items-center justify-between gap-3 hover:border-stone-300 hover:shadow-sm cursor-pointer select-none transition group"
+      className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white px-4 py-3 flex items-center justify-between gap-3 hover:border-stone-300 hover:shadow-sm cursor-pointer select-none transition group"
     >
       <div className="min-w-0 flex-1 flex items-center gap-3">
-        <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-lg border border-stone-200 bg-stone-50 p-1">
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain rounded" /> : <Package className="h-4.5 w-4.5 text-stone-300" />}
+        <div className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50 p-1">
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain rounded" /> : <Package className="h-5 w-5 text-stone-300" />}
         </div>
         <div className="min-w-0">
-          <h4 className="line-clamp-1 text-xs font-bold text-stone-900 group-hover:text-indigo-600 transition-colors">{item.name}</h4>
-          <div className="flex items-center gap-1.5 mt-0.5 text-[9px] text-stone-400 font-medium">
+          <h4 className="line-clamp-1 text-sm font-bold text-stone-900 group-hover:text-indigo-600 transition-colors">{item.name}</h4>
+          <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-stone-400 font-medium">
             <span className="font-mono tabular">{item.barcode}</span>
             {item.brand && <span>• {item.brand}</span>}
           </div>
-          <p
-            className="mt-1 text-[10px] font-semibold text-stone-500"
-            title={new Date(item.lastUpdated).toLocaleString("fr-FR")}
-          >
-            Scanné {formatRelativeTime(item.lastUpdated)}
-          </p>
         </div>
       </div>
 
       <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
-        <div className="flex items-center rounded-lg bg-stone-50 border border-stone-200">
-          <button onClick={() => onUpdateQuantity(item.barcode, -1)} className="grid h-6 w-6 place-items-center text-stone-500 active:scale-90 hover:text-stone-900 transition cursor-pointer" aria-label="Diminuer la quantité">
-            <Minus className="h-2 w-2" />
+        <div className="flex items-center rounded-xl bg-stone-50 border border-stone-200">
+          <button onClick={() => onUpdateQuantity(item.barcode, -1)} className="grid h-10 w-10 place-items-center text-stone-500 active:scale-90 hover:text-stone-900 transition cursor-pointer" aria-label="Diminuer la quantité">
+            <Minus className="h-4 w-4" />
           </button>
-          <button onClick={() => onEditQuantity(item)} className={`px-1.5 min-w-6 text-center text-[10px] font-bold font-mono tabular py-0.5 hover:text-indigo-600 cursor-pointer ${item.quantity <= 5 ? "text-amber-600" : "text-stone-900"}`}>
+          <button onClick={() => onEditQuantity(item)} className={`px-3 min-w-10 text-center text-sm font-bold font-mono tabular py-2 hover:text-indigo-600 cursor-pointer ${item.quantity <= 5 ? "text-amber-600" : "text-stone-900"}`}>
             <AnimatedQuantity value={item.quantity} />
           </button>
-          <button onClick={() => onUpdateQuantity(item.barcode, 1)} className="grid h-6 w-6 place-items-center text-stone-500 active:scale-90 hover:text-stone-900 transition cursor-pointer" aria-label="Augmenter la quantité">
-            <Plus className="h-2 w-2" />
+          <button onClick={() => onUpdateQuantity(item.barcode, 1)} className="grid h-10 w-10 place-items-center text-stone-500 active:scale-90 hover:text-stone-900 transition cursor-pointer" aria-label="Augmenter la quantité">
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>

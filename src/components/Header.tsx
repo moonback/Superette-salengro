@@ -35,24 +35,6 @@ export function Header({
   const embeddedCount = inventoryLength - progress.total + progress.current;
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
 
-  const connectionLabel = !isOnline
-    ? "Hors-ligne"
-    : pendingCount > 0
-      ? `${pendingCount} opération${pendingCount > 1 ? "s" : ""} en attente`
-      : "Synchronisé";
-
-  const connectionColor = !isOnline
-    ? "text-rose-600 bg-rose-50 border-rose-200"
-    : pendingCount > 0
-      ? "text-amber-600 bg-amber-50 border-amber-200"
-      : "text-emerald-600 bg-emerald-50 border-emerald-200";
-
-  const connectionDot = !isOnline
-    ? "bg-rose-500"
-    : pendingCount > 0
-      ? "bg-amber-500 animate-pulse"
-      : "bg-emerald-500";
-
   return (
     <header className="sticky top-0 z-40 glass-panel border-b pt-safe">
       <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
@@ -66,9 +48,18 @@ export function Header({
             <h1 className="truncate text-base font-extrabold tracking-tight text-stone-950">
               Superette Salengro
             </h1>
-            {/* <p className="truncate text-[11px] font-medium text-stone-500">
-              {email}
-            </p> */}
+            {/* Compact stats */}
+            <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-stone-500">
+              <span className="flex items-center gap-1">
+                <span className="text-stone-400">📦</span> {inventoryLength}
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="text-emerald-500">🧾</span> {totalItems}
+              </span>
+              <span className="flex items-center gap-1">
+                <span className={lowStockCount > 0 ? "text-amber-500" : "text-stone-400"}>⚠️</span> {lowStockCount}
+              </span>
+            </div>
           </div>
 
           {/* Action icons: always reachable with the thumb, never wrap, never crowd the title */}
@@ -94,9 +85,9 @@ export function Header({
                   disabled={!canStart && !isRunning}
                   aria-label={
                     isRunning ? (isPaused ? "Reprendre la génération" : "Mettre en pause")
-                    : embeddedCount === inventoryLength 
-                      ? "Tous les produits sont vectorisés" 
-                      : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
+                      : embeddedCount === inventoryLength 
+                        ? "Tous les produits sont vectorisés" 
+                        : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
                   }
                   className={`touch-target grid h-10 w-10 place-items-center rounded-2xl border transition tap-active disabled:opacity-50 ${
                     embeddedCount === inventoryLength && !isRunning
@@ -145,27 +136,31 @@ export function Header({
         </div>
 
         {/* Single connection banner — tappable only when there's something to do */}
-        <button
-          type="button"
-          onClick={canSync ? onSyncNow : undefined}
-          disabled={!canSync}
-          aria-label={`Statut réseau : ${connectionLabel}${canSync ? ", touchez pour synchroniser" : ""}`}
-          className={`mt-2.5 flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${connectionColor} ${canSync ? "tap-active cursor-pointer" : "cursor-default"}`}
-        >
-          {!isOnline ? (
-            <CloudOff className="h-3.5 w-3.5 flex-shrink-0" />
-          ) : pendingCount === 0 ? (
-            <Check className="h-3.5 w-3.5 flex-shrink-0" />
-          ) : (
-            <span className={`h-2 w-2 flex-shrink-0 rounded-full ${connectionDot}`} />
-          )}
-          <span className="min-w-0 flex-1 truncate">{connectionLabel}</span>
-          {canSync && (
-            <span className="flex-shrink-0 text-[11px] font-bold underline-offset-2 opacity-80">
-              {isSyncing ? "..." : "Synchroniser"}
-            </span>
-          )}
-        </button>
+        {(!isOnline || pendingCount > 0) && (
+          <button
+            type="button"
+            onClick={canSync ? onSyncNow : undefined}
+            disabled={!canSync}
+            aria-label={`Statut réseau : ${!isOnline ? "Hors-ligne" : `${pendingCount} en attente`}${canSync ? ", touchez pour synchroniser" : ""}`}
+            className={`mt-2.5 flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${
+              !isOnline 
+                ? "text-rose-600 bg-rose-50 border-rose-200" 
+                : "text-amber-600 bg-amber-50 border-amber-200"
+            } ${canSync ? "tap-active cursor-pointer" : "cursor-default"}`}
+          >
+            {!isOnline ? (
+              <CloudOff className="h-3.5 w-3.5 flex-shrink-0" />
+            ) : (
+              <span className={`h-2 w-2 flex-shrink-0 rounded-full ${!isOnline ? "bg-rose-500" : "bg-amber-500 animate-pulse"}`} />
+            )}
+            <span className="min-w-0 flex-1 truncate">{!isOnline ? "Hors-ligne" : `${pendingCount} opération${pendingCount > 1 ? "s" : ""} en attente`}</span>
+            {canSync && (
+              <span className="flex-shrink-0 text-[11px] font-bold underline-offset-2 opacity-80">
+                {isSyncing ? "..." : "Synchroniser"}
+              </span>
+            )}
+          </button>
+        )}
 
         {/* Embedding progress banner */}
         {isRunning && (
@@ -191,32 +186,6 @@ export function Header({
             )}
           </div>
         )}
-
-        {/* Stats row */}
-        <div className="mt-2.5 grid grid-cols-3 gap-2 text-[10px] font-semibold text-stone-500">
-          <div className="rounded-xl border border-stone-200/80 bg-white/70 px-2 py-2 text-center shadow-sm">
-            <span className="block uppercase tracking-wider text-stone-400">Réf.</span>
-            <strong className="font-mono text-base font-extrabold tabular-nums text-stone-950">
-              {inventoryLength}
-            </strong>
-          </div>
-          <div className="rounded-xl border border-stone-200/80 bg-white/70 px-2 py-2 text-center shadow-sm">
-            <span className="block uppercase tracking-wider text-stone-400">Total</span>
-            <strong className="font-mono text-base font-extrabold tabular-nums text-emerald-700">
-              {totalItems}
-            </strong>
-          </div>
-          <div className="rounded-xl border border-stone-200/80 bg-white/70 px-2 py-2 text-center shadow-sm">
-            <span className="block uppercase tracking-wider text-stone-400">Alerte</span>
-            <strong
-              className={`font-mono text-base font-extrabold tabular-nums ${
-                lowStockCount > 0 ? "text-amber-600" : "text-stone-950"
-              }`}
-            >
-              {lowStockCount}
-            </strong>
-          </div>
-        </div>
       </div>
     </header>
   );
