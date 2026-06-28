@@ -290,8 +290,8 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
         )}
         {isOpen && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center p-8">
-            <div className="relative h-28 w-full max-w-xs rounded-2xl border-2 border-sky-300/90 shadow-[0_0_0_999px_rgba(0,0,0,0.35)]">
-              <span className="absolute inset-x-4 top-1/2 h-0.5 -translate-y-1/2 animate-scan-line bg-gradient-to-r from-transparent via-sky-300 to-transparent" />
+            <div className="relative h-28 w-full max-w-xs rounded-2xl border-2 border-stone-300/90 shadow-[0_0_0_999px_rgba(0,0,0,0.35)]">
+              <span className="absolute inset-x-4 top-1/2 h-0.5 -translate-y-1/2 animate-scan-line bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
             </div>
           </div>
         )}
@@ -313,7 +313,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
             }
           }}
           disabled={!canScan || isStarting}
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 text-xs font-bold text-white shadow-sm shadow-sky-600/20 transition hover:bg-slate-900 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 text-xs font-bold text-white shadow-sm transition hover:bg-slate-900 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
         >
           {isOpen ? <CameraOff className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
           {isOpen ? "Arrêter" : "Scanner avec la caméra"}

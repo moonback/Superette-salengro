@@ -52,19 +52,19 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
   const getStateStyles = () => {
     switch (state) {
       case AssistantState.Listening:
-        return 'bg-emerald-600 shadow-emerald-600/40';
+        return 'bg-emerald-500 shadow-emerald-500/20';
       case AssistantState.Speaking:
-        return 'bg-indigo-600 shadow-indigo-600/40';
+        return 'bg-slate-900 shadow-slate-900/20';
       case AssistantState.Thinking:
-        return 'bg-amber-500 shadow-amber-500/40';
+        return 'bg-amber-500 shadow-amber-500/20';
       case AssistantState.Connecting:
-        return 'bg-sky-500 shadow-sky-500/40';
+        return 'bg-stone-400 shadow-stone-400/20';
       case AssistantState.Error:
-        return 'bg-rose-600 shadow-rose-600/40';
+        return 'bg-rose-500 shadow-rose-500/20';
       case AssistantState.Muted:
-        return 'bg-stone-400 shadow-stone-400/30';
+        return 'bg-stone-400 shadow-stone-400/20';
       default:
-        return 'bg-indigo-600 shadow-indigo-600/30';
+        return 'bg-slate-900 shadow-slate-900/20';
     }
   };
 

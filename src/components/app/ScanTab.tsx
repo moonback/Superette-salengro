@@ -146,7 +146,7 @@ const RecentScanItem: React.FC<RecentScanItemProps> = ({ item, onEditProduct, on
 
       <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
         {item.quantity <= 5 && (
-          <div className="h-7 w-7 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-[9px] font-bold text-amber-700 lg:h-8 lg:w-8 lg:text-[10px]">
+          <div className="h-7 w-7 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-[9px] font-bold text-amber-500 lg:h-8 lg:w-8 lg:text-[10px]">
             {item.quantity}
           </div>
         )}

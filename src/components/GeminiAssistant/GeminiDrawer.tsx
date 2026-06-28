@@ -17,18 +17,18 @@ interface Props {
 export function GeminiDrawer({ state, isMuted, error, autoAccept, setAutoAccept, onMinimize, onClose, onMuteToggle, onStop }: Props) {
   const active = state === AssistantState.Listening || state === AssistantState.Speaking || state === AssistantState.Thinking;
   return (
-    <motion.section initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-x-0 bottom-0 z-50 rounded-t-[2rem] bg-white p-5 shadow-2xl">
+    <motion.section initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl bg-white p-6 shadow-sm">
       <div className="mx-auto max-w-md space-y-4">
         <div className="flex items-center justify-between">
           <div><p className="text-sm font-bold text-stone-900">Assistant vocal</p><p className="text-xs text-stone-500"></p></div>
           <div className="flex gap-2">
             <button 
               onClick={() => setAutoAccept(!autoAccept)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
+              className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
                 autoAccept 
-                  ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' 
+                  ? 'bg-stone-100 text-stone-700 border border-stone-200' 
                   : 'bg-stone-100 text-stone-600 border border-stone-200'
-              }`}
+              }"
             >
               {autoAccept && <Check className="h-3.5 w-3.5" />}
               Auto valide

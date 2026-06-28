@@ -213,7 +213,7 @@ export function CategoriesManager({
           {/* <button
             onClick={handleAutoCategorize}
             disabled={isAutoCategorizing || categories.length === 0}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-indigo-100 bg-stone-50 px-4 py-2 text-[10px] font-bold text-slate-900 transition hover:bg-indigo-100 disabled:opacity-40 sm:flex-none"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-stone-100 bg-stone-50 px-4 py-2 text-[10px] font-bold text-slate-900 transition hover:bg-stone-100 disabled:opacity-40 sm:flex-none"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isAutoCategorizing ? 'animate-spin' : ''}`} />
             Classer automatiquement
