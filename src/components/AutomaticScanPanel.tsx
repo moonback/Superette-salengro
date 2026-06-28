@@ -44,7 +44,7 @@ export function AutomaticScanPanel({
               <Zap className="h-5 w-5 text-white sm:h-7 sm:w-7" />
             </div>
             <div className="pt-0.5 sm:pt-1">
-              <h2 className="text-xl font-bold text-white tracking-tight sm:text-2xl">Scan Auto</h2>
+              <h2 className="text-xl font-bold text-white tracking-tight sm:text-2xl">Scan Rapide</h2>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm sm:px-2.5 sm:text-xs">
                   {!isOnline ? "Hors-ligne" : pendingCount > 0 ? `${pendingCount} en attente` : syncError ? "Erreur" : "Synchro On"}

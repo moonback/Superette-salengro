@@ -39,53 +39,59 @@ export function ScanTab({
   const isScannerDisabled = !!loadingBarcode || !!actionModal;
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       {/* Main Scanner Area */}
       <div className="relative">
         {loadingBarcode && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-white/95 border border-stone-200 text-stone-700 backdrop-blur-xs">
-            <Loader2 className="mb-2 h-6 w-6 animate-spin text-indigo-600" />
-            <span className="text-xs font-semibold tracking-wider font-mono">Recherche {loadingBarcode}...</span>
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-white/95 border border-slate-200 text-slate-700 backdrop-blur-md">
+            <div className="flex items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-2.5">
+              <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />
+              <div className="text-xs font-semibold tracking-wider font-mono text-indigo-700">
+                Lecture {loadingBarcode}...
+              </div>
+            </div>
           </div>
         )}
 
-        {scannerInputMode === "hardware" ? (
-          <button
-            onClick={() => document.getElementById("barcode-input")?.focus()}
+        <div className="space-y-3">
+          {scannerInputMode === "hardware" ? (
+            <button
+              onClick={() => document.getElementById("barcode-input")?.focus()}
+              disabled={isScannerDisabled}
+              className="w-full rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 p-6 text-left text-white shadow-lg shadow-indigo-600/25 transition hover:from-indigo-500 hover:to-violet-500 active:scale-[0.99] disabled:opacity-70 lg:p-8"
+            >
+              <div className="flex items-center gap-4">
+                <div className="grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-white/15 lg:h-16 lg:w-16">
+                  <Scan className="h-7 w-7 animate-pulse lg:h-8 lg:w-8" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold lg:text-xl">
+                    Scanner physique
+                  </div>
+                  <div className="mt-0.5 text-xs text-white/80 lg:text-sm">
+                    Connectez votre scanner et ciblez un code-barres
+                  </div>
+                </div>
+              </div>
+            </button>
+          ) : (
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-lg shadow-slate-900/20 lg:aspect-video">
+              <CameraBarcodeScanner enabled={!isScannerDisabled} isBusy={!!loadingBarcode} onScan={onScan} />
+            </div>
+          )}
+
+          <ScannerInputModeToggle
+            mode={scannerInputMode}
+            onModeChange={onScannerInputModeChange}
             disabled={isScannerDisabled}
-            className="w-full bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-3xl p-6 flex flex-col items-center justify-center gap-3 shadow-lg shadow-indigo-600/25 transition active:scale-98 hover:from-indigo-700 hover:to-violet-700 mb-4 lg:p-8 lg:gap-4"
-          >
-            <div className="h-14 w-14 bg-white/20 rounded-2xl grid place-items-center relative lg:h-16 lg:w-16">
-              <Scan className="h-7 w-7 animate-pulse lg:h-8 lg:w-8" />
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold lg:text-xl">
-                Prêt à scanner
-              </div>
-              <div className="text-xs text-white/80 mt-1 lg:text-sm">
-                Utilisez votre scanner physique
-              </div>
-            </div>
-          </button>
-        ) : (
-          <div className="rounded-3xl overflow-hidden shadow-lg shadow-stone-900/10 mb-4 bg-stone-900 aspect-[4/3] relative lg:aspect-video">
-            <CameraBarcodeScanner enabled={!isScannerDisabled} isBusy={!!loadingBarcode} onScan={onScan} />
-          </div>
-        )}
+          />
 
-        {/* Scanner Mode Toggle */}
-        <ScannerInputModeToggle
-          mode={scannerInputMode}
-          onModeChange={onScannerInputModeChange}
-          disabled={isScannerDisabled}
-        />
-
-        {/* Input Area (only visible in hardware mode) */}
-        {scannerInputMode === "hardware" && (
-          <div className="mt-4">
-            <ManualInput onScan={onScan} isActive={!isScannerDisabled} />
-          </div>
-        )}
+          {scannerInputMode === "hardware" && (
+            <div className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm lg:p-4">
+              <ManualInput onScan={onScan} isActive={!isScannerDisabled} />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Recently Scanned */}
