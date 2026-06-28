@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, Filter, Eye, Tags, Zap } from "lucide-react";
 import { InventoryGrid } from "../InventoryGrid";
 import { CategoryItem, InventoryItem } from "../../types";
@@ -18,6 +18,8 @@ type FinancialStats = {
   totalSalesVal: number;
   potentialMargin: number;
 };
+
+const ITEMS_PER_PAGE = 20;
 
 type StockTabProps = {
   inventoryLength: number;
@@ -75,6 +77,32 @@ export function StockTab({
   onOpenScan,
 }: StockTabProps) {
   const [showStats, setShowStats] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, stockFilter, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredInventory.length / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const paginatedInventory = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredInventory.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [currentPage, filteredInventory]);
+
+  const visiblePages = useMemo(() => {
+    const maxVisiblePages = 5;
+    const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - maxVisiblePages + 1));
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+  }, [currentPage, totalPages]);
+
+  const pageStart = filteredInventory.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const pageEnd = Math.min(currentPage * ITEMS_PER_PAGE, filteredInventory.length);
 
   return (
     <section className="space-y-4 pb-20">
@@ -225,7 +253,7 @@ export function StockTab({
         </div>
       ) : (
         <InventoryGrid
-          items={filteredInventory}
+          items={paginatedInventory}
           categories={dbCategories}
           isCompactView={false}
           searchTerm={searchTerm}
@@ -236,14 +264,66 @@ export function StockTab({
         />
       )}
 
+      {!isInventoryLoading && filteredInventory.length > ITEMS_PER_PAGE && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-3">
+          <div className="flex items-center justify-between gap-3 text-xs font-medium text-stone-500">
+            <span>
+              Articles {pageStart}-{pageEnd} sur {filteredInventory.length}
+            </span>
+            <span>
+              Page {currentPage}/{totalPages}
+            </span>
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              className="min-h-10 rounded-xl border border-stone-200 px-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Precedent
+            </button>
+
+            <div className="flex items-center gap-1">
+              {visiblePages.map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  className={`grid h-10 min-w-10 place-items-center rounded-xl border px-2 text-xs font-semibold transition ${
+                    currentPage === page
+                      ? "border-indigo-600 bg-indigo-600 text-white"
+                      : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                  }`}
+                  aria-label={`Aller a la page ${page}`}
+                  aria-current={currentPage === page ? "page" : undefined}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              className="min-h-10 rounded-xl border border-stone-200 px-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Floating Scanner Button */}
-      <button
+      {/* <button
         onClick={onOpenScan}
         className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-full shadow-lg shadow-indigo-600/30 flex flex-col items-center justify-center px-6 py-3 z-40 active:scale-95 transition"
       >
         <Zap className="w-6 h-6 mb-0.5" />
         <span className="text-xs font-bold">Scanner</span>
-      </button>
+      </button> */}
     </section>
   );
 }

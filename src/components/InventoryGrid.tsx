@@ -315,9 +315,9 @@ export function InventoryGrid({
                           className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-2 py-2"
                           onClick={(event) => event.stopPropagation()}
                         >
-                          <div className="min-w-0 px-1 text-[10px] font-medium text-stone-400">
+                          {/* <div className="min-w-0 px-1 text-[10px] font-medium text-stone-400">
                             Glisser: droite `+1`, gauche suppression
-                          </div>
+                          </div> */}
                           <div className="flex items-center rounded-full border border-stone-200 bg-white">
                             <button
                               onClick={() => onUpdateQuantity(item.barcode, -1)}
