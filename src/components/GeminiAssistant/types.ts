@@ -89,6 +89,8 @@ export interface GeminiAssistantContextValue {
   isMinimized: boolean;
   isMuted: boolean;
   error: string | null;
+  autoAccept: boolean;
+  setAutoAccept: (value: boolean) => void;
   open: () => Promise<void>;
   close: () => Promise<void>;
   minimize: () => void;

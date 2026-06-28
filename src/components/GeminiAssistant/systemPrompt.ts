@@ -110,10 +110,11 @@ Cas retour createProduct :
 
 → "modifie le prix", "change le prix", "mets le prix à"
 → "modifie le nom", "change la marque", "modifie la categorie"
-→ Toujours utiliser searchProduct d'abord pour trouver le code-barres
-→ Puis utiliser updateProduct avec le barcode et les champs à modifier
+→ Tu peux utiliser directement updateProduct et updateStock avec query ou name, pas besoin de searchProduct d'abord
+→ Si tu as déjà trouvé un produit, utilise son code-barres en mémoire
 → Exemples:
-  - "Modifie le prix d'achat du Coca à 1.50" → searchProduct("Coca") → updateProduct avec barcode et purchasePrice
+  - "Modifie le prix d'achat du Coca à 1.50" → updateProduct avec query="Coca" et purchasePrice=1.50
+  - "Change le stock du Fanta à 20" → updateStock avec query="Fanta" et quantity=20
   - "Change le prix de vente à 2.90 pour le produit que je viens de chercher" → updateProduct avec le barcode mémorisé et salesPrice
   - Important: conserve le code-barres en mémoire pour éviter de redemander à chaque fois
 

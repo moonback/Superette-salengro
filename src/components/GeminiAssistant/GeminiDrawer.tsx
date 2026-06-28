@@ -1,10 +1,20 @@
 import { motion } from 'motion/react';
-import { Mic, MicOff, Pause, X, Minus, Loader } from 'lucide-react';
+import { Mic, MicOff, Pause, X, Minus, Loader, Check } from 'lucide-react';
 import { AssistantState } from './types';
 
-interface Props { state: AssistantState; isMuted: boolean; error: string | null; onMinimize: () => void; onClose: () => void; onMuteToggle: () => void; onStop: () => void; }
+interface Props { 
+  state: AssistantState; 
+  isMuted: boolean; 
+  error: string | null; 
+  autoAccept: boolean;
+  setAutoAccept: (value: boolean) => void;
+  onMinimize: () => void; 
+  onClose: () => void; 
+  onMuteToggle: () => void; 
+  onStop: () => void; 
+}
 
-export function GeminiDrawer({ state, isMuted, error, onMinimize, onClose, onMuteToggle, onStop }: Props) {
+export function GeminiDrawer({ state, isMuted, error, autoAccept, setAutoAccept, onMinimize, onClose, onMuteToggle, onStop }: Props) {
   const active = state === AssistantState.Listening || state === AssistantState.Speaking || state === AssistantState.Thinking;
   return (
     <motion.section initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-x-0 bottom-0 z-50 rounded-t-[2rem] bg-white p-5 shadow-2xl">
@@ -20,6 +30,22 @@ export function GeminiDrawer({ state, isMuted, error, onMinimize, onClose, onMut
           </div>
         </div>
         {error && <p className="rounded-2xl bg-rose-50 p-3 text-center text-xs font-medium text-rose-700">{error}</p>}
+        <div className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+          <div 
+            className={`grid h-6 w-6 flex-shrink-0 place-items-center rounded-lg border-2 transition cursor-pointer ${
+              autoAccept 
+                ? 'bg-indigo-600 border-indigo-600 text-white' 
+                : 'border-stone-300 hover:border-stone-400'
+            }`}
+            onClick={() => setAutoAccept(!autoAccept)}
+          >
+            {autoAccept && <Check className="h-4 w-4" />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-stone-800">Accepter automatiquement</p>
+            <p className="text-[11px] text-stone-500">Plus de confirmation requise</p>
+          </div>
+        </div>
         <div className="flex justify-center gap-3">
           <button onClick={onMuteToggle} className="rounded-2xl bg-stone-100 px-5 py-3 font-semibold text-stone-700">{isMuted ? 'Micro' : 'Pause'}</button>
           <button onClick={onStop} className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white"><Pause className="inline h-4 w-4" /> Stop</button>

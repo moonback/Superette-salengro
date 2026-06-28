@@ -10,6 +10,8 @@ interface Props {
   isMinimized: boolean;
   isMuted: boolean;
   error: string | null;
+  autoAccept: boolean;
+  setAutoAccept: (value: boolean) => void;
   permission: PermissionRequest | null;
   onOpen: () => void;
   onClose: () => void;
@@ -23,10 +25,10 @@ export function GeminiAssistant(props: Props) {
   return (
     <>
       {props.isOpen && !props.isMinimized && (
-        <GeminiDrawer state={props.state} isMuted={props.isMuted} error={props.error} onMinimize={props.onMinimize} onClose={props.onClose} onMuteToggle={props.onMuteToggle} onStop={props.onStop} />
+        <GeminiDrawer state={props.state} isMuted={props.isMuted} error={props.error} autoAccept={props.autoAccept} setAutoAccept={props.setAutoAccept} onMinimize={props.onMinimize} onClose={props.onClose} onMuteToggle={props.onMuteToggle} onStop={props.onStop} />
       )}
       {props.isOpen && props.isMinimized && <FloatingBubble state={props.state} onExpand={props.onOpen} />}
-      <PermissionDialog isOpen={Boolean(props.permission)} toolName={props.permission?.toolName ?? ''} description={props.permission?.description ?? ''} args={props.permission?.args ?? {}} onConfirm={() => props.onPermission(true)} onDeny={() => props.onPermission(false)} />
+      <PermissionDialog isOpen={Boolean(props.permission)} toolName={props.permission?.toolName ?? ''} description={props.permission?.description ?? ''} args={props.permission?.args ?? {}} autoAccept={props.autoAccept} setAutoAccept={props.setAutoAccept} onConfirm={() => props.onPermission(true)} onDeny={() => props.onPermission(false)} />
     </>
   );
 }

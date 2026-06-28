@@ -957,16 +957,41 @@ export default function App() {
           };
         },
         updateStock: async (args) => {
-          const barcode = String(args.barcode ?? "");
           const quantity = Number(args.quantity);
-          const item = inventory.find((candidate) => candidate.barcode === barcode);
+          const { item, ambiguousMatches } = findInventoryItemForAssistant(inventory, args);
+          
+          if (ambiguousMatches.length > 0) {
+            return {
+              updated: false,
+              ambiguous: true,
+              matches: ambiguousMatches.map((match) => ({
+                barcode: match.barcode,
+                name: match.name,
+                brand: match.brand,
+              })),
+            };
+          }
+          
           if (!item || !Number.isFinite(quantity)) throw new Error("Produit ou quantité invalide");
+          
           await syncItem({ ...item, quantity: Math.max(0, quantity), lastUpdated: Date.now(), lastMovement: quantity - item.quantity });
-          return { barcode, quantity };
+          return { barcode: item.barcode, name: item.name, quantity, updated: true };
         },
         updateProduct: async (args) => {
-          const barcode = String(args.barcode ?? "");
-          const item = inventory.find((candidate) => candidate.barcode === barcode);
+          const { item, ambiguousMatches } = findInventoryItemForAssistant(inventory, args);
+          
+          if (ambiguousMatches.length > 0) {
+            return {
+              updated: false,
+              ambiguous: true,
+              matches: ambiguousMatches.map((match) => ({
+                barcode: match.barcode,
+                name: match.name,
+                brand: match.brand,
+              })),
+            };
+          }
+          
           if (!item) throw new Error("Produit non trouvé");
           
           const updatedItem = { ...item, lastUpdated: Date.now() };
@@ -986,7 +1011,7 @@ export default function App() {
           if (salesPrice !== undefined) updatedItem.salesPrice = salesPrice;
           
           await syncItem(updatedItem);
-          return { barcode, updated: true };
+          return { barcode: item.barcode, name: item.name, updated: true };
         },
         createProduct: async (args) => {
           const barcode = normalizeOptionalText(args.barcode);

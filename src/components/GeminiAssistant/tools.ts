@@ -3,7 +3,7 @@ import type { ToolDefinition } from './types';
 export const tools: ToolDefinition[] = [
   { name: 'searchProduct', description: 'Recherche un produit et renvoie sa fiche complete', parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
   { name: 'openProductDetails', description: "Ouvrir la fiche detaillee mobile d'un produit present dans l'inventaire", parameters: { type: 'object', properties: { query: { type: 'string' }, barcode: { type: 'string' } } } },
-  { name: 'updateStock', description: 'Modifier un stock', sensitive: true, parameters: { type: 'object', properties: { barcode: { type: 'string' }, quantity: { type: 'number' } }, required: ['barcode', 'quantity'] } },
+  { name: 'updateStock', description: 'Modifier un stock', sensitive: true, parameters: { type: 'object', properties: { barcode: { type: 'string' }, query: { type: 'string' }, name: { type: 'string' }, quantity: { type: 'number' } }, required: ['quantity'] } },
   {
     name: 'updateProduct',
     description: 'Modifier un produit (prix, nom, marque, categorie, etc.)',
@@ -11,7 +11,8 @@ export const tools: ToolDefinition[] = [
     parameters: {
       type: 'object',
       properties: {
-        barcode: { type: 'string', description: 'Code-barres du produit (obligatoire)' },
+        barcode: { type: 'string', description: 'Code-barres du produit' },
+        query: { type: 'string', description: 'Nom ou marque du produit pour recherche' },
         name: { type: 'string', description: 'Nouveau nom du produit' },
         brand: { type: 'string', description: 'Nouvelle marque du produit' },
         category: { type: 'string', description: 'Nouvelle categorie du produit' },
@@ -19,7 +20,6 @@ export const tools: ToolDefinition[] = [
         salesPrice: { type: 'number', description: 'Nouveau prix de vente' },
         imageUrl: { type: 'string', description: 'Nouvelle URL de l\'image' },
       },
-      required: ['barcode'],
     },
   },
   {

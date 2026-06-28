@@ -6,6 +6,8 @@ interface PermissionDialogProps {
   toolName: string;
   description: string;
   args: Record<string, unknown>;
+  autoAccept: boolean;
+  setAutoAccept: (value: boolean) => void;
   onConfirm: () => void;
   onDeny: () => void;
 }
@@ -15,6 +17,8 @@ export function PermissionDialog({
   toolName,
   description,
   args,
+  autoAccept,
+  setAutoAccept,
   onConfirm,
   onDeny,
 }: PermissionDialogProps) {
@@ -86,6 +90,22 @@ export function PermissionDialog({
               <p className="text-xs text-stone-500 text-center">
                 Cette action est irréversible. Voulez-vous continuer ?
               </p>
+
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <div 
+                  className={`grid h-6 w-6 flex-shrink-0 place-items-center rounded-lg border-2 transition ${
+                    autoAccept 
+                      ? 'bg-indigo-600 border-indigo-600 text-white' 
+                      : 'border-stone-300 hover:border-stone-400'
+                  }`}
+                  onClick={(e) => { e.stopPropagation(); setAutoAccept(!autoAccept); }}
+                >
+                  {autoAccept && <Check className="h-4 w-4" />}
+                </div>
+                <span className="text-xs font-medium text-stone-700">
+                  Accepter automatiquement toutes les actions
+                </span>
+              </label>
 
               <div className="flex gap-3">
                 <button

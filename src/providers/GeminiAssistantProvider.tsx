@@ -19,8 +19,13 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
   const [isMuted, setMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permission, setPermission] = useState<PermissionRequest | null>(null);
+  const [autoAccept, setAutoAccept] = useState(false);
+  const autoAcceptRef = useRef(autoAccept);
   const audio = useRef(AudioManager.getInstance());
   const session = useRef<LiveSession | null>(null);
+
+  // Mettre à jour le ref quand autoAccept change
+  autoAcceptRef.current = autoAccept;
 
   const readContext = useCallback(async () => {
     const context = await getContext();
@@ -29,6 +34,11 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
   }, [getContext]);
 
   const askPermission = useCallback((request: Omit<PermissionRequest, 'id' | 'resolve'>) => new Promise<boolean>((resolve) => {
+    if (autoAcceptRef.current) {
+      console.info(LOG_PREFIX, 'Auto-accept activé, confirmation automatique', { toolName: request.toolName, args: request.args });
+      resolve(true);
+      return;
+    }
     console.info(LOG_PREFIX, 'Ouverture PermissionDialog', { toolName: request.toolName, args: request.args });
     setPermission({ ...request, id: crypto.randomUUID(), resolve });
   }), []);
@@ -87,12 +97,12 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
   const unmute = useCallback(() => { console.info(LOG_PREFIX, 'unmute() appelé'); audio.current.setMuted(false); setMuted(false); setState(AssistantState.Listening); }, []);
   const stop = useCallback(async () => { await close(); }, [close]);
 
-  const value = useMemo<GeminiAssistantContextValue>(() => ({ state, isOpen, isMinimized, isMuted, error, open, close, minimize, expand, mute, unmute, stop }), [state, isOpen, isMinimized, isMuted, error, open, close, minimize, expand, mute, unmute, stop]);
+  const value = useMemo<GeminiAssistantContextValue>(() => ({ state, isOpen, isMinimized, isMuted, error, autoAccept, setAutoAccept, open, close, minimize, expand, mute, unmute, stop }), [state, isOpen, isMinimized, isMuted, error, autoAccept, setAutoAccept, open, close, minimize, expand, mute, unmute, stop]);
 
   return (
     <GeminiAssistantContext.Provider value={value}>
       {children}
-      {autoRender && <GeminiAssistant state={state} isOpen={isOpen} isMinimized={isMinimized} isMuted={isMuted} error={error} permission={permission} onOpen={() => void open()} onClose={() => void close()} onMinimize={minimize} onMuteToggle={isMuted ? unmute : mute} onStop={() => void stop()} onPermission={resolvePermission} />}
+      {autoRender && <GeminiAssistant state={state} isOpen={isOpen} isMinimized={isMinimized} isMuted={isMuted} error={error} autoAccept={autoAccept} setAutoAccept={setAutoAccept} permission={permission} onOpen={() => void open()} onClose={() => void close()} onMinimize={minimize} onMuteToggle={isMuted ? unmute : mute} onStop={() => void stop()} onPermission={resolvePermission} />}
     </GeminiAssistantContext.Provider>
   );
 }
