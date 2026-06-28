@@ -1,4 +1,6 @@
-import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Check, Brain } from "lucide-react";
+
+import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Check, Brain, Pause, Play, X } from 'lucide-react';
+import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
 
 interface HeaderProps {
   email: string;
@@ -12,9 +14,7 @@ interface HeaderProps {
   onExport: () => void;
   onLogout: () => void;
   onSyncNow?: () => void;
-  onRegenerateEmbeddings?: () => void;
-  isGeneratingEmbeddings?: boolean;
-  embeddedCount?: number;
+  embeddingGenerator: ReturnType<typeof useEmbeddingGenerator>;
 }
 
 export function Header({
@@ -29,10 +29,10 @@ export function Header({
   onExport,
   onLogout,
   onSyncNow,
-  onRegenerateEmbeddings,
-  isGeneratingEmbeddings,
-  embeddedCount,
+  embeddingGenerator,
 }: HeaderProps) {
+  const { isRunning, isPaused, progress, start, pause, resume, stop, canStart, currentProductName } = embeddingGenerator;
+  const embeddedCount = inventoryLength - progress.total + progress.current;
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
 
   const connectionLabel = !isOnline
@@ -87,29 +87,43 @@ export function Header({
                 )}
               </button>
             )}
-            {showExport && onRegenerateEmbeddings && (
-              <button
-                onClick={onRegenerateEmbeddings}
-                disabled={isGeneratingEmbeddings}
-                aria-label={
-                  isGeneratingEmbeddings 
-                    ? "Génération des embeddings en cours" 
+            {showExport && (
+              <div className="relative">
+                <button
+                  onClick={() => isRunning ? (isPaused ? resume() : pause()) : start()}
+                  disabled={!canStart && !isRunning}
+                  aria-label={
+                    isRunning ? (isPaused ? "Reprendre la génération" : "Mettre en pause")
                     : embeddedCount === inventoryLength 
                       ? "Tous les produits sont vectorisés" 
-                      : `Générer les embeddings (${embeddedCount || 0}/${inventoryLength})`
-                }
-                className={`touch-target grid h-10 w-10 place-items-center rounded-2xl border transition tap-active disabled:opacity-50 ${
-                  embeddedCount === inventoryLength
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                    : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                }`}
-              >
-                {isGeneratingEmbeddings ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Brain className="h-4 w-4" />
+                      : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
+                  }
+                  className={`touch-target grid h-10 w-10 place-items-center rounded-2xl border transition tap-active disabled:opacity-50 ${
+                    embeddedCount === inventoryLength && !isRunning
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                      : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                  }`}
+                >
+                  {isRunning ? (
+                    isPaused ? (
+                      <Play className="h-4 w-4" />
+                    ) : (
+                      <Pause className="h-4 w-4" />
+                    )
+                  ) : (
+                    <Brain className="h-4 w-4" />
+                  )}
+                </button>
+                {isRunning && (
+                  <button
+                    onClick={stop}
+                    aria-label="Arrêter la génération"
+                    className="absolute -top-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-white"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 )}
-              </button>
+              </div>
             )}
             {showExport && (
               <button
@@ -152,6 +166,31 @@ export function Header({
             </span>
           )}
         </button>
+
+        {/* Embedding progress banner */}
+        {isRunning && (
+          <div className="mt-2.5 w-full rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold text-indigo-800">
+                Vectorisation {isPaused ? "(en pause)" : "en cours"}
+              </span>
+              <span className="text-xs font-mono text-indigo-700">
+                {progress.current}/{progress.total} ({progress.percentage}%)
+              </span>
+            </div>
+            <div className="w-full h-2 bg-indigo-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-300"
+                style={{ width: `${progress.percentage}%` }}
+              />
+            </div>
+            {currentProductName && (
+              <p className="mt-1 text-[10px] text-indigo-600 truncate">
+                En cours : {currentProductName}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Stats row */}
         <div className="mt-2.5 grid grid-cols-3 gap-2 text-[10px] font-semibold text-stone-500">

@@ -28,7 +28,8 @@ import { getProductData, searchOpenFoodFactsProducts } from "./api";
 import { Loader2 } from "lucide-react";
 import { useHardwareScanner } from "./hooks/useHardwareScanner";
 import { useSupabaseRealtime } from "./hooks/useSupabaseRealtime";
-import { useOfflineSync } from "./hooks/useOfflineSync";
+import { useOfflineSync } from './hooks/useOfflineSync';
+import { useEmbeddingGenerator } from './hooks/useEmbeddingGenerator';
 import { triggerHaptic } from "./lib/haptics";
 import { AppNavigation, AppTab } from "./components/app/AppNavigation";
 import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
@@ -151,65 +152,7 @@ export default function App() {
     }, 3000);
   }, []);
 
-  const handleRegenerateEmbeddings = useCallback(async () => {
-    if (isGeneratingEmbeddings) return;
-    
-    setIsGeneratingEmbeddings(true);
-    
-    try {
-      showToast("Génération des embeddings en cours...");
-      
-      // Identifier les produits sans embedding
-      const productsWithoutEmbeddings = inventory.filter(item => !item.embedding);
-      const totalToProcess = productsWithoutEmbeddings.length;
-      
-      if (totalToProcess === 0) {
-        showToast("Tous les produits sont déjà vectorisés !");
-        setIsGeneratingEmbeddings(false);
-        return;
-      }
-      
-      let processed = 0;
-      let failed = 0;
-      
-      // Traiter chaque produit
-      for (const product of productsWithoutEmbeddings) {
-        try {
-          const embedding = await generateProductEmbedding(product);
-          const updatedProduct = { ...product, embedding, lastUpdated: Date.now() };
-          await syncItem(updatedProduct);
-          
-          // Mettre à jour l'état local progressivement
-          setInventory(prev => prev.map(item => 
-            item.barcode === product.barcode ? updatedProduct : item
-          ));
-          
-          processed++;
-          
-          // Mettre à jour le toast avec la progression toutes les 5 produits
-          if (processed % 5 === 0 || processed === totalToProcess) {
-            showToast(`Embeddings : ${processed}/${totalToProcess}...`);
-          }
-        } catch (error) {
-          console.error(`Échec pour ${product.name}:`, error);
-          failed++;
-        }
-      }
-      
-      // Message final
-      const success = totalToProcess - failed;
-      if (failed === 0) {
-        showToast(`Vectorisation terminée ! ${success} produits traités.`);
-      } else {
-        showToast(`${success} produits traités, ${failed} échec(s).`);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la génération des embeddings:", error);
-      showToast("Erreur lors de la génération des embeddings.");
-    } finally {
-      setIsGeneratingEmbeddings(false);
-    }
-  }, [inventory, isGeneratingEmbeddings, showToast]);
+
 
   const handleOfflineFlushComplete = useCallback(
     async (result: { synced: number; failed: number; remaining: number }) => {
@@ -241,6 +184,8 @@ export default function App() {
     enabled: !!session,
     onFlushComplete: handleOfflineFlushComplete,
   });
+
+  const embeddingGenerator = useEmbeddingGenerator(inventory);
 
   // Check session on mount
   useEffect(() => {
@@ -1337,9 +1282,7 @@ export default function App() {
         onExport={() => setShowExportModal(true)}
         onLogout={handleLogout}
         onSyncNow={() => void flushQueue()}
-        onRegenerateEmbeddings={handleRegenerateEmbeddings}
-        isGeneratingEmbeddings={isGeneratingEmbeddings}
-        embeddedCount={inventory.filter(item => !!item.embedding).length}
+        embeddingGenerator={embeddingGenerator}
       />
 
       <main className="app-main space-y-3 sm:space-y-4">

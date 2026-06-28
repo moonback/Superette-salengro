@@ -12,6 +12,8 @@ export enum AssistantState {
 
 export type ToolName =
   | 'searchProduct'
+  | 'semanticSearchProduct'
+  | 'regenerateEmbeddings'
   | 'openProductDetails'
   | 'updateStock'
   | 'updateProduct'
