@@ -12,7 +12,7 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
-const navItems: NavItem[] = [
+export const navItems: NavItem[] = [
   { tab: "scan", label: "Scanner", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Scan },
   { tab: "autoScan", label: "Auto", activeClass: "text-amber-600", activeBgClass: "bg-amber-50", icon: Zap },
   { tab: "stock", label: "Stock", activeClass: "text-emerald-600", activeBgClass: "bg-emerald-50", icon: Package },

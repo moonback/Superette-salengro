@@ -36,6 +36,7 @@ import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
 import { ScanTab } from "./components/app/ScanTab";
 import { StockTab } from "./components/app/StockTab";
 import { SyncNotice } from "./components/app/SyncNotice";
+import { AdminDesktopLayout } from "./components/app/AdminDesktop";
 import { GeminiAssistantProvider } from "./providers/GeminiAssistantProvider";
 import { generateProductEmbedding, fullSemanticSearch } from "./lib/embeddingService";
 
@@ -1268,116 +1269,233 @@ export default function App() {
         },
       }}
     >
-      <div className="app-shell text-stone-800 font-sans">
-        <Header
-          email={session.email}
-          inventoryLength={inventory.length}
-          totalItems={totalItems}
-          lowStockCount={lowStockCount}
-          showExport={inventory.length > 0}
-          isOnline={isOnline}
-          pendingCount={pendingCount}
-          isSyncing={isSyncing}
-          onExport={() => setShowExportModal(true)}
-          onLogout={handleLogout}
-          onSyncNow={() => void flushQueue()}
-          embeddingGenerator={embeddingGenerator}
-        />
-
-        <main className="app-main space-y-3 sm:space-y-4">
-
-          <SyncNotice
-            syncError={syncError}
-            inventorySource={inventorySource}
+      <>
+        {/* Desktop layout */}
+        <div className="hidden lg:block">
+          <AdminDesktopLayout
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            email={session.email}
+            inventoryLength={inventory.length}
+            totalItems={totalItems}
+            lowStockCount={lowStockCount}
+            showExport={inventory.length > 0}
             isOnline={isOnline}
             pendingCount={pendingCount}
-          />
-
-          {/* Content Tabs */}
-          {activeTab === "scan" ? (
-            <ScanTab
+            isSyncing={isSyncing}
+            onExport={() => setShowExportModal(true)}
+            onLogout={handleLogout}
+            onSyncNow={() => void flushQueue()}
+            embeddingGenerator={embeddingGenerator}
+          >
+            <SyncNotice
+              syncError={syncError}
+              inventorySource={inventorySource}
               isOnline={isOnline}
               pendingCount={pendingCount}
-              syncError={syncError}
-              loadingBarcode={loadingBarcode}
-              actionModal={actionModal}
-              scannerInputMode={scannerInputMode}
-              recentlyScanned={recentlyScanned}
-              onScannerInputModeChange={setScannerInputMode}
-              onScan={handleScan}
-              onEditProduct={(item) => setActionModal({ type: "edit", product: item })}
-              onEditQuantity={(item) =>
-                setActionModal({
+            />
+
+            {/* Content Tabs */}
+            {activeTab === "scan" ? (
+              <ScanTab
+                isOnline={isOnline}
+                pendingCount={pendingCount}
+                syncError={syncError}
+                loadingBarcode={loadingBarcode}
+                actionModal={actionModal}
+                scannerInputMode={scannerInputMode}
+                recentlyScanned={recentlyScanned}
+                onScannerInputModeChange={setScannerInputMode}
+                onScan={handleScan}
+                onEditProduct={(item) => setActionModal({ type: "edit", product: item })}
+                onEditQuantity={(item) =>
+                  setActionModal({
+                    type: "quantity",
+                    product: item,
+                    existingQty: item.quantity,
+                    isNew: false,
+                  })
+                }
+                onUpdateQuantity={handleUpdateQuantity}
+              />
+            ) : activeTab === "autoScan" ? (
+              <AutomaticScanPanel
+                enabled={isBatchMode}
+                mode={stockScanMode}
+                loadingBarcode={loadingBarcode}
+                isOnline={isOnline}
+                pendingCount={pendingCount}
+                syncError={syncError}
+                onEnabledChange={setIsBatchMode}
+                onModeChange={setStockScanMode}
+                scannerInputMode={scannerInputMode}
+                onScannerInputModeChange={setScannerInputMode}
+                onScan={handleScan}
+              />
+            ) : activeTab === "stock" ? (
+              <StockTab
+                inventoryLength={inventory.length}
+                filteredInventory={filteredInventory}
+                categories={categories}
+                categoryOptions={categoryOptions}
+                dbCategories={dbCategories}
+                financialStats={financialStats}
+                searchTerm={searchTerm}
+                selectedCategory={selectedCategory}
+                stockFilter={stockFilter}
+                sortBy={sortBy}
+                showFilters={showFilters}
+                hasActiveFilters={hasActiveFilters}
+                isInventoryLoading={isInventoryLoading}
+                onSearchTermChange={setSearchTerm}
+                onSelectedCategoryChange={setSelectedCategory}
+                onStockFilterChange={setStockFilter}
+                onSortByChange={setSortBy}
+                onShowFiltersChange={setShowFilters}
+                onShowCategoryModal={() => setShowCategoryModal(true)}
+                onResetFilters={resetFilters}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemove={handleRemoveItem}
+                onEditQuantity={(item) => setActionModal({
                   type: "quantity",
                   product: item,
                   existingQty: item.quantity,
                   isNew: false,
-                })
-              }
-              onUpdateQuantity={handleUpdateQuantity}
-            />
-          ) : activeTab === "autoScan" ? (
-            <AutomaticScanPanel
-              enabled={isBatchMode}
-              mode={stockScanMode}
-              loadingBarcode={loadingBarcode}
-              isOnline={isOnline}
-              pendingCount={pendingCount}
-              syncError={syncError}
-              onEnabledChange={setIsBatchMode}
-              onModeChange={setStockScanMode}
-              scannerInputMode={scannerInputMode}
-              onScannerInputModeChange={setScannerInputMode}
-              onScan={handleScan}
-            />
-          ) : activeTab === "stock" ? (
-            <StockTab
-              inventoryLength={inventory.length}
-              filteredInventory={filteredInventory}
-              categories={categories}
-              categoryOptions={categoryOptions}
-              dbCategories={dbCategories}
-              financialStats={financialStats}
-              searchTerm={searchTerm}
-              selectedCategory={selectedCategory}
-              stockFilter={stockFilter}
-              sortBy={sortBy}
-              showFilters={showFilters}
-              hasActiveFilters={hasActiveFilters}
-              isInventoryLoading={isInventoryLoading}
-              onSearchTermChange={setSearchTerm}
-              onSelectedCategoryChange={setSelectedCategory}
-              onStockFilterChange={setStockFilter}
-              onSortByChange={setSortBy}
-              onShowFiltersChange={setShowFilters}
-              onShowCategoryModal={() => setShowCategoryModal(true)}
-              onResetFilters={resetFilters}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemove={handleRemoveItem}
-              onEditQuantity={(item) => setActionModal({
-                type: "quantity",
-                product: item,
-                existingQty: item.quantity,
-                isNew: false,
-              })}
-              onEditProduct={(item) => setActionModal({
-                type: "edit",
-                product: item,
-              })}
-              onOpenScan={() => setActiveTab("scan")}
-            />
-          ) : (
-            <CategoriesManager
-              categories={dbCategories}
-              inventory={inventory}
-              onRefreshCategories={loadCategories}
-              onRefreshInventory={loadInventoryOnly}
-              showToast={showToast}
-            />
-          )}
-        </main>
+                })}
+                onEditProduct={(item) => setActionModal({
+                  type: "edit",
+                  product: item,
+                })}
+                onOpenScan={() => setActiveTab("scan")}
+              />
+            ) : (
+              <CategoriesManager
+                categories={dbCategories}
+                inventory={inventory}
+                onRefreshCategories={loadCategories}
+                onRefreshInventory={loadInventoryOnly}
+                showToast={showToast}
+              />
+            )}
+          </AdminDesktopLayout>
+        </div>
 
-        <AppNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        {/* Mobile layout */}
+        <div className="lg:hidden">
+          <div className="app-shell text-stone-800 font-sans">
+            <div className="border-b border-stone-200/70 bg-white/70 backdrop-blur-xl">
+              <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
+                <Header
+                  email={session.email}
+                  inventoryLength={inventory.length}
+                  totalItems={totalItems}
+                  lowStockCount={lowStockCount}
+                  showExport={inventory.length > 0}
+                  isOnline={isOnline}
+                  pendingCount={pendingCount}
+                  isSyncing={isSyncing}
+                  onExport={() => setShowExportModal(true)}
+                  onLogout={handleLogout}
+                  onSyncNow={() => void flushQueue()}
+                  embeddingGenerator={embeddingGenerator}
+                />
+              </div>
+            </div>
+            <main className="app-main space-y-3 sm:space-y-4">
+              <SyncNotice
+                syncError={syncError}
+                inventorySource={inventorySource}
+                isOnline={isOnline}
+                pendingCount={pendingCount}
+              />
+
+              {/* Content Tabs */}
+              {activeTab === "scan" ? (
+                <ScanTab
+                  isOnline={isOnline}
+                  pendingCount={pendingCount}
+                  syncError={syncError}
+                  loadingBarcode={loadingBarcode}
+                  actionModal={actionModal}
+                  scannerInputMode={scannerInputMode}
+                  recentlyScanned={recentlyScanned}
+                  onScannerInputModeChange={setScannerInputMode}
+                  onScan={handleScan}
+                  onEditProduct={(item) => setActionModal({ type: "edit", product: item })}
+                  onEditQuantity={(item) =>
+                    setActionModal({
+                      type: "quantity",
+                      product: item,
+                      existingQty: item.quantity,
+                      isNew: false,
+                    })
+                  }
+                  onUpdateQuantity={handleUpdateQuantity}
+                />
+              ) : activeTab === "autoScan" ? (
+                <AutomaticScanPanel
+                  enabled={isBatchMode}
+                  mode={stockScanMode}
+                  loadingBarcode={loadingBarcode}
+                  isOnline={isOnline}
+                  pendingCount={pendingCount}
+                  syncError={syncError}
+                  onEnabledChange={setIsBatchMode}
+                  onModeChange={setStockScanMode}
+                  scannerInputMode={scannerInputMode}
+                  onScannerInputModeChange={setScannerInputMode}
+                  onScan={handleScan}
+                />
+              ) : activeTab === "stock" ? (
+                <StockTab
+                  inventoryLength={inventory.length}
+                  filteredInventory={filteredInventory}
+                  categories={categories}
+                  categoryOptions={categoryOptions}
+                  dbCategories={dbCategories}
+                  financialStats={financialStats}
+                  searchTerm={searchTerm}
+                  selectedCategory={selectedCategory}
+                  stockFilter={stockFilter}
+                  sortBy={sortBy}
+                  showFilters={showFilters}
+                  hasActiveFilters={hasActiveFilters}
+                  isInventoryLoading={isInventoryLoading}
+                  onSearchTermChange={setSearchTerm}
+                  onSelectedCategoryChange={setSelectedCategory}
+                  onStockFilterChange={setStockFilter}
+                  onSortByChange={setSortBy}
+                  onShowFiltersChange={setShowFilters}
+                  onShowCategoryModal={() => setShowCategoryModal(true)}
+                  onResetFilters={resetFilters}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onRemove={handleRemoveItem}
+                  onEditQuantity={(item) => setActionModal({
+                    type: "quantity",
+                    product: item,
+                    existingQty: item.quantity,
+                    isNew: false,
+                  })}
+                  onEditProduct={(item) => setActionModal({
+                    type: "edit",
+                    product: item,
+                  })}
+                  onOpenScan={() => setActiveTab("scan")}
+                />
+              ) : (
+                <CategoriesManager
+                  categories={dbCategories}
+                  inventory={inventory}
+                  onRefreshCategories={loadCategories}
+                  onRefreshInventory={loadInventoryOnly}
+                  showToast={showToast}
+                />
+              )}
+            </main>
+            <AppNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          </div>
+        </div>
+      </>
 
         {showCategoryModal && (
           <CategoryFilterModal
@@ -1466,7 +1584,6 @@ export default function App() {
           />
         )}
         <Toast message={toastMessage?.text || null} visible={!!toastMessage} />
-      </div>
     </GeminiAssistantProvider>
   );
 }

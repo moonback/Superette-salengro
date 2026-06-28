@@ -1,0 +1,86 @@
+import type React from "react";
+import { Header } from "../Header";
+import { navItems, AppTab } from "./AppNavigation";
+import { SidebarNav } from "./DesktopShell";
+
+export function AdminDesktopLayout({
+  activeTab,
+  onTabChange,
+  email,
+  inventoryLength,
+  totalItems,
+  lowStockCount,
+  showExport,
+  isOnline,
+  pendingCount,
+  isSyncing,
+  onExport,
+  onLogout,
+  onSyncNow,
+  embeddingGenerator,
+  children,
+}: {
+  activeTab: AppTab;
+  onTabChange: (tab: AppTab) => void;
+  email: string;
+  inventoryLength: number;
+  totalItems: number;
+  lowStockCount: number;
+  showExport: boolean;
+  isOnline: boolean;
+  pendingCount: number;
+  isSyncing: boolean;
+  onExport: () => void;
+  onLogout: () => void;
+  onSyncNow?: () => void;
+  embeddingGenerator: unknown;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-h-screen w-full">
+      <aside className="hidden lg:flex lg:w-64 xl:w-72 lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:border-r lg:border-stone-200/70 lg:bg-white/70 lg:backdrop-blur-xl">
+        <div className="flex h-full flex-col">
+          <div className="px-4 pt-5 pb-2">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/25">
+                <span className="text-sm font-black">NS</span>
+              </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-extrabold tracking-tight text-stone-950">
+                  NeuroStocks
+                </div>
+                <div className="text-[11px] font-semibold text-stone-500">Admin</div>
+              </div>
+            </div>
+          </div>
+          <SidebarNav activeTab={activeTab} onTabChange={onTabChange} />
+        </div>
+      </aside>
+
+      <div className="flex min-h-screen w-full flex-col lg:pl-64 xl:pl-72">
+        <header className="sticky top-0 z-40 hidden lg:block border-b border-stone-200/70 bg-white/70 backdrop-blur-xl">
+          <div className="mx-auto w-full max-w-6xl px-4 pb-3 pt-3">
+            <Header
+              email={email}
+              inventoryLength={inventoryLength}
+              totalItems={totalItems}
+              lowStockCount={lowStockCount}
+              showExport={showExport}
+              isOnline={isOnline}
+              pendingCount={pendingCount}
+              isSyncing={isSyncing}
+              onExport={onExport}
+              onLogout={onLogout}
+              onSyncNow={onSyncNow}
+              embeddingGenerator={embeddingGenerator as never}
+            />
+          </div>
+        </header>
+
+        <main className="flex-1">
+          <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
+        </main>
+      </div>
+    </div>
+  );
+}
