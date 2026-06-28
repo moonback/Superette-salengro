@@ -1367,6 +1367,7 @@ export default function App() {
               type: "edit",
               product: item,
             })}
+            onOpenScan={() => setActiveTab("scan")}
           />
         ) : (
           <CategoriesManager
