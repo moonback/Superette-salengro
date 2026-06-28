@@ -14,6 +14,7 @@ export type ToolName =
   | 'searchProduct'
   | 'openProductDetails'
   | 'updateStock'
+  | 'updateProduct'
   | 'createProduct'
   | 'createCategory'
   | 'renameCategory'

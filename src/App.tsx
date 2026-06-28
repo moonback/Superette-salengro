@@ -964,6 +964,30 @@ export default function App() {
           await syncItem({ ...item, quantity: Math.max(0, quantity), lastUpdated: Date.now(), lastMovement: quantity - item.quantity });
           return { barcode, quantity };
         },
+        updateProduct: async (args) => {
+          const barcode = String(args.barcode ?? "");
+          const item = inventory.find((candidate) => candidate.barcode === barcode);
+          if (!item) throw new Error("Produit non trouvé");
+          
+          const updatedItem = { ...item, lastUpdated: Date.now() };
+          
+          const name = normalizeOptionalText(args.name);
+          const brand = normalizeOptionalText(args.brand);
+          const category = normalizeOptionalText(args.category);
+          const imageUrl = normalizeOptionalText(args.imageUrl);
+          const purchasePrice = Number.isFinite(Number(args.purchasePrice)) ? Math.max(0, Number(args.purchasePrice)) : undefined;
+          const salesPrice = Number.isFinite(Number(args.salesPrice)) ? Math.max(0, Number(args.salesPrice)) : undefined;
+          
+          if (name !== undefined) updatedItem.name = name;
+          if (brand !== undefined) updatedItem.brand = brand;
+          if (category !== undefined) updatedItem.category = category;
+          if (imageUrl !== undefined) updatedItem.imageUrl = imageUrl;
+          if (purchasePrice !== undefined) updatedItem.purchasePrice = purchasePrice;
+          if (salesPrice !== undefined) updatedItem.salesPrice = salesPrice;
+          
+          await syncItem(updatedItem);
+          return { barcode, updated: true };
+        },
         createProduct: async (args) => {
           const barcode = normalizeOptionalText(args.barcode);
           const name = normalizeOptionalText(args.name);

@@ -106,6 +106,17 @@ Cas retour createProduct :
 → "ajoute", "retire", "mets à"
 → updateStock direct
 
+## Modification produit
+
+→ "modifie le prix", "change le prix", "mets le prix à"
+→ "modifie le nom", "change la marque", "modifie la categorie"
+→ Toujours utiliser searchProduct d'abord pour trouver le code-barres
+→ Puis utiliser updateProduct avec le barcode et les champs à modifier
+→ Exemples:
+  - "Modifie le prix d'achat du Coca à 1.50" → searchProduct("Coca") → updateProduct avec barcode et purchasePrice
+  - "Change le prix de vente à 2.90 pour le produit que je viens de chercher" → updateProduct avec le barcode mémorisé et salesPrice
+  - Important: conserve le code-barres en mémoire pour éviter de redemander à chaque fois
+
 ---
 
 ## Suppression
