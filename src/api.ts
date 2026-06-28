@@ -2,6 +2,7 @@ import { ProductLookupData } from './types';
 
 const OFF_V2 = 'https://world.openfoodfacts.org/api/v2/product';
 const OFF_V0 = 'https://world.openfoodfacts.org/api/v0/product';
+const OFF_SEARCH = 'https://world.openfoodfacts.org/cgi/search.pl';
 const REQUEST_TIMEOUT_MS = 8000;
 
 // On ne demande que les champs utiles → réponse plus légère et plus rapide.
@@ -119,6 +120,35 @@ function mapProduct(product: any): ProductLookupData {
   };
 }
 
+export interface OpenFoodFactsProductMatch {
+  barcode: string;
+  product: ProductLookupData;
+}
+
+function normalizeSearch(value?: string): string {
+  return cleanText(value)?.toLocaleLowerCase('fr') ?? '';
+}
+
+function scoreProductMatch(product: ProductLookupData, name: string, brand?: string): number {
+  const normalizedName = normalizeSearch(product.name);
+  const normalizedBrand = normalizeSearch(product.brand);
+  const expectedName = normalizeSearch(name);
+  const expectedBrand = normalizeSearch(brand);
+
+  let score = 0;
+
+  if (normalizedName === expectedName) score += 8;
+  else if (normalizedName.startsWith(expectedName)) score += 5;
+  else if (normalizedName.includes(expectedName)) score += 3;
+
+  if (expectedBrand) {
+    if (normalizedBrand === expectedBrand) score += 6;
+    else if (normalizedBrand.includes(expectedBrand)) score += 3;
+  }
+
+  return score;
+}
+
 async function fetchJson(url: string): Promise<any | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -163,5 +193,56 @@ export async function getProductData(barcode: string): Promise<ProductLookupData
   } catch (error) {
     console.error('Erreur API OpenFoodFacts:', error);
     return null;
+  }
+}
+
+export async function searchOpenFoodFactsProducts(params: {
+  name: string;
+  brand?: string;
+  pageSize?: number;
+}): Promise<OpenFoodFactsProductMatch[]> {
+  const name = cleanText(params.name);
+  const brand = cleanText(params.brand);
+  const pageSize = Math.max(1, Math.min(params.pageSize ?? 5, 10));
+
+  if (!name) return [];
+
+  try {
+    const searchTerms = [name, brand].filter(Boolean).join(' ');
+    const fields = `code,${OFF_FIELDS}`;
+    const url =
+      `${OFF_SEARCH}?search_terms=${encodeURIComponent(searchTerms)}` +
+      `&search_simple=1&action=process&json=1&page_size=${pageSize}` +
+      `&fields=${encodeURIComponent(fields)}`;
+
+    const data = await fetchJson(url);
+    const products = Array.isArray(data?.products) ? data.products : [];
+
+    const matches = products
+      .map((candidate: any) => {
+        const barcode = cleanText(candidate.code);
+        if (!barcode) return null;
+        const product = mapProduct(candidate);
+        if (!product.name || product.name === 'Produit inconnu') return null;
+        return { barcode, product, score: scoreProductMatch(product, name, brand) };
+      })
+      .filter((candidate): candidate is OpenFoodFactsProductMatch & { score: number } => Boolean(candidate))
+      .filter((candidate) => candidate.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    const deduped = new Map<string, OpenFoodFactsProductMatch>();
+    for (const match of matches) {
+      if (!deduped.has(match.barcode)) {
+        deduped.set(match.barcode, {
+          barcode: match.barcode,
+          product: match.product,
+        });
+      }
+    }
+
+    return Array.from(deduped.values()).slice(0, pageSize);
+  } catch (error) {
+    console.error('Erreur recherche OpenFoodFacts:', error);
+    return [];
   }
 }

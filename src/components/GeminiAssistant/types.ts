@@ -14,6 +14,7 @@ export type ToolName =
   | 'searchProduct'
   | 'openProductDetails'
   | 'updateStock'
+  | 'createProduct'
   | 'createCategory'
   | 'renameCategory'
   | 'deleteProduct'
@@ -44,6 +45,11 @@ export interface InventoryProductSnapshot {
   quantity: number;
   category?: string;
   brand?: string;
+  imageUrl?: string;
+  purchasePrice?: number;
+  salesPrice?: number;
+  lastMovement?: number;
+  lastUpdated?: number;
 }
 
 export interface InventoryCategorySnapshot {

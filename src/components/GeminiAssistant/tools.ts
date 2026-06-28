@@ -1,9 +1,27 @@
 import type { ToolDefinition } from './types';
 
 export const tools: ToolDefinition[] = [
-  { name: 'searchProduct', description: 'Recherche un produit', parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
+  { name: 'searchProduct', description: 'Recherche un produit et renvoie sa fiche complete', parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
   { name: 'openProductDetails', description: "Ouvrir la fiche detaillee mobile d'un produit present dans l'inventaire", parameters: { type: 'object', properties: { query: { type: 'string' }, barcode: { type: 'string' } } } },
   { name: 'updateStock', description: 'Modifier un stock', sensitive: true, parameters: { type: 'object', properties: { barcode: { type: 'string' }, quantity: { type: 'number' } }, required: ['barcode', 'quantity'] } },
+  {
+    name: 'createProduct',
+    description: 'Creer un produit dans l inventaire a partir d un code-barres ou d un nom avec marque, en recherchant OpenFoodFacts',
+    sensitive: true,
+    parameters: {
+      type: 'object',
+      properties: {
+        barcode: { type: 'string', description: 'Code-barres du produit si disponible' },
+        name: { type: 'string', description: 'Nom du produit si le code-barres n est pas fourni' },
+        quantity: { type: 'number' },
+        brand: { type: 'string', description: 'Marque du produit, requise si le code-barres n est pas fourni' },
+        category: { type: 'string' },
+        imageUrl: { type: 'string' },
+        purchasePrice: { type: 'number' },
+        salesPrice: { type: 'number' },
+      },
+    },
+  },
   { name: 'createCategory', description: 'Créer une catégorie', sensitive: true, parameters: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
   { name: 'renameCategory', description: 'Renommer une catégorie', sensitive: true, parameters: { type: 'object', properties: { oldName: { type: 'string' }, newName: { type: 'string' } }, required: ['oldName', 'newName'] } },
   { name: 'deleteProduct', description: 'Supprimer un produit', sensitive: true, parameters: { type: 'object', properties: { barcode: { type: 'string' } }, required: ['barcode'] } },

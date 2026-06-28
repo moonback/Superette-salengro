@@ -24,7 +24,7 @@ import { fetchCategories, upsertCategory } from "./lib/supabaseCategories";
 import { CategoriesManager } from "./components/CategoriesManager";
 import { suggestCategory } from "./lib/autoCategorization";
 import { getSession, signOut, UserSession } from "./lib/supabaseAuth";
-import { getProductData } from "./api";
+import { getProductData, searchOpenFoodFactsProducts } from "./api";
 import { Loader2 } from "lucide-react";
 import { useHardwareScanner } from "./hooks/useHardwareScanner";
 import { useSupabaseRealtime } from "./hooks/useSupabaseRealtime";
@@ -59,6 +59,11 @@ function isMobileViewport(): boolean {
 
 function normalizeAssistantQuery(value: string): string {
   return value.trim().toLowerCase();
+}
+
+function normalizeOptionalText(value: unknown): string | undefined {
+  const text = String(value ?? "").trim();
+  return text || undefined;
 }
 
 function findInventoryItemForAssistant(
@@ -836,6 +841,11 @@ export default function App() {
       quantity: item.quantity,
       category: item.category,
       brand: item.brand,
+      imageUrl: item.imageUrl,
+      purchasePrice: item.purchasePrice,
+      salesPrice: item.salesPrice,
+      lastMovement: item.lastMovement,
+      lastUpdated: item.lastUpdated,
     })),
     categories: dbCategories,
     user: { email: session.email },
@@ -856,6 +866,58 @@ export default function App() {
     <GeminiAssistantProvider
       getContext={() => assistantContext}
       toolHandlers={{
+        searchProduct: async (args) => {
+          const rawQuery = String(args.query ?? "").trim();
+          const query = normalizeAssistantQuery(rawQuery);
+          if (!query) {
+            throw new Error("Recherche produit vide");
+          }
+
+          const { item, ambiguousMatches } = findInventoryItemForAssistant(inventory, args);
+          if (item) {
+            return {
+              found: true,
+              exact: true,
+              product: item,
+            };
+          }
+
+          if (ambiguousMatches.length > 0) {
+            return {
+              found: false,
+              ambiguous: true,
+              matches: ambiguousMatches.map((match) => ({
+                barcode: match.barcode,
+                name: match.name,
+                brand: match.brand,
+                category: match.category,
+                quantity: match.quantity,
+                purchasePrice: match.purchasePrice,
+                salesPrice: match.salesPrice,
+              })),
+            };
+          }
+
+          const results = inventory
+            .filter((candidate) => {
+              const name = normalizeAssistantQuery(candidate.name);
+              const brand = normalizeAssistantQuery(candidate.brand ?? "");
+              const category = normalizeAssistantQuery(candidate.category ?? "");
+              return (
+                name.includes(query) ||
+                brand.includes(query) ||
+                category.includes(query) ||
+                candidate.barcode.includes(rawQuery)
+              );
+            })
+            .slice(0, 5);
+
+          return {
+            found: results.length > 0,
+            query: rawQuery,
+            results,
+          };
+        },
         openProductDetails: async (args) => {
           if (!isMobileViewport()) {
             return {
@@ -901,6 +963,152 @@ export default function App() {
           if (!item || !Number.isFinite(quantity)) throw new Error("Produit ou quantité invalide");
           await syncItem({ ...item, quantity: Math.max(0, quantity), lastUpdated: Date.now(), lastMovement: quantity - item.quantity });
           return { barcode, quantity };
+        },
+        createProduct: async (args) => {
+          const barcode = normalizeOptionalText(args.barcode);
+          const name = normalizeOptionalText(args.name);
+          const brand = normalizeOptionalText(args.brand);
+          const parsedQuantity = Number(args.quantity);
+          const quantity = Number.isFinite(parsedQuantity) ? Math.max(0, parsedQuantity) : 0;
+
+          if (!barcode && !name) {
+            return {
+              created: false,
+              needsInput: true,
+              missing: ["barcode", "name"],
+              message: "Pour creer un produit, indique un code-barres ou un nom.",
+            };
+          }
+
+          if (!barcode && !brand) {
+            return {
+              created: false,
+              needsInput: true,
+              missing: ["brand"],
+              message: "Sans code-barres, j'ai besoin du nom et de la marque pour chercher sur OpenFoodFacts.",
+            };
+          }
+
+          let resolvedBarcode = barcode;
+          let resolvedLookup: ProductLookupData | null = null;
+
+          if (barcode) {
+            const existingLocalItem = inventory.find((candidate) => candidate.barcode === barcode);
+            const existingStoredItem = existingLocalItem ?? (
+              isSupabaseConfigured
+                ? await fetchInventoryItemWithFallback(barcode)
+                : null
+            );
+
+            if (existingStoredItem) {
+              return {
+                created: false,
+                exists: true,
+                message: `Un produit existe deja pour le code-barres ${barcode}`,
+                product: existingStoredItem,
+              };
+            }
+
+            resolvedLookup = await getProductData(barcode);
+            if (!resolvedLookup) {
+              return {
+                created: false,
+                notFound: true,
+                source: "openfoodfacts",
+                message: `Aucun produit trouve sur OpenFoodFacts pour le code-barres ${barcode}.`,
+              };
+            }
+          } else {
+            const matches = await searchOpenFoodFactsProducts({
+              name: name!,
+              brand: brand!,
+              pageSize: 5,
+            });
+
+            if (!matches.length) {
+              return {
+                created: false,
+                notFound: true,
+                source: "openfoodfacts",
+                message: `Aucun produit OpenFoodFacts trouve pour ${name} ${brand}.`,
+              };
+            }
+
+            if (matches.length > 1) {
+              return {
+                created: false,
+                ambiguous: true,
+                source: "openfoodfacts",
+                message: "Plusieurs produits correspondent sur OpenFoodFacts.",
+                matches: matches.map((match) => ({
+                  barcode: match.barcode,
+                  name: match.product.name,
+                  brand: match.product.brand,
+                  category: match.product.category,
+                })),
+              };
+            }
+
+            resolvedBarcode = matches[0].barcode;
+            resolvedLookup = matches[0].product;
+
+            const existingLocalItem = inventory.find((candidate) => candidate.barcode === resolvedBarcode);
+            const existingStoredItem = existingLocalItem ?? (
+              isSupabaseConfigured
+                ? await fetchInventoryItemWithFallback(resolvedBarcode)
+                : null
+            );
+
+            if (existingStoredItem) {
+              return {
+                created: false,
+                exists: true,
+                message: `Un produit existe deja pour le code-barres ${resolvedBarcode}`,
+                product: existingStoredItem,
+              };
+            }
+          }
+
+          const resolvedName = name ?? resolvedLookup?.name;
+          if (!resolvedBarcode || !resolvedName) {
+            return {
+              created: false,
+              needsInput: true,
+              missing: ["barcode", "name"],
+              message: "Impossible de creer le produit sans code-barres et nom valides.",
+            };
+          }
+
+          const category =
+            normalizeOptionalText(args.category) ??
+            suggestCategory(resolvedName, resolvedLookup?.category, dbCategories) ??
+            resolvedLookup?.category ??
+            undefined;
+          const item: InventoryItem = {
+            barcode: resolvedBarcode,
+            name: resolvedName,
+            quantity,
+            brand: brand ?? resolvedLookup?.brand,
+            category,
+            imageUrl: normalizeOptionalText(args.imageUrl) ?? resolvedLookup?.imageUrl,
+            purchasePrice: Number.isFinite(Number(args.purchasePrice))
+              ? Math.max(0, Number(args.purchasePrice))
+              : undefined,
+            salesPrice: Number.isFinite(Number(args.salesPrice))
+              ? Math.max(0, Number(args.salesPrice))
+              : undefined,
+            lastMovement: quantity,
+            lastUpdated: Date.now(),
+          };
+
+          const queued = await syncItem(item);
+          showToast(queued ? `Produit cree en attente de synchro: ${resolvedName}` : `Produit cree: ${resolvedName}`);
+          return {
+            created: true,
+            queued,
+            source: "openfoodfacts",
+            product: item,
+          };
         },
         createCategory: async (args) => {
           const name = String(args.name ?? "").trim();
