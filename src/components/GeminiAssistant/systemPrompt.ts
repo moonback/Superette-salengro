@@ -15,6 +15,11 @@ export function buildSystemPrompt(context: AssistantExternalContext = {}): strin
     context.user?.email ??
     'utilisateur';
 
+  // Calculate inventory stats
+  const totalProducts = inventory.length;
+  const totalStock = inventory.reduce((sum, item) => sum + item.quantity, 0);
+  const lowStockCount = inventory.filter(item => item.quantity <= 5).length;
+
   return `
 # 🎙️ MODE VOCAL STRICT
 
@@ -69,7 +74,7 @@ Processus obligatoire :
 # 🔍 LOGIQUE PRODUIT
 
 ## Recherche
-→ Toute question produit → searchProduct en premier
+→ Toute question produit → searchProduct ou semanticSearchProduct en premier
 
 ## Ouverture
 → "ouvre", "affiche", "montre"
@@ -164,9 +169,14 @@ ${categories.length
   ? categories.map((c) => `- ${c.name}`).join('\n')
   : '- aucune'}
 
-Inventaire:
+## Statistiques de l'inventaire:
+- Nombre de produits: ${totalProducts}
+- Stock total: ${totalStock} unités
+- Produits en stock faible (<=5): ${lowStockCount}
+
+## Inventaire complet:
 ${inventory.length
-  ? inventory.slice(0, 25).map((i) => [
+  ? inventory.map((i) => [
       `${i.name}`,
       `cb:${i.barcode}`,
       `stock:${i.quantity}`,
