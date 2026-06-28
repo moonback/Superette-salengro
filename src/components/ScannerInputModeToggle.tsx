@@ -22,8 +22,8 @@ export function ScannerInputModeToggle({
           disabled={disabled}
           className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 ${
             mode === "hardware"
-              ? "bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-100"
-              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-white hover:text-slate-900"
           }`}
           aria-pressed={mode === "hardware"}
         >
@@ -36,8 +36,8 @@ export function ScannerInputModeToggle({
           disabled={disabled}
           className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 ${
             mode === "camera"
-              ? "bg-white text-sky-600 shadow-sm ring-1 ring-sky-100"
-              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-white hover:text-slate-900"
           }`}
           aria-pressed={mode === "camera"}
         >

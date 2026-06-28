@@ -40,7 +40,7 @@ export function Header({
       <div className="mx-auto w-full px-4 pb-3 pt-3">
         {/* Identity row */}
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/25">
+          <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl border border-slate-900 bg-slate-900 text-white">
             <Store className="h-5 w-5" />
           </div>
 
@@ -69,7 +69,7 @@ export function Header({
                 onClick={onSyncNow}
                 disabled={isSyncing}
                 aria-label={isSyncing ? "Synchronisation en cours" : "Synchroniser les modifications en attente"}
-                className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-amber-200 bg-amber-50 text-amber-600 transition tap-active disabled:opacity-50"
+                className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition tap-active hover:bg-slate-50 disabled:opacity-50"
               >
                 {isSyncing ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
@@ -89,9 +89,10 @@ export function Header({
                         ? "Tous les produits sont vectorisés"
                         : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
                   }
-                  className={`touch-target grid h-10 w-10 place-items-center rounded-2xl border transition tap-active disabled:opacity-50 ${embeddedCount === inventoryLength && !isRunning
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                    : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                  className={`touch-target grid h-10 w-10 place-items-center rounded-2xl border transition tap-active disabled:opacity-50 ${
+                    embeddedCount === inventoryLength && !isRunning
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                     }`}
                 >
                   {isRunning ? (
@@ -108,7 +109,7 @@ export function Header({
                   <button
                     onClick={stop}
                     aria-label="Arrêter la génération"
-                    className="absolute -top-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-white"
+                    className="absolute -top-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-slate-900 text-white"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -127,7 +128,7 @@ export function Header({
             <button
               onClick={onLogout}
               aria-label="Se déconnecter"
-              className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-600 transition tap-active hover:bg-rose-100"
+              className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition tap-active hover:bg-slate-50"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -141,15 +142,12 @@ export function Header({
             onClick={canSync ? onSyncNow : undefined}
             disabled={!canSync}
             aria-label={`Statut réseau : ${!isOnline ? "Hors-ligne" : `${pendingCount} en attente`}${canSync ? ", touchez pour synchroniser" : ""}`}
-            className={`mt-2.5 flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${!isOnline
-              ? "text-rose-600 bg-rose-50 border-rose-200"
-              : "text-amber-600 bg-amber-50 border-amber-200"
-              } ${canSync ? "tap-active cursor-pointer" : "cursor-default"}`}
+            className={`mt-2.5 flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-semibold text-slate-700 transition ${canSync ? 'tap-active cursor-pointer' : 'cursor-default'}`}
           >
             {!isOnline ? (
               <CloudOff className="h-3.5 w-3.5 flex-shrink-0" />
             ) : (
-              <span className={`h-2 w-2 flex-shrink-0 rounded-full ${!isOnline ? "bg-rose-500" : "bg-amber-500 animate-pulse"}`} />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-slate-900" />
             )}
             <span className="min-w-0 flex-1 truncate">{!isOnline ? "Hors-ligne" : `${pendingCount} opération${pendingCount > 1 ? "s" : ""} en attente`}</span>
             {canSync && (
@@ -162,23 +160,23 @@ export function Header({
 
         {/* Embedding progress banner */}
         {isRunning && (
-          <div className="mt-2.5 w-full rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2">
+          <div className="mt-2.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-indigo-800">
+              <span className="text-xs font-semibold text-slate-900">
                 Vectorisation {isPaused ? "(en pause)" : "en cours"}
               </span>
-              <span className="text-xs font-mono text-indigo-700">
+              <span className="text-xs font-mono text-slate-700">
                 {progress.current}/{progress.total} ({progress.percentage}%)
               </span>
             </div>
-            <div className="w-full h-2 bg-indigo-200 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-300"
+                className="h-full bg-slate-900 transition-all duration-300"
                 style={{ width: `${progress.percentage}%` }}
               />
             </div>
             {currentProductName && (
-              <p className="mt-1 text-[10px] text-indigo-600 truncate">
+              <p className="mt-1 text-[10px] text-slate-500 truncate">
                 En cours : {currentProductName}
               </p>
             )}

@@ -123,10 +123,10 @@ export function StockTab({
           <button
             onClick={() => onShowFiltersChange(!showFilters)}
             className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border transition ${
-                  showFilters
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                    : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                }`}
+                    showFilters
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                  }`}
             aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
           >
             <Filter className="h-4 w-4" />
@@ -143,7 +143,7 @@ export function StockTab({
           placeholder="Rechercher par nom, marque..."
           value={searchTerm}
           onChange={(event) => onSearchTermChange(event.target.value)}
-          className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none focus:border-indigo-500 transition"
+          className="w-full h-14 rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-slate-900"
         />
       </div>
 
@@ -172,8 +172,8 @@ export function StockTab({
         {categories.length > 0 && (
           <button
             onClick={onShowCategoryModal}
-            className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl border border-stone-200 whitespace-nowrap ${
-              selectedCategory ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "text-stone-600 bg-white"
+            className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 whitespace-nowrap ${
+              selectedCategory ? "bg-slate-900 text-white border-slate-900" : "text-slate-600 bg-white"
             }`}
           >
             <Tags className="w-3.5 h-3.5" />
@@ -220,7 +220,7 @@ export function StockTab({
             <select
               value={sortBy}
               onChange={(event) => onSortByChange(event.target.value as SortBy)}
-              className="h-11 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 outline-none transition focus:border-indigo-500"
+              className="h-11 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 outline-none transition focus:border-slate-900"
             >
               <option value="recent">Date d'ajout</option>
               <option value="name">Alphabétique (A-Z)</option>
@@ -234,7 +234,7 @@ export function StockTab({
             <select
               value={stockFilter}
               onChange={(event) => onStockFilterChange(event.target.value as StockFilter)}
-              className="h-11 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 outline-none transition focus:border-indigo-500"
+              className="h-11 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 outline-none transition focus:border-slate-900"
             >
               <option value="all">Tous les articles</option>
               <option value="instock">En stock (&gt; 5)</option>
@@ -248,7 +248,7 @@ export function StockTab({
       {/* Product List - Immediately visible */}
       {isInventoryLoading ? (
         <div className="flex flex-col items-center justify-center gap-3 py-12 text-slate-500 border border-dashed border-slate-300 rounded-2xl bg-slate-50/50">
-          <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-slate-900" />
           <span className="text-xs font-semibold tracking-wider">Chargement de l’inventaire...</span>
         </div>
       ) : (
@@ -293,7 +293,7 @@ export function StockTab({
                   onClick={() => setCurrentPage(page)}
                   className={`grid h-10 min-w-10 place-items-center rounded-xl border px-2 text-xs font-semibold transition ${
                     currentPage === page
-                      ? "border-indigo-600 bg-indigo-600 text-white"
+                      ? "border-slate-900 bg-slate-900 text-white"
                       : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                   }`}
                   aria-label={`Aller a la page ${page}`}

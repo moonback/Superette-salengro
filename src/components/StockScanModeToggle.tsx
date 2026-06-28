@@ -31,7 +31,7 @@ export function StockScanModeToggle({
           type="button"
           onClick={() => onEnabledChange(!enabled)}
           className={`relative inline-flex h-8 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none ${
-            enabled ? "bg-indigo-600" : "bg-slate-300"
+            enabled ? "bg-slate-900" : "bg-slate-300"
           }`}
           role="switch"
           aria-checked={enabled}
@@ -52,8 +52,8 @@ export function StockScanModeToggle({
           disabled={!enabled}
           className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-bold transition disabled:opacity-50 ${
             mode === "add"
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "text-slate-500 hover:bg-white hover:text-slate-800"
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-white hover:text-slate-900"
           }`}
         >
           <Plus className="h-3.5 w-3.5" />
@@ -65,8 +65,8 @@ export function StockScanModeToggle({
           disabled={!enabled}
           className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-bold transition disabled:opacity-50 ${
             mode === "remove"
-              ? "bg-rose-600 text-white shadow-sm"
-              : "text-slate-500 hover:bg-white hover:text-slate-800"
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-white hover:text-slate-900"
           }`}
         >
           <Minus className="h-3.5 w-3.5" />

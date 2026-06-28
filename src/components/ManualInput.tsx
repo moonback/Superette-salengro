@@ -78,7 +78,7 @@ export function ManualInput({
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="h-12 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold font-mono tabular text-slate-900 outline-none transition disabled:opacity-40 focus:border-indigo-500"
+          className="h-12 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold font-mono tabular text-slate-900 outline-none transition disabled:opacity-40 focus:border-slate-900"
           placeholder="Saisir ou scanner..."
           disabled={!isActive}
         />
@@ -86,7 +86,7 @@ export function ManualInput({
           type="button"
           onClick={() => submitScan(value)}
           disabled={!value.trim() || !isActive}
-          className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white font-medium shadow-md shadow-indigo-600/25 transition hover:bg-indigo-700 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+          className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl bg-slate-900 text-white font-medium transition active:scale-95 disabled:pointer-events-none disabled:opacity-40"
           aria-label="Valider le code-barres"
         >
           <CornerDownLeft className="h-5 w-5" />

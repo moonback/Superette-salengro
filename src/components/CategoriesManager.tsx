@@ -181,19 +181,16 @@ export function CategoriesManager({
 
   return (
     <section className="space-y-4">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 p-4 shadow-xl shadow-indigo-500/20 sm:p-6">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-
-        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg sm:h-14 sm:w-14">
-              <Package className="h-5 w-5 text-white sm:h-7 sm:w-7" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-slate-900 shadow-sm sm:h-14 sm:w-14">
+              <Package className="h-5 w-5 sm:h-7 sm:w-7" />
             </div>
             <div className="pt-0.5 sm:pt-1">
-              <h2 className="text-xl font-bold text-white tracking-tight sm:text-2xl">Catégories</h2>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight sm:text-2xl">Catégories</h2>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm sm:px-2.5 sm:text-xs">
+                <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-900 sm:px-2.5 sm:text-xs">
                   {categories.length} {categories.length > 1 ? 'catégories' : 'catégorie'}
                 </span>
               </div>
@@ -229,7 +226,7 @@ export function CategoriesManager({
               setName('');
               setIcon('📦');
             }}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-[10px] font-bold text-white shadow-md shadow-indigo-600/20 transition hover:bg-indigo-700 sm:flex-none"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-[10px] font-bold text-white transition hover:bg-slate-800 sm:flex-none"
           >
             <Plus className="w-3.5 h-3.5" />
             Nouvelle
@@ -295,7 +292,7 @@ export function CategoriesManager({
                       type="button"
                       onClick={() => setIcon(emoji)}
                       className={`w-7 h-7 flex items-center justify-center rounded-lg text-sm transition hover:bg-slate-100 ${
-                          icon === emoji ? 'bg-indigo-100 border border-indigo-300' : ''
+                          icon === emoji ? 'bg-slate-900 text-white' : ''
                         }`}
                     >
                       {emoji}
@@ -309,14 +306,14 @@ export function CategoriesManager({
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="px-3 py-2 text-[10px] font-bold text-stone-500 bg-transparent border border-stone-200 hover:bg-white rounded-xl transition"
+                  className="px-3 py-2 text-[10px] font-bold text-slate-500 bg-transparent border border-slate-200 hover:bg-white rounded-xl transition"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading || !name.trim()}
-                  className="px-3 py-2 text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition flex items-center gap-1 shadow-md shadow-indigo-600/20 disabled:opacity-40"
+                  className="px-3 py-2 text-[10px] font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition flex items-center gap-1 disabled:opacity-40"
                 >
                   <Check className="w-3.5 h-3.5" />
                   Sauvegarder
@@ -383,7 +380,7 @@ export function CategoriesManager({
                       event.stopPropagation();
                       handleDelete(category);
                     }}
-                    className="p-1.5 text-rose-500 hover:text-rose-700 rounded-lg hover:bg-rose-50 transition"
+                    className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
                     title="Supprimer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -403,7 +400,7 @@ export function CategoriesManager({
                           <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
                             Produits associés
                           </span>
-                          <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[9px] font-bold text-indigo-600">
+                          <span className="rounded-full bg-slate-900 text-white px-2 py-0.5 text-[9px] font-bold">
                             {associatedProducts.length}
                           </span>
                         </div>
@@ -438,7 +435,7 @@ export function CategoriesManager({
                                     {item.barcode}{item.brand ? ` • ${item.brand}` : ''}
                                   </p>
                                 </div>
-                                <span className="rounded-lg border border-stone-200 bg-white px-2 py-1 font-mono text-[10px] font-bold tabular text-indigo-600">
+                                <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 font-mono text-[10px] font-bold tabular text-slate-900">
                                   x{item.quantity}
                                 </span>
                               </div>

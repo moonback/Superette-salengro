@@ -1,57 +1,39 @@
 import type React from "react";
+import { useMemo } from "react";
+import { AppTab } from "./AppNavigation";
 import { navItems } from "./AppNavigation";
 
-export type AppTab = "scan" | "autoScan" | "stock" | "categories";
-
-type SidebarNavProps = {
+export function SidebarNav({
+  activeTab,
+  onTabChange,
+}: {
   activeTab: AppTab;
   onTabChange: (tab: AppTab) => void;
-};
-
-export function SidebarNav({ activeTab, onTabChange }: SidebarNavProps) {
-  return (
-    <div className="flex h-full flex-col gap-1 p-3">
-      {navItems.map(({ tab, label, activeClass, activeBgClass, icon: Icon }) => {
-        const isActive = activeTab === tab;
-        return (
-          <button
-            key={tab}
-            onClick={() => onTabChange(tab)}
-            className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all duration-150 ${
-              isActive
-                ? `${activeClass} ${activeBgClass} shadow-sm`
-                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-            }`}
-          >
-            <Icon className={`h-5 w-5 ${isActive ? "" : "text-slate-500"}`} />
-            <span className="text-sm font-semibold tracking-tight">{label}</span>
-          </button>
-        );
-      })}
-    </div>
+}) {
+  const items = useMemo(
+    () =>
+      navItems.map(({ tab, label, icon: Icon }) => (
+        <button
+          key={tab}
+          type="button"
+          onClick={() => onTabChange(tab)}
+          className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+            activeTab === tab
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          }`}
+          aria-current={activeTab === tab ? "page" : undefined}
+        >
+          <Icon className="h-4 w-4" />
+          <span>{label}</span>
+        </button>
+      )),
+    [activeTab, onTabChange],
   );
-}
 
-type DesktopShellProps = {
-  sidebar: React.ReactNode;
-  header: React.ReactNode;
-  children: React.ReactNode;
-};
-
-export function DesktopShell({ sidebar, header, children }: DesktopShellProps) {
   return (
-    <div className="flex min-h-screen w-full">
-      <aside className="hidden lg:flex lg:w-64 xl:w-72 lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:border-r lg:border-stone-200/70 lg:bg-white/70 lg:backdrop-blur-xl">
-        {sidebar}
-      </aside>
-
-      <div className="flex min-h-screen w-full flex-col lg:pl-64 xl:pl-72">
-        {header}
-
-        <main className="flex-1">
-          <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
-        </main>
-      </div>
-    </div>
+    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-3">
+      <div className="space-y-1">{items}</div>
+    </nav>
   );
 }
