@@ -13,7 +13,7 @@ interface SwipeableItemProps {
   onSwipeLeft: () => void;
 }
 
-function SwipeableItem({ children, isCompact = false, onSwipeRight, onSwipeLeft }: SwipeableItemProps) {
+function SwipeableItem({ children, isCompact = true, onSwipeRight, onSwipeLeft }: SwipeableItemProps) {
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
@@ -27,44 +27,43 @@ function SwipeableItem({ children, isCompact = false, onSwipeRight, onSwipeLeft 
   const handleTouchMove = (e: TouchEvent) => {
     if (!isSwiping) return;
     const diffX = e.touches[0].clientX - startX;
-    const limitedX = Math.max(-120, Math.min(120, diffX));
+    const limitedX = Math.max(-100, Math.min(100, diffX));
     setCurrentX(limitedX);
   };
 
   const handleTouchEnd = () => {
     setIsSwiping(false);
-    if (currentX > 85) {
+    if (currentX > 70) {
       onSwipeRight();
-    } else if (currentX < -85) {
+    } else if (currentX < -70) {
       onSwipeLeft();
     }
     setCurrentX(0);
   };
 
   const swipeClass = isSwiping ? "" : "transition-transform duration-200 ease-out";
-  const roundedClass = isCompact ? "rounded-xl" : "rounded-2xl";
+  const roundedClass = "rounded-xl";
 
   let bgClass = "bg-transparent border-transparent";
   let iconLeft = false;
   let iconRight = false;
-  if (currentX > 15) {
+  if (currentX > 12) {
     bgClass = "bg-emerald-100 border-emerald-300";
     iconLeft = true;
-  } else if (currentX < -15) {
+  } else if (currentX < -12) {
     bgClass = "bg-rose-100 border-rose-300";
     iconRight = true;
   }
 
   return (
     <div className={`relative overflow-hidden w-full ${roundedClass}`}>
-      <div className={`absolute inset-0 flex items-center justify-between px-6 transition-colors border ${roundedClass} ${bgClass}`}>
-        <div className={`flex items-center gap-1.5 text-emerald-700 font-bold text-[10px] uppercase tracking-wider transition-opacity duration-150 ${iconLeft ? 'opacity-100' : 'opacity-0'}`}>
-          <Plus className="w-4 h-4 animate-pulse" />
-          <span>Ajouter +1</span>
+      <div className={`absolute inset-0 flex items-center justify-between px-4 transition-colors border ${roundedClass} ${bgClass}`}>
+        <div className={`flex items-center gap-1 text-emerald-700 font-bold text-[9px] uppercase tracking-wider transition-opacity duration-150 ${iconLeft ? 'opacity-100' : 'opacity-0'}`}>
+          <Plus className="w-3.5 h-3.5 animate-pulse" />
+          <span>+1</span>
         </div>
-        <div className={`flex items-center gap-1.5 text-rose-600 font-bold text-[10px] uppercase tracking-wider transition-opacity duration-150 ${iconRight ? 'opacity-100' : 'opacity-0'}`}>
-          <span>Supprimer</span>
-          <Trash2 className="w-4 h-4 animate-pulse" />
+        <div className={`flex items-center gap-1 text-rose-600 font-bold text-[9px] uppercase tracking-wider transition-opacity duration-150 ${iconRight ? 'opacity-100' : 'opacity-0'}`}>
+          <Trash2 className="w-3.5 h-3.5 animate-pulse" />
         </div>
       </div>
 
@@ -96,7 +95,7 @@ interface InventoryGridProps {
 export function InventoryGrid({
   items,
   categories = [],
-  isCompactView = false,
+  isCompactView = true,
   searchTerm = "",
   onUpdateQuantity,
   onRemove,
@@ -143,7 +142,7 @@ export function InventoryGrid({
     );
   };
 
-  const renderStockBadge = (quantity: number, expanded = false) => {
+  const renderStockBadge = (quantity: number) => {
     const toneClass =
       quantity === 0
         ? "border-rose-200 bg-rose-50 text-rose-700"
@@ -153,11 +152,9 @@ export function InventoryGrid({
 
     return (
       <span
-        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${
-          expanded ? "min-h-7 text-[11px]" : ""
-        } ${toneClass}`}
+        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${toneClass}`}
       >
-        {expanded ? `${quantity} en stock` : quantity}
+        {quantity}
       </span>
     );
   };
@@ -185,8 +182,8 @@ export function InventoryGrid({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-14 text-center">
-        <Package className="mx-auto mb-3 h-8 w-8 text-stone-300" />
+      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-10 text-center">
+        <Package className="mx-auto mb-3 h-7 w-7 text-stone-300" />
         <h3 className="font-bold text-stone-900 text-sm">Aucun produit en stock</h3>
         <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-500">
           Scannez un code-barres ou saisissez-le manuellement pour ajouter votre premier article.
@@ -196,10 +193,10 @@ export function InventoryGrid({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {groupedItems.map((group) => (
-        <div key={group.category} className="space-y-2 product-grid-enter">
-          <div className="flex items-center justify-between px-1">
+        <div key={group.category} className="space-y-1.5 product-grid-enter">
+          <div className="flex items-center justify-between px-0.5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
               {getCategoryLabel(group.category)}
             </h3>
@@ -208,145 +205,70 @@ export function InventoryGrid({
             </span>
           </div>
 
-          <div className={isCompactView ? "space-y-2" : "grid grid-cols-1 gap-3 sm:grid-cols-2"}>
+          <div className="space-y-1.5">
             {group.items.map((item) => (
               <SwipeableItem
                 key={item.barcode}
-                isCompact={isCompactView}
+                isCompact={true}
                 onSwipeRight={() => onUpdateQuantity(item.barcode, 1)}
                 onSwipeLeft={() => onRemove(item.barcode)}
               >
-                {isCompactView ? (
-                  <article
-                    className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-3"
-                    onClick={() => onEditProduct(item)}
-                  >
-                    <div className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-lg object-contain" />
-                      ) : (
-                        <Package className="h-5 w-5 text-stone-300" />
-                      )}
-                    </div>
+                <article
+                  className="flex items-center gap-2.5 rounded-xl border border-stone-200 bg-white px-2.5 py-2.5"
+                  onClick={() => onEditProduct(item)}
+                >
+                  <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-lg border border-stone-200 bg-stone-50">
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-md object-contain" />
+                    ) : (
+                      <Package className="h-4.5 w-4.5 text-stone-300" />
+                    )}
+                  </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="font-bold text-stone-900">
-                          {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
-                        </h4>
-                        {renderNewBadge(item)}
-                      </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-stone-500">
-                        {item.brand && <span className="truncate">{item.brand}</span>}
-                        <span className="font-mono text-[11px] text-stone-400">{item.barcode}</span>
-                      </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <h4 className="font-bold text-stone-900 text-sm">
+                        {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
+                      </h4>
+                      {renderNewBadge(item)}
                     </div>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-stone-500">
+                      {item.brand && <span className="truncate">{item.brand}</span>}
+                      <span className="font-mono text-[10px] text-stone-400">{item.barcode}</span>
+                    </div>
+                  </div>
 
-                    <div className="flex items-center gap-2">
-                      {item.quantity <= 5 && renderStockBadge(item.quantity)}
-                      <div
-                        className="flex items-center rounded-full border border-stone-200 bg-stone-100"
-                        onClick={(event) => event.stopPropagation()}
+                  <div className="flex items-center gap-1.5">
+                    {item.quantity <= 5 && renderStockBadge(item.quantity)}
+                    <div
+                      className="flex items-center rounded-full border border-stone-200 bg-stone-100"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => onUpdateQuantity(item.barcode, -1)}
+                        className="grid h-8 w-8 place-items-center rounded-l-full text-stone-600 hover:bg-stone-200"
+                        aria-label="Diminuer la quantité"
                       >
-                        <button
-                          onClick={() => onUpdateQuantity(item.barcode, -1)}
-                          className="grid h-9 w-9 place-items-center rounded-l-full text-stone-600 hover:bg-stone-200"
-                          aria-label="Diminuer la quantité"
-                        >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => onEditQuantity(item)}
-                          className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-bold tabular ${
-                            item.quantity <= 5 ? "text-amber-600" : "text-stone-900"
-                          }`}
-                        >
-                          <AnimatedQuantity value={item.quantity} />
-                        </button>
-                        <button
-                          onClick={() => onUpdateQuantity(item.barcode, 1)}
-                          className="grid h-9 w-9 place-items-center rounded-r-full text-stone-600 hover:bg-stone-200"
-                          aria-label="Augmenter la quantité"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onEditQuantity(item)}
+                        className={`min-w-[28px] px-1.5 py-0.5 text-center font-mono text-[11px] font-bold tabular ${
+                          item.quantity <= 5 ? "text-amber-600" : "text-stone-900"
+                        }`}
+                      >
+                        <AnimatedQuantity value={item.quantity} />
+                      </button>
+                      <button
+                        onClick={() => onUpdateQuantity(item.barcode, 1)}
+                        className="grid h-8 w-8 place-items-center rounded-r-full text-stone-600 hover:bg-stone-200"
+                        aria-label="Augmenter la quantité"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
                     </div>
-                  </article>
-                ) : (
-                  <article
-                    className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
-                    onClick={() => onEditProduct(item)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl border border-stone-200 bg-stone-50">
-                        {item.imageUrl ? (
-                          <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-xl object-contain" />
-                        ) : (
-                          <Package className="h-6 w-6 text-stone-300" />
-                        )}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="text-sm font-bold text-stone-900">
-                                {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
-                              </h4>
-                              {renderNewBadge(item)}
-                            </div>
-                            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-stone-500">
-                              {item.brand && (
-                                <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 font-medium text-stone-600">
-                                  {item.brand}
-                                </span>
-                              )}
-                              <span className="font-mono text-stone-400">{item.barcode}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-shrink-0 items-start">
-                            {renderStockBadge(item.quantity, true)}
-                          </div>
-                        </div>
-
-                        <div
-                          className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-2 py-2"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {/* <div className="min-w-0 px-1 text-[10px] font-medium text-stone-400">
-                            Glisser: droite `+1`, gauche suppression
-                          </div> */}
-                          <div className="flex items-center rounded-full border border-stone-200 bg-white">
-                            <button
-                              onClick={() => onUpdateQuantity(item.barcode, -1)}
-                              className="grid h-10 w-10 place-items-center rounded-l-full text-stone-600 hover:bg-stone-100"
-                              aria-label="Diminuer la quantité"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => onEditQuantity(item)}
-                              className={`min-w-[40px] px-2 py-1 text-center font-mono text-sm font-bold tabular ${
-                                item.quantity <= 5 ? "text-amber-600" : "text-stone-900"
-                              }`}
-                            >
-                              <AnimatedQuantity value={item.quantity} />
-                            </button>
-                            <button
-                              onClick={() => onUpdateQuantity(item.barcode, 1)}
-                              className="grid h-10 w-10 place-items-center rounded-r-full text-stone-600 hover:bg-stone-100"
-                              aria-label="Augmenter la quantité"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                )}
+                  </div>
+                </article>
               </SwipeableItem>
             ))}
           </div>

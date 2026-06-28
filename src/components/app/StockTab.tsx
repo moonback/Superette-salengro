@@ -255,7 +255,7 @@ export function StockTab({
         <InventoryGrid
           items={paginatedInventory}
           categories={dbCategories}
-          isCompactView={false}
+          isCompactView={true}
           searchTerm={searchTerm}
           onUpdateQuantity={onUpdateQuantity}
           onRemove={onRemove}
