@@ -47,7 +47,8 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
   const [isDragging, setIsDragging] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputPhotoRef = useRef<HTMLInputElement>(null);
+  const fileInputGalleryRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!initialValues;
 
@@ -119,6 +120,8 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
       );
     } finally {
       setIsUploading(false);
+      // Reset the inputs so the user can select the same file again
+      e.target.value = '';
     }
   };
 
@@ -207,48 +210,62 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-500">Photo du produit</label>
 
-              <div className="relative group">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="hidden"
-                  id="product-photo-upload"
-                />
+              <input
+                type="file"
+                ref={fileInputPhotoRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+              />
+              <input
+                type="file"
+                ref={fileInputGalleryRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
 
-                {imageUrl ? (
-                  <div className="relative h-28 w-full rounded-2xl border border-stone-200 overflow-hidden bg-stone-50 flex items-center justify-center">
-                    <img
-                      src={imageUrl}
-                      alt="Aperçu du produit"
-                      className="h-full object-contain"
-                    />
-                    <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="p-2 bg-white/95 rounded-xl border border-stone-200 text-stone-700 hover:text-stone-900 transition active:scale-95 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer touch-target"
-                      >
-                        <Camera className="w-3.5 h-3.5" />
-                        <span>Changer</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl('')}
-                        className="p-2 bg-white/95 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 transition active:scale-95 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer touch-target"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Supprimer</span>
-                      </button>
-                    </div>
+              {imageUrl ? (
+                <div className="relative h-28 w-full rounded-2xl border border-stone-200 overflow-hidden bg-stone-50 flex items-center justify-center group">
+                  <img
+                    src={imageUrl}
+                    alt="Aperçu du produit"
+                    className="h-full object-contain"
+                  />
+                  <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => fileInputPhotoRef.current?.click()}
+                      className="p-2 bg-white/95 rounded-xl border border-stone-200 text-stone-700 hover:text-stone-900 transition active:scale-95 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer touch-target"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>Prendre photo</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputGalleryRef.current?.click()}
+                      className="p-2 bg-white/95 rounded-xl border border-indigo-200 text-indigo-600 hover:text-indigo-700 transition active:scale-95 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer touch-target"
+                    >
+                      <span>Importer</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="p-2 bg-white/95 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 transition active:scale-95 text-[10px] font-bold flex items-center gap-1.5 cursor-pointer touch-target"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Supprimer</span>
+                    </button>
                   </div>
-                ) : (
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => fileInputPhotoRef.current?.click()}
                     disabled={isUploading}
-                    className="w-full h-28 rounded-2xl border border-dashed border-stone-300 hover:border-indigo-400 bg-stone-50 hover:bg-indigo-50/50 transition flex flex-col items-center justify-center gap-2 text-stone-400 hover:text-stone-600 disabled:opacity-50 cursor-pointer touch-target"
+                    className="h-28 rounded-2xl border border-dashed border-stone-300 hover:border-indigo-400 bg-stone-50 hover:bg-indigo-50/50 transition flex flex-col items-center justify-center gap-2 text-stone-400 hover:text-stone-600 disabled:opacity-50 cursor-pointer touch-target"
                   >
                     {isUploading ? (
                       <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
@@ -256,11 +273,26 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
                       <Camera className="w-5 h-5" />
                     )}
                     <span className="text-[10px] font-bold uppercase tracking-wider">
-                      {isUploading ? "Téléchargement..." : "Prendre / Choisir une photo"}
+                      {isUploading ? "Téléchargement..." : "Prendre une photo"}
                     </span>
                   </button>
-                )}
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputGalleryRef.current?.click()}
+                    disabled={isUploading}
+                    className="h-28 rounded-2xl border border-dashed border-stone-300 hover:border-indigo-400 bg-stone-50 hover:bg-indigo-50/50 transition flex flex-col items-center justify-center gap-2 text-stone-400 hover:text-stone-600 disabled:opacity-50 cursor-pointer touch-target"
+                  >
+                    {isUploading ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                    ) : (
+                      <Edit2 className="w-5 h-5" />
+                    )}
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      {isUploading ? "Téléchargement..." : "Importer une photo"}
+                    </span>
+                  </button>
+                </div>
+              )}
 
               {uploadError && (
                 <p className="text-[10px] font-semibold text-rose-600">{uploadError}</p>

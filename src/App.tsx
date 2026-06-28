@@ -141,7 +141,6 @@ export default function App() {
   const [isBatchMode, setIsBatchMode] = useState(false);
   const [stockScanMode, setStockScanMode] = useState<StockScanMode>("add");
   const [scannerInputMode, setScannerInputMode] = useState<ScannerInputMode>("hardware");
-  const [isCompactView, setIsCompactView] = useState(false);
   const [isGeneratingEmbeddings, setIsGeneratingEmbeddings] = useState(false);
 
   const showToast = useCallback((text: string) => {
@@ -1344,7 +1343,6 @@ export default function App() {
             stockFilter={stockFilter}
             sortBy={sortBy}
             showFilters={showFilters}
-            isCompactView={isCompactView}
             hasActiveFilters={hasActiveFilters}
             isInventoryLoading={isInventoryLoading}
             onSearchTermChange={setSearchTerm}
@@ -1353,7 +1351,6 @@ export default function App() {
             onSortByChange={setSortBy}
             onShowFiltersChange={setShowFilters}
             onShowCategoryModal={() => setShowCategoryModal(true)}
-            onCompactViewChange={setIsCompactView}
             onResetFilters={resetFilters}
             onUpdateQuantity={handleUpdateQuantity}
             onRemove={handleRemoveItem}
@@ -1367,6 +1364,7 @@ export default function App() {
               type: "edit",
               product: item,
             })}
+            onOpenScan={() => setActiveTab("scan")}
           />
         ) : (
           <CategoriesManager

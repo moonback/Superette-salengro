@@ -1,3 +1,4 @@
+
 import { useState, FormEvent } from 'react';
 import { Plus, Edit2, Trash2, HelpCircle, RefreshCw, X, Check, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -179,14 +180,26 @@ export function CategoriesManager({
   };
 
   return (
-    <section className="glass-card mobile-card space-y-4 sm:space-y-5">
-      <div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
-          Organisation
-        </span>
-        <h2 className="mt-2 text-base font-bold tracking-tight text-stone-900">
-          Catégories
-        </h2>
+    <section className="space-y-4">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 p-4 shadow-xl shadow-indigo-500/20 sm:p-6">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg sm:h-14 sm:w-14">
+              <Package className="h-5 w-5 text-white sm:h-7 sm:w-7" />
+            </div>
+            <div className="pt-0.5 sm:pt-1">
+              <h2 className="text-xl font-bold text-white tracking-tight sm:text-2xl">Catégories</h2>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm sm:px-2.5 sm:text-xs">
+                  {categories.length} {categories.length > 1 ? 'catégories' : 'catégorie'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Action Header Card */}
@@ -199,15 +212,15 @@ export function CategoriesManager({
             Ajoutez, modifiez ou organisez les catégories de produits en base de données.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <button
+        <div className="grid grid-cols-1 gap-2 sm:flex">
+          {/* <button
             onClick={handleAutoCategorize}
             disabled={isAutoCategorizing || categories.length === 0}
             className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600 transition hover:bg-indigo-100 disabled:opacity-40 sm:flex-none"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isAutoCategorizing ? 'animate-spin' : ''}`} />
             Classer automatiquement
-          </button>
+          </button> */}
 
           <button
             onClick={() => {

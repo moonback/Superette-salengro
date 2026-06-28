@@ -37,14 +37,14 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
             <button
               key={tab}
               onClick={() => onTabChange(tab)}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 transition select-none tap-active ${
+              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${
                 isActive ? activeClass : "text-stone-400 hover:text-stone-700"
               }`}
             >
-              <div className={`p-1.5 rounded-xl transition ${isActive ? activeBgClass : ""}`}>
-                <Icon className="w-5 h-5" />
+              <div className={`p-2 rounded-2xl transition ${isActive ? activeBgClass : ""}`}>
+                <Icon className={`w-6 h-6 ${isActive ? "fill-current" : ""}`} />
               </div>
-              <span className="text-[10px] font-bold tracking-wide">{label}</span>
+              <span className="text-[11px] font-bold tracking-wide">{label}</span>
             </button>
           );
         })}
@@ -52,15 +52,15 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
         <button
           type="button"
           onClick={() => void assistant.open()}
-          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 transition select-none tap-active ${
+          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${
             isAssistantActive ? "text-violet-600" : "text-stone-400 hover:text-stone-700"
           }`}
           aria-label="Ouvrir l’assistant vocal"
         >
-          <div className={`p-1.5 rounded-xl transition ${isAssistantActive ? "bg-violet-50" : ""}`}>
-            <Bot className="w-5 h-5" />
+          <div className={`p-2 rounded-2xl transition ${isAssistantActive ? "bg-violet-50" : ""}`}>
+            <Bot className={`w-6 h-6 ${isAssistantActive ? "fill-current" : ""}`} />
           </div>
-          <span className="text-[10px] font-bold tracking-wide">Julien</span>
+          <span className="text-[11px] font-bold tracking-wide">Julien</span>
         </button>
       </div>
     </nav>
