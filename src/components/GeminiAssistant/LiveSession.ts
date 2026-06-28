@@ -6,7 +6,6 @@ import { getToolsDeclaration } from './tools';
 import type { AssistantExternalContext } from './types';
 
 const MODEL = 'gemini-3.1-flash-live-preview';
-const LOG_PREFIX = '[GeminiAssistant][LiveSession]';
 
 type LiveCallbacks = {
   onOpen?: () => void;
@@ -23,7 +22,6 @@ export class LiveSession {
   private reconnectAttempts = 0;
   private closedByUser = false;
   private sentAudioChunks = 0;
-  private lastSendLogAt = 0;
 
   constructor(private readonly audio = AudioManager.getInstance(), private callbacks: LiveCallbacks = {}) {}
 
@@ -37,19 +35,6 @@ export class LiveSession {
 
     const prompt = buildSystemPrompt(context);
     const functionDeclarations = getToolsDeclaration();
-    console.info(LOG_PREFIX, 'Connexion Gemini Live demandée', {
-      model: MODEL,
-      responseModalities: ['AUDIO'],
-      hasApiKey: Boolean(import.meta.env.VITE_GEMINI_API_KEY),
-      promptChars: prompt.length,
-      tools: functionDeclarations.map((tool) => tool.name),
-      context: {
-        inventoryCount: context.inventory?.length ?? 0,
-        categoriesCount: context.categories?.length ?? 0,
-        offlineMode: context.offlineMode,
-        language: context.language,
-      },
-    });
 
     this.session = await (this.ai as any).live.connect({
       model: MODEL,
@@ -61,16 +46,13 @@ export class LiveSession {
       callbacks: {
         onopen: () => {
           this.reconnectAttempts = 0;
-          console.info(LOG_PREFIX, 'Connexion Gemini Live ouverte');
           this.callbacks.onOpen?.();
         },
         onclose: (event: unknown) => {
-          console.warn(LOG_PREFIX, 'Connexion Gemini Live fermée', event);
           void this.handleClose(context);
         },
         onerror: (event: unknown) => {
           const message = event instanceof Error ? event.message : 'Erreur Gemini Live';
-          console.error(LOG_PREFIX, 'Erreur Gemini Live', event);
           this.callbacks.onError?.(message);
         },
         onmessage: (message: unknown) => void this.handleMessage(message),
@@ -78,38 +60,26 @@ export class LiveSession {
     });
 
     this.audio.onMicrophoneChunk((pcm) => this.sendAudio(pcm));
-    console.info(LOG_PREFIX, 'Session Live créée et handler audio attaché');
   }
 
   async startAudio(): Promise<void> {
-    console.info(LOG_PREFIX, 'Démarrage capture audio');
     await this.audio.startMicrophone();
-    console.info(LOG_PREFIX, 'Capture audio démarrée');
   }
 
   sendAudio(pcm: Int16Array): void {
     if (!this.session) {
-      console.warn(LOG_PREFIX, 'Chunk PCM ignoré: session absente', { samples: pcm.length });
       return;
     }
 
     this.sentAudioChunks += 1;
-    const now = Date.now();
-    if (now - this.lastSendLogAt > 1000) {
-      this.lastSendLogAt = now;
-      console.info(LOG_PREFIX, 'Envoi audio vers Gemini', { chunks: this.sentAudioChunks, samples: pcm.length, bytes: pcm.byteLength });
-    }
-
     this.session.sendRealtimeInput?.({ audio: { mimeType: 'audio/pcm;rate=16000', data: int16ToBase64(pcm) } });
   }
 
   async sendToolResult(result: GeminiToolResult): Promise<void> {
-    console.info(LOG_PREFIX, 'Retour tool envoyé à Gemini', { id: result.id, name: result.name, success: result.response.success, denied: result.response.denied, error: result.response.error });
     this.session?.sendToolResponse?.({ functionResponses: [{ id: result.id, name: result.name, response: result.response }] });
   }
 
   async disconnect(): Promise<void> {
-    console.info(LOG_PREFIX, 'Déconnexion demandée', { sentAudioChunks: this.sentAudioChunks });
     this.closedByUser = true;
     this.audio.onMicrophoneChunk(null);
     this.audio.stopMicrophone();
@@ -120,9 +90,7 @@ export class LiveSession {
   }
 
   private async handleMessage(message: any): Promise<void> {
-    console.debug(LOG_PREFIX, 'Message reçu de Gemini', message);
     if (message?.serverContent?.interrupted || message?.interrupted) {
-      console.info(LOG_PREFIX, 'Interruption détectée, arrêt de la lecture');
       this.audio.stopPlayback();
       return;
     }
@@ -131,12 +99,10 @@ export class LiveSession {
     const parts = modelTurn?.parts ?? [];
 
     if (message?.setupComplete) {
-      console.info(LOG_PREFIX, 'Setup Gemini Live terminé');
       return;
     }
 
     if (serverContent?.turnComplete) {
-      console.info(LOG_PREFIX, 'Tour terminé');
       return;
     }
 
@@ -151,12 +117,7 @@ export class LiveSession {
     }
 
     for (const part of parts) {
-      if (part.text) {
-        console.info(LOG_PREFIX, 'Texte reçu', part.text);
-      }
-
       if (part.inlineData?.data) {
-        console.info(LOG_PREFIX, 'Audio reçu de Gemini', { mimeType: part.inlineData.mimeType, chars: part.inlineData.data.length });
         this.callbacks.onAudio?.();
         await this.audio.playBase64Pcm(part.inlineData.data);
       }
@@ -170,7 +131,6 @@ export class LiveSession {
   private async handleToolCall(toolCall: any): Promise<void> {
     const functionCalls = toolCall?.functionCalls ?? [];
     if (!functionCalls.length) {
-      console.debug(LOG_PREFIX, 'Tool call sans functionCalls exploitables', toolCall);
       return;
     }
 
@@ -184,11 +144,9 @@ export class LiveSession {
 
     const name = functionCall?.name;
     if (!name) {
-      console.warn(LOG_PREFIX, 'Function call ignoré: nom manquant', functionCall);
       return;
     }
 
-    console.info(LOG_PREFIX, 'Function call reçu', { id: functionCall.id, name, args: functionCall.args });
     this.callbacks.onThinking?.();
     const result = await this.callbacks.onFunctionCall({
       id: functionCall.id ?? crypto.randomUUID(),
@@ -200,53 +158,39 @@ export class LiveSession {
 
   private handleNonContentMessage(message: any, serverContent: any): void {
     if (serverContent?.generationComplete) {
-      console.info(LOG_PREFIX, 'Génération terminée');
       return;
     }
 
     if (serverContent?.waitingForInput) {
-      console.debug(LOG_PREFIX, 'Gemini attend une entrée utilisateur');
       return;
     }
 
     if (serverContent?.inputTranscription || serverContent?.outputTranscription) {
-      console.debug(LOG_PREFIX, 'Transcription reçue', {
-        input: serverContent.inputTranscription?.text,
-        output: serverContent.outputTranscription?.text,
-      });
       return;
     }
 
     if (message?.sessionResumptionUpdate) {
-      console.debug(LOG_PREFIX, 'Session resumption update reçu', message.sessionResumptionUpdate);
       return;
     }
 
     if (message?.usageMetadata) {
-      console.debug(LOG_PREFIX, 'Usage metadata reçu', message.usageMetadata);
       return;
     }
 
     if (message?.goAway) {
-      console.warn(LOG_PREFIX, 'Gemini Live va fermer la connexion', message.goAway);
       return;
     }
-
-    console.debug(LOG_PREFIX, 'Message sans contenu utile', message);
   }
 
   private async handleClose(context: AssistantExternalContext): Promise<void> {
     this.session = null;
     this.callbacks.onClose?.();
     if (this.closedByUser || this.reconnectAttempts >= 3) {
-      console.info(LOG_PREFIX, 'Reconnexion non lancée', { closedByUser: this.closedByUser, reconnectAttempts: this.reconnectAttempts });
       return;
     }
     const delay = 500 * 2 ** this.reconnectAttempts;
     this.reconnectAttempts += 1;
-    console.warn(LOG_PREFIX, 'Reconnexion planifiée', { attempt: this.reconnectAttempts, delay });
     window.setTimeout(() => void this.connect(context).catch((error: unknown) => {
-      console.error(LOG_PREFIX, 'Reconnexion échouée', error);
       this.callbacks.onError?.(error instanceof Error ? error.message : 'Reconnexion impossible');
     }), delay);
   }

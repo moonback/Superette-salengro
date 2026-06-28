@@ -2,7 +2,6 @@ export type PcmChunkHandler = (pcm: Int16Array) => void;
 
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
-const LOG_PREFIX = '[GeminiAssistant][Audio]';
 
 export class AudioManager {
   private static instance: AudioManager | null = null;
@@ -13,7 +12,6 @@ export class AudioManager {
   private workletUrl: string | null = null;
   private onChunk: PcmChunkHandler | null = null;
   private muted = false;
-  private lastLevelLogAt = 0;
   private sentChunks = 0;
   private accumulationBuffer: Int16Array | null = null;
   private accumulationIndex = 0;
@@ -21,8 +19,6 @@ export class AudioManager {
   private playbackQueue: { pcm: Int16Array; resolve: () => void }[] = [];
   private isPlaying = false;
   private activeSource: AudioBufferSourceNode | null = null;
-
-
 
   static getInstance(): AudioManager {
     AudioManager.instance ??= new AudioManager();
@@ -34,73 +30,58 @@ export class AudioManager {
   async initialize(): Promise<void> {
     if (!this.context) {
       this.context = new AudioContext({ sampleRate: INPUT_SAMPLE_RATE });
-      console.info(LOG_PREFIX, 'AudioContext créé', { sampleRate: this.context.sampleRate, state: this.context.state });
     }
 
     if (this.context.state === 'suspended') {
-      console.info(LOG_PREFIX, 'AudioContext suspendu, reprise demandée');
       await this.context.resume();
-      console.info(LOG_PREFIX, 'AudioContext repris', { state: this.context.state });
     }
   }
 
   onMicrophoneChunk(handler: PcmChunkHandler | null): void {
     this.onChunk = handler;
-    console.info(LOG_PREFIX, handler ? 'Handler PCM micro enregistré' : 'Handler PCM micro retiré');
   }
 
   async startMicrophone(): Promise<void> {
     await this.initialize();
     if (!this.context) {
-      console.error(LOG_PREFIX, 'AudioContext indisponible après initialisation');
       return;
     }
 
     if (this.stream) {
-      console.info(LOG_PREFIX, 'Micro déjà actif, startMicrophone ignoré');
       return;
     }
 
-    console.info(LOG_PREFIX, 'Demande permission micro', { requestedSampleRate: INPUT_SAMPLE_RATE, channelCount: 1 });
     this.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: INPUT_SAMPLE_RATE } });
-    console.info(LOG_PREFIX, 'Micro autorisé', {
-      tracks: this.stream.getAudioTracks().map((track) => ({ label: track.label, enabled: track.enabled, muted: track.muted, readyState: track.readyState, settings: track.getSettings() })),
-    });
 
     await this.ensureWorklet(this.context);
     this.source = this.context.createMediaStreamSource(this.stream);
     this.worklet = new AudioWorkletNode(this.context, 'gemini-pcm-processor');
     this.worklet.port.onmessage = (event: MessageEvent<ArrayBuffer>) => {
       if (this.muted) return;
-      
+
       const newPcm = new Int16Array(event.data);
-      
+
       if (!this.accumulationBuffer) {
         this.accumulationBuffer = new Int16Array(this.ACCUMULATION_SIZE);
         this.accumulationIndex = 0;
       }
-      
+
       for (let i = 0; i < newPcm.length; i++) {
         this.accumulationBuffer[this.accumulationIndex++] = newPcm[i];
-        
+
         if (this.accumulationIndex >= this.ACCUMULATION_SIZE) {
           const chunkToSend = new Int16Array(this.accumulationBuffer);
           this.sentChunks += 1;
-          const now = Date.now();
-          this.logInputLevel(chunkToSend, now);
           this.onChunk?.(chunkToSend);
           this.accumulationIndex = 0;
         }
       }
     };
-    this.worklet.port.onmessageerror = (event) => console.error(LOG_PREFIX, 'Erreur message AudioWorklet', event);
     this.source.connect(this.worklet);
     this.worklet.connect(this.context.destination);
-    console.info(LOG_PREFIX, 'Micro connecté à AudioWorkletNode', { contextState: this.context.state });
   }
 
   stopMicrophone(): void {
-    console.info(LOG_PREFIX, 'Arrêt micro', { sentChunks: this.sentChunks });
     this.worklet?.disconnect();
     this.source?.disconnect();
     this.stream?.getTracks().forEach((track) => track.stop());
@@ -114,7 +95,6 @@ export class AudioManager {
 
   setMuted(muted: boolean): void {
     this.muted = muted;
-    console.info(LOG_PREFIX, muted ? 'Micro muet' : 'Micro réactivé');
   }
 
   async playPcm16(pcm: Int16Array, sampleRate = OUTPUT_SAMPLE_RATE): Promise<void> {
@@ -165,7 +145,6 @@ export class AudioManager {
   }
 
   stopPlayback(): void {
-    console.info(LOG_PREFIX, 'Arrêt forcé de la lecture');
     const currentQueue = [...this.playbackQueue];
     this.playbackQueue = [];
     currentQueue.forEach((item) => item.resolve());
@@ -192,7 +171,6 @@ export class AudioManager {
     if (this.context && this.context.state !== 'closed') await this.context.close();
     this.context = null;
     this.onChunk = null;
-    console.info(LOG_PREFIX, 'AudioManager détruit');
   }
 
   private async ensureWorklet(context: AudioContext): Promise<void> {
@@ -217,21 +195,6 @@ export class AudioManager {
     `;
     this.workletUrl = URL.createObjectURL(new Blob([processorSource], { type: 'application/javascript' }));
     await context.audioWorklet.addModule(this.workletUrl);
-    console.info(LOG_PREFIX, 'AudioWorkletNode chargé');
-  }
-
-  private logInputLevel(pcm: Int16Array, now: number): void {
-    if (now - this.lastLevelLogAt < 1000) return;
-    this.lastLevelLogAt = now;
-    let peak = 0;
-    let sumSquares = 0;
-    for (const sample of pcm) {
-      const abs = Math.abs(sample);
-      peak = Math.max(peak, abs);
-      sumSquares += sample * sample;
-    }
-    const rms = Math.sqrt(sumSquares / Math.max(1, pcm.length));
-    console.info(LOG_PREFIX, 'PCM micro capturé', { chunk: this.sentChunks, samples: pcm.length, peak, rms: Math.round(rms), muted: this.muted, hasHandler: Boolean(this.onChunk) });
   }
 }
 
