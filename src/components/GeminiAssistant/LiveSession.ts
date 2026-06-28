@@ -100,7 +100,7 @@ export class LiveSession {
       console.info(LOG_PREFIX, 'Envoi audio vers Gemini', { chunks: this.sentAudioChunks, samples: pcm.length, bytes: pcm.byteLength });
     }
 
-    this.session.sendRealtimeInput?.({ media: { mimeType: 'audio/pcm;rate=16000', data: int16ToBase64(pcm) } });
+    this.session.sendRealtimeInput?.({ audio: { mimeType: 'audio/pcm;rate=16000', data: int16ToBase64(pcm) } });
   }
 
   async sendToolResult(result: GeminiToolResult): Promise<void> {
@@ -113,6 +113,7 @@ export class LiveSession {
     this.closedByUser = true;
     this.audio.onMicrophoneChunk(null);
     this.audio.stopMicrophone();
+    this.audio.stopPlayback();
     this.session?.close?.();
     this.session = null;
     this.callbacks.onClose?.();
@@ -120,9 +121,15 @@ export class LiveSession {
 
   private async handleMessage(message: any): Promise<void> {
     console.debug(LOG_PREFIX, 'Message reçu de Gemini', message);
+    if (message?.serverContent?.interrupted || message?.interrupted) {
+      console.info(LOG_PREFIX, 'Interruption détectée, arrêt de la lecture');
+      this.audio.stopPlayback();
+      return;
+    }
     const parts = message?.serverContent?.modelTurn?.parts ?? message?.modelTurn?.parts ?? [];
     if (message?.setupComplete) console.info(LOG_PREFIX, 'Setup Gemini Live terminé');
     if (!parts.length && !message?.setupComplete) console.info(LOG_PREFIX, 'Message Gemini sans parts exploitables', Object.keys(message ?? {}));
+
 
     for (const part of parts) {
       if (part.inlineData?.data) {

@@ -13,9 +13,16 @@ export class AudioManager {
   private workletUrl: string | null = null;
   private onChunk: PcmChunkHandler | null = null;
   private muted = false;
-  private lastSentAt = 0;
   private lastLevelLogAt = 0;
   private sentChunks = 0;
+  private accumulationBuffer: Int16Array | null = null;
+  private accumulationIndex = 0;
+  private readonly ACCUMULATION_SIZE = 1024; // ~64ms of audio at 16kHz
+  private playbackQueue: { pcm: Int16Array; resolve: () => void }[] = [];
+  private isPlaying = false;
+  private activeSource: AudioBufferSourceNode | null = null;
+
+
 
   static getInstance(): AudioManager {
     AudioManager.instance ??= new AudioManager();
@@ -65,13 +72,26 @@ export class AudioManager {
     this.worklet = new AudioWorkletNode(this.context, 'gemini-pcm-processor');
     this.worklet.port.onmessage = (event: MessageEvent<ArrayBuffer>) => {
       if (this.muted) return;
-      const now = Date.now();
-      if (now - this.lastSentAt < 20) return;
-      this.lastSentAt = now;
-      const pcm = new Int16Array(event.data);
-      this.sentChunks += 1;
-      this.logInputLevel(pcm, now);
-      this.onChunk?.(pcm);
+      
+      const newPcm = new Int16Array(event.data);
+      
+      if (!this.accumulationBuffer) {
+        this.accumulationBuffer = new Int16Array(this.ACCUMULATION_SIZE);
+        this.accumulationIndex = 0;
+      }
+      
+      for (let i = 0; i < newPcm.length; i++) {
+        this.accumulationBuffer[this.accumulationIndex++] = newPcm[i];
+        
+        if (this.accumulationIndex >= this.ACCUMULATION_SIZE) {
+          const chunkToSend = new Int16Array(this.accumulationBuffer);
+          this.sentChunks += 1;
+          const now = Date.now();
+          this.logInputLevel(chunkToSend, now);
+          this.onChunk?.(chunkToSend);
+          this.accumulationIndex = 0;
+        }
+      }
     };
     this.worklet.port.onmessageerror = (event) => console.error(LOG_PREFIX, 'Erreur message AudioWorklet', event);
     this.source.connect(this.worklet);
@@ -88,6 +108,8 @@ export class AudioManager {
     this.source = null;
     this.stream = null;
     this.sentChunks = 0;
+    this.accumulationBuffer = null;
+    this.accumulationIndex = 0;
   }
 
   setMuted(muted: boolean): void {
@@ -98,25 +120,73 @@ export class AudioManager {
   async playPcm16(pcm: Int16Array, sampleRate = OUTPUT_SAMPLE_RATE): Promise<void> {
     await this.initialize();
     if (!this.context) return;
-    console.info(LOG_PREFIX, 'Lecture PCM reçue de Gemini', { samples: pcm.length, sampleRate });
-    const buffer = this.context.createBuffer(1, pcm.length, sampleRate);
-    const channel = buffer.getChannelData(0);
-    for (let i = 0; i < pcm.length; i += 1) channel[i] = Math.max(-1, Math.min(1, pcm[i] / 32768));
-    const source = this.context.createBufferSource();
-    source.buffer = buffer;
-    source.connect(this.context.destination);
-    source.start();
-    await new Promise<void>((resolve) => { source.onended = () => resolve(); });
-    console.info(LOG_PREFIX, 'Lecture PCM terminée');
+    return new Promise<void>((resolve) => {
+      this.playbackQueue.push({ pcm, resolve });
+      if (!this.isPlaying) {
+        void this.processPlaybackQueue(sampleRate);
+      }
+    });
+  }
+
+  private async processPlaybackQueue(sampleRate: number): Promise<void> {
+    if (this.isPlaying || !this.context) return;
+    this.isPlaying = true;
+
+    try {
+      while (this.playbackQueue.length > 0) {
+        const item = this.playbackQueue.shift();
+        if (!item) continue;
+
+        const { pcm, resolve } = item;
+        const buffer = this.context.createBuffer(1, pcm.length, sampleRate);
+        const channel = buffer.getChannelData(0);
+        for (let i = 0; i < pcm.length; i += 1) channel[i] = Math.max(-1, Math.min(1, pcm[i] / 32768));
+
+        const source = this.context.createBufferSource();
+        this.activeSource = source;
+        source.buffer = buffer;
+        source.connect(this.context.destination);
+        source.start();
+
+        await new Promise<void>((done) => {
+          source.onended = () => {
+            if (this.activeSource === source) {
+              this.activeSource = null;
+            }
+            done();
+          };
+        });
+
+        resolve();
+      }
+    } finally {
+      this.isPlaying = false;
+    }
+  }
+
+  stopPlayback(): void {
+    console.info(LOG_PREFIX, 'Arrêt forcé de la lecture');
+    const currentQueue = [...this.playbackQueue];
+    this.playbackQueue = [];
+    currentQueue.forEach((item) => item.resolve());
+
+    if (this.activeSource) {
+      try {
+        this.activeSource.stop();
+      } catch (err) {
+        // Source already stopped
+      }
+      this.activeSource = null;
+    }
   }
 
   async playBase64Pcm(base64: string): Promise<void> {
-    console.info(LOG_PREFIX, 'Décodage audio base64', { chars: base64.length });
     await this.playPcm16(base64ToInt16(base64));
   }
 
   async destroy(): Promise<void> {
     this.stopMicrophone();
+    this.stopPlayback();
     if (this.workletUrl) URL.revokeObjectURL(this.workletUrl);
     this.workletUrl = null;
     if (this.context && this.context.state !== 'closed') await this.context.close();
