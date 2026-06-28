@@ -141,12 +141,12 @@ export class LiveSession {
     }
 
     if (message?.toolCall) {
-      await this.handleFunctionCall(message.toolCall);
+      await this.handleToolCall(message.toolCall);
       return;
     }
 
     if (!parts.length) {
-      console.debug(LOG_PREFIX, 'Message sans contenu utile', message);
+      this.handleNonContentMessage(message, serverContent);
       return;
     }
 
@@ -167,17 +167,72 @@ export class LiveSession {
     }
   }
 
+  private async handleToolCall(toolCall: any): Promise<void> {
+    const functionCalls = toolCall?.functionCalls ?? [];
+    if (!functionCalls.length) {
+      console.debug(LOG_PREFIX, 'Tool call sans functionCalls exploitables', toolCall);
+      return;
+    }
+
+    for (const functionCall of functionCalls) {
+      await this.handleFunctionCall(functionCall);
+    }
+  }
+
   private async handleFunctionCall(functionCall: any): Promise<void> {
     if (!this.callbacks.onFunctionCall) return;
 
-    console.info(LOG_PREFIX, 'Function call reçu', { id: functionCall.id, name: functionCall.name, args: functionCall.args });
+    const name = functionCall?.name;
+    if (!name) {
+      console.warn(LOG_PREFIX, 'Function call ignoré: nom manquant', functionCall);
+      return;
+    }
+
+    console.info(LOG_PREFIX, 'Function call reçu', { id: functionCall.id, name, args: functionCall.args });
     this.callbacks.onThinking?.();
     const result = await this.callbacks.onFunctionCall({
       id: functionCall.id ?? crypto.randomUUID(),
-      name: functionCall.name,
+      name,
       args: functionCall.args ?? {},
     });
     await this.sendToolResult(result);
+  }
+
+  private handleNonContentMessage(message: any, serverContent: any): void {
+    if (serverContent?.generationComplete) {
+      console.info(LOG_PREFIX, 'Génération terminée');
+      return;
+    }
+
+    if (serverContent?.waitingForInput) {
+      console.debug(LOG_PREFIX, 'Gemini attend une entrée utilisateur');
+      return;
+    }
+
+    if (serverContent?.inputTranscription || serverContent?.outputTranscription) {
+      console.debug(LOG_PREFIX, 'Transcription reçue', {
+        input: serverContent.inputTranscription?.text,
+        output: serverContent.outputTranscription?.text,
+      });
+      return;
+    }
+
+    if (message?.sessionResumptionUpdate) {
+      console.debug(LOG_PREFIX, 'Session resumption update reçu', message.sessionResumptionUpdate);
+      return;
+    }
+
+    if (message?.usageMetadata) {
+      console.debug(LOG_PREFIX, 'Usage metadata reçu', message.usageMetadata);
+      return;
+    }
+
+    if (message?.goAway) {
+      console.warn(LOG_PREFIX, 'Gemini Live va fermer la connexion', message.goAway);
+      return;
+    }
+
+    console.debug(LOG_PREFIX, 'Message sans contenu utile', message);
   }
 
   private async handleClose(context: AssistantExternalContext): Promise<void> {
