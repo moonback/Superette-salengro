@@ -38,7 +38,7 @@ export function AdminDesktopLayout({
 }) {
   return (
     <div className="flex min-h-screen w-full">
-      <aside className="hidden lg:flex lg:w-64 xl:w-72 lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:border-r lg:border-stone-200/70 lg:bg-white/70 lg:backdrop-blur-xl">
+      <aside className="hidden lg:flex lg:w-64 xl:w-72 lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:border-r lg:border-slate-200/70 lg:bg-white">
         <div className="flex h-full flex-col">
           <div className="px-4 pt-5 pb-2">
             <div className="flex items-center gap-3">
@@ -46,10 +46,10 @@ export function AdminDesktopLayout({
                 <span className="text-sm font-black">NS</span>
               </div>
               <div className="min-w-0">
-                <div className="truncate text-sm font-extrabold tracking-tight text-stone-950">
+                <div className="truncate text-sm font-extrabold tracking-tight text-slate-900">
                   NeuroStocks
                 </div>
-                <div className="text-[11px] font-semibold text-stone-500">Admin</div>
+                <div className="text-[11px] font-semibold text-slate-500">Admin</div>
               </div>
             </div>
           </div>
@@ -58,7 +58,7 @@ export function AdminDesktopLayout({
       </aside>
 
       <div className="flex min-h-screen w-full flex-col lg:pl-64 xl:pl-72">
-        <header className="sticky top-0 z-40 hidden lg:block border-b border-stone-200/70 bg-white/70 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 hidden lg:block border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
           <div className="mx-auto w-full max-w-6xl px-4 pb-3 pt-3">
             <Header
               email={email}

@@ -37,7 +37,7 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-40 glass-panel border-b pt-safe">
-      <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
+      <div className="mx-auto w-full px-4 pb-3 pt-3">
         {/* Identity row */}
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/25">

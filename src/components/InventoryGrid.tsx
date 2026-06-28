@@ -257,14 +257,14 @@ export function InventoryGrid({
                   >
                     {isCompactView ? (
                       <article
-                        className="group flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-3 transition-colors hover:border-stone-300 hover:bg-stone-50/50 cursor-pointer"
+                        className="group flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-3 transition-colors hover:border-stone-300 hover:bg-stone-50/50 cursor-pointer lg:gap-4 lg:px-4 lg:py-4"
                         onClick={() => onEditProduct(item)}
                       >
-                        <div className="relative grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50">
+                        <div className="relative grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50 lg:h-16 lg:w-16">
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-lg object-contain" />
                           ) : (
-                            <Package className="h-5 w-5 text-stone-300" />
+                            <Package className="h-5 w-5 text-stone-300 lg:h-6 lg:w-6" />
                           )}
                           {item.quantity <= 5 && (
                             <span className={`absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${tone.dot}`} />
@@ -273,12 +273,12 @@ export function InventoryGrid({
 
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-bold text-stone-900 truncate">
+                            <h4 className="font-bold text-stone-900 truncate lg:text-base">
                               {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
                             </h4>
                             {renderNewBadge(item)}
                           </div>
-                          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-stone-500 lg:text-sm">
                             {item.brand && <span className="truncate">{item.brand}</span>}
                             <span className="font-mono text-[11px] text-stone-400">{item.barcode}</span>
                           </div>
@@ -292,23 +292,23 @@ export function InventoryGrid({
                           >
                             <button
                               onClick={() => onUpdateQuantity(item.barcode, -1)}
-                              className="grid h-9 w-9 place-items-center rounded-l-full text-stone-600 transition-colors hover:bg-stone-200 active:scale-95"
+                              className="grid h-9 w-9 place-items-center rounded-l-full text-stone-600 transition-colors hover:bg-stone-200 active:scale-95 lg:h-10 lg:w-10"
                               aria-label="Diminuer la quantité"
                             >
-                              <Minus className="h-3.5 w-3.5" />
+                              <Minus className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
                             </button>
                             <button
                               onClick={() => onEditQuantity(item)}
-                              className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-bold tabular-nums transition-colors hover:text-stone-700 ${tone.text}`}
+                              className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-bold tabular-nums transition-colors hover:text-stone-700 ${tone.text} lg:text-sm`}
                             >
                               <AnimatedQuantity value={item.quantity} />
                             </button>
                             <button
                               onClick={() => onUpdateQuantity(item.barcode, 1)}
-                              className="grid h-9 w-9 place-items-center rounded-r-full text-stone-600 transition-colors hover:bg-stone-200 active:scale-95"
+                              className="grid h-9 w-9 place-items-center rounded-r-full text-stone-600 transition-colors hover:bg-stone-200 active:scale-95 lg:h-10 lg:w-10"
                               aria-label="Augmenter la quantité"
                             >
-                              <Plus className="h-3.5 w-3.5" />
+                              <Plus className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
                             </button>
                           </div>
                         </div>
