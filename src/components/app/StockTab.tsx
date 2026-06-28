@@ -317,13 +317,6 @@ export function StockTab({
       )}
 
       {/* Floating Scanner Button */}
-      {/* <button
-        onClick={onOpenScan}
-        className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-full  shadow-slate-900/10 flex flex-col items-center justify-center px-6 py-4 z-40 active:scale-95 transition"
-      >
-        <Zap className="w-6 h-6 mb-0.5" />
-        <span className="text-xs font-bold">Scanner</span>
-      </button> */}
     </section>
   );
 }
