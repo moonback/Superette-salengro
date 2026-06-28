@@ -51,14 +51,14 @@ export function Header({
             {/* Compact stats */}
             <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-stone-500">
               <span className="flex items-center gap-1">
-                <span className="text-stone-400">📦</span> {inventoryLength}
+                <span className="text-stone-400">📦</span> {inventoryLength} articles
               </span>
-              <span className="flex items-center gap-1">
+              {/* <span className="flex items-center gap-1">
                 <span className="text-emerald-500">🧾</span> {totalItems}
               </span>
               <span className="flex items-center gap-1">
                 <span className={lowStockCount > 0 ? "text-amber-500" : "text-stone-400"}>⚠️</span> {lowStockCount}
-              </span>
+              </span> */}
             </div>
           </div>
 

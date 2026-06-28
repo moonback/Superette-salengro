@@ -78,7 +78,7 @@ export function ManualInput({
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="h-12 min-w-0 flex-1 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-semibold font-mono tabular text-stone-900 outline-none transition disabled:opacity-40 focus:border-indigo-500"
+          className="h-12 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold font-mono tabular text-slate-900 outline-none transition disabled:opacity-40 focus:border-indigo-500"
           placeholder="Saisir ou scanner..."
           disabled={!isActive}
         />

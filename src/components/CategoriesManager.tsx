@@ -203,12 +203,12 @@ export function CategoriesManager({
       </div>
 
       {/* Action Header Card */}
-      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3 sm:flex-row sm:items-center sm:p-4">
+      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:p-4">
         <div>
-          <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
             Administration des Catégories
           </h3>
-          <p className="text-[10px] text-stone-500 mt-0.5">
+          <p className="text-[10px] text-slate-500 mt-0.5">
             Ajoutez, modifiez ou organisez les catégories de produits en base de données.
           </p>
         </div>
@@ -246,15 +246,15 @@ export function CategoriesManager({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <form onSubmit={handleSave} className="p-4 rounded-2xl border border-stone-200 bg-stone-50 space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+            <form onSubmit={handleSave} className="p-4 rounded-2xl border border-slate-200 bg-white space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
                   {editingCategory ? 'Modifier la catégorie' : 'Créer une catégorie'}
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="text-stone-400 hover:text-stone-900"
+                  className="text-slate-400 hover:text-slate-900"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -262,7 +262,7 @@ export function CategoriesManager({
 
               <div className="grid grid-cols-4 gap-3">
                 <div className="col-span-1">
-                  <label className="block text-[9px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">Icône</label>
+                  <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Icône</label>
                   <input
                     type="text"
                     maxLength={2}
@@ -273,12 +273,12 @@ export function CategoriesManager({
                   />
                 </div>
                 <div className="col-span-3">
-                  <label className="block text-[9px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">Nom de la catégorie *</label>
+                  <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nom de la catégorie *</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full h-10 px-3 glass-input rounded-xl text-xs font-semibold text-stone-900 outline-none transition"
+                    className="w-full h-10 px-3 glass-input rounded-xl text-xs font-semibold text-slate-900 outline-none transition"
                     placeholder="Ex: Épicerie, Boissons..."
                     required
                   />
@@ -287,16 +287,16 @@ export function CategoriesManager({
 
               {/* Common Emojis Quick Picker */}
               <div>
-                <label className="block text-[9px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">Suggestions d'icônes</label>
-                <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto p-1 bg-white rounded-xl border border-stone-200">
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Suggestions d'icônes</label>
+                <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto p-1 bg-white rounded-xl border border-slate-200">
                   {COMMON_EMOJIS.map((emoji) => (
                     <button
                       key={emoji}
                       type="button"
                       onClick={() => setIcon(emoji)}
-                      className={`w-7 h-7 flex items-center justify-center rounded-lg text-sm transition hover:bg-stone-100 ${
-                        icon === emoji ? 'bg-indigo-100 border border-indigo-300' : ''
-                      }`}
+                      className={`w-7 h-7 flex items-center justify-center rounded-lg text-sm transition hover:bg-slate-100 ${
+                          icon === emoji ? 'bg-indigo-100 border border-indigo-300' : ''
+                        }`}
                     >
                       {emoji}
                     </button>
@@ -329,8 +329,8 @@ export function CategoriesManager({
 
       {/* Categories Grid List */}
       {categories.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-12 text-stone-400 border border-dashed border-stone-300 rounded-2xl bg-stone-50/50">
-          <HelpCircle className="h-7 w-7 text-stone-300" />
+        <div className="flex flex-col items-center justify-center gap-2 py-12 text-slate-400 border border-dashed border-slate-300 rounded-2xl bg-white">
+          <HelpCircle className="h-7 w-7 text-slate-300" />
           <span className="text-xs font-semibold">Aucune catégorie configurée</span>
         </div>
       ) : (
@@ -345,11 +345,8 @@ export function CategoriesManager({
             return (
               <div
                 key={category.id || category.name}
-                className={`relative rounded-xl border bg-white transition group ${
-                  isSelected
-                    ? 'border-indigo-300 shadow-sm ring-2 ring-indigo-100'
-                    : 'border-stone-200 hover:border-stone-300 hover:shadow-sm'
-                }`}
+                className="rounded-xl border border-slate-200 bg-white transition group"
+                style={isSelected ? { borderColor: '#6366f1', boxShadow: '0 0 0 3px #e0e7ff' } : undefined}
               >
                 <button
                   type="button"
@@ -358,12 +355,12 @@ export function CategoriesManager({
                   aria-expanded={isSelected}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-stone-50 flex items-center justify-center text-lg border border-stone-200">
+                    <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-lg border border-slate-200">
                       {category.icon || '📦'}
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-stone-800">{category.name}</h4>
-                      <span className="text-[9px] font-bold text-stone-400 font-mono tabular">
+                      <h4 className="text-xs font-bold text-slate-800">{category.name}</h4>
+                      <span className="text-[9px] font-bold text-slate-400 font-mono tabular">
                         {count} {count > 1 ? 'articles' : 'article'}
                       </span>
                     </div>
@@ -376,7 +373,7 @@ export function CategoriesManager({
                       event.stopPropagation();
                       handleEdit(category);
                     }}
-                    className="p-1.5 text-stone-400 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition"
+                    className="p-1.5 text-slate-400 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
                     title="Modifier"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -401,9 +398,9 @@ export function CategoriesManager({
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="border-t border-stone-100 px-3 pb-3 pt-2">
+                      <div className="border-t border-slate-100 px-3 pb-3 pt-2">
                         <div className="mb-2 flex items-center justify-between">
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
                             Produits associés
                           </span>
                           <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[9px] font-bold text-indigo-600">
@@ -412,7 +409,7 @@ export function CategoriesManager({
                         </div>
 
                         {associatedProducts.length === 0 ? (
-                          <div className="rounded-xl border border-dashed border-stone-200 bg-stone-50/70 px-3 py-4 text-center text-[10px] font-semibold text-stone-400">
+                          <div className="rounded-xl border border-dashed border-slate-200 bg-white px-3 py-4 text-center text-[10px] font-semibold text-slate-400">
                             Aucun produit dans cette catégorie.
                           </div>
                         ) : (
@@ -420,9 +417,9 @@ export function CategoriesManager({
                             {associatedProducts.map((item) => (
                               <div
                                 key={item.barcode}
-                                className="flex items-center gap-3 rounded-xl border border-stone-100 bg-stone-50/70 p-2"
+                                className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-2"
                               >
-                                <div className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-stone-200 bg-white p-1">
+                                <div className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-slate-200 bg-white p-1">
                                   {item.imageUrl ? (
                                     <img
                                       src={item.imageUrl}

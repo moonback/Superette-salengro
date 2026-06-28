@@ -14,9 +14,9 @@ type NavItem = {
 
 export const navItems: NavItem[] = [
   { tab: "scan", label: "Scanner", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Scan },
-  { tab: "autoScan", label: "Auto", activeClass: "text-amber-600", activeBgClass: "bg-amber-50", icon: Zap },
-  { tab: "stock", label: "Stock", activeClass: "text-emerald-600", activeBgClass: "bg-emerald-50", icon: Package },
-  { tab: "categories", label: "Catég.", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Tags },
+  { tab: "autoScan", label: "Scan Rapide", activeClass: "text-amber-600", activeBgClass: "bg-amber-50", icon: Zap },
+  { tab: "stock", label: "Gestion Stock", activeClass: "text-emerald-600", activeBgClass: "bg-emerald-50", icon: Package },
+  { tab: "categories", label: "Catégories", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Tags },
 ];
 
 type AppNavigationProps = {
@@ -37,9 +37,8 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
             <button
               key={tab}
               onClick={() => onTabChange(tab)}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${
-                isActive ? activeClass : "text-stone-400 hover:text-stone-700"
-              }`}
+              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${isActive ? activeClass : "text-stone-400 hover:text-stone-700"
+                }`}
             >
               <div className={`p-2 rounded-2xl transition ${isActive ? activeBgClass : ""}`}>
                 <Icon className={`w-6 h-6 ${isActive ? "fill-current" : ""}`} />
@@ -52,9 +51,8 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
         <button
           type="button"
           onClick={() => void assistant.open()}
-          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${
-            isAssistantActive ? "text-violet-600" : "text-stone-400 hover:text-stone-700"
-          }`}
+          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${isAssistantActive ? "text-violet-600" : "text-stone-400 hover:text-stone-700"
+            }`}
           aria-label="Ouvrir l’assistant vocal"
         >
           <div className={`p-2 rounded-2xl transition ${isAssistantActive ? "bg-violet-50" : ""}`}>

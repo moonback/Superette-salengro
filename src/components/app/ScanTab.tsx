@@ -97,7 +97,7 @@ export function ScanTab({
       {/* Recently Scanned */}
       {recentlyScanned.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 px-1">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">
             Derniers scans
           </h3>
           <div className="space-y-2">
@@ -129,15 +129,15 @@ const RecentScanItem: React.FC<RecentScanItemProps> = ({ item, onEditProduct, on
   return (
     <div
       onClick={() => onEditProduct(item)}
-      className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white px-4 py-3 flex items-center justify-between gap-3 hover:border-stone-300 hover:shadow-sm cursor-pointer select-none transition group lg:px-5 lg:py-4 lg:gap-4"
+      className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-between gap-3 hover:border-slate-300 hover:shadow-sm cursor-pointer select-none transition group lg:px-5 lg:py-4 lg:gap-4"
     >
       <div className="min-w-0 flex-1 flex items-center gap-3 lg:gap-4">
-        <div className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50 p-1 lg:h-14 lg:w-14">
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain rounded" /> : <Package className="h-5 w-5 text-stone-300 lg:h-6 lg:w-6" />}
+        <div className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-50 p-1 lg:h-14 lg:w-14">
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain rounded" /> : <Package className="h-5 w-5 text-slate-300 lg:h-6 lg:w-6" />}
         </div>
         <div className="min-w-0">
-          <h4 className="text-sm font-bold text-stone-900 group-hover:text-indigo-600 transition-colors lg:text-base">{item.name}</h4>
-          <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-stone-400 font-medium lg:text-xs">
+          <h4 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors lg:text-base">{item.name}</h4>
+          <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-slate-400 font-medium lg:text-xs">
             <span className="font-mono tabular">{item.barcode}</span>
             {item.brand && <span>• {item.brand}</span>}
           </div>
@@ -150,14 +150,14 @@ const RecentScanItem: React.FC<RecentScanItemProps> = ({ item, onEditProduct, on
             {item.quantity}
           </div>
         )}
-        <div className="flex items-center rounded-full bg-stone-50 border border-stone-200">
-          <button onClick={() => onUpdateQuantity(item.barcode, -1)} className="h-9 w-9 grid place-items-center rounded-l-full text-stone-500 active:scale-90 hover:text-stone-900 transition cursor-pointer lg:h-10 lg:w-10" aria-label="Diminuer la quantité">
+        <div className="flex items-center rounded-full bg-slate-50 border border-slate-200">
+          <button onClick={() => onUpdateQuantity(item.barcode, -1)} className="h-9 w-9 grid place-items-center rounded-l-full text-slate-500 active:scale-90 hover:text-slate-900 transition cursor-pointer lg:h-10 lg:w-10" aria-label="Diminuer la quantité">
             <Minus className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
           </button>
-          <button onClick={() => onEditQuantity(item)} className={`px-2 min-w-[32px] text-center text-xs font-bold font-mono tabular py-0.5 hover:text-indigo-600 cursor-pointer lg:text-sm ${item.quantity <= 5 ? "text-amber-600" : "text-stone-900"}`}>
+          <button onClick={() => onEditQuantity(item)} className={`px-2 min-w-[32px] text-center text-xs font-bold font-mono tabular py-0.5 hover:text-indigo-600 cursor-pointer lg:text-sm ${item.quantity <= 5 ? "text-amber-600" : "text-slate-900"}`}>
             <AnimatedQuantity value={item.quantity} />
           </button>
-          <button onClick={() => onUpdateQuantity(item.barcode, 1)} className="h-9 w-9 grid place-items-center rounded-r-full text-stone-500 active:scale-90 hover:text-stone-900 transition cursor-pointer lg:h-10 lg:w-10" aria-label="Augmenter la quantité">
+          <button onClick={() => onUpdateQuantity(item.barcode, 1)} className="h-9 w-9 grid place-items-center rounded-r-full text-slate-500 active:scale-90 hover:text-slate-900 transition cursor-pointer lg:h-10 lg:w-10" aria-label="Augmenter la quantité">
             <Plus className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
           </button>
         </div>

@@ -72,7 +72,7 @@ export function AutomaticScanPanel({
 
           <div className="relative">
             {loadingBarcode && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl border border-stone-200 bg-white/95 text-stone-700 backdrop-blur-xs">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/95 text-slate-700 backdrop-blur-md">
                 <Loader2 className="mb-2 h-6 w-6 animate-spin text-indigo-600" />
                 <span className="font-mono text-xs font-semibold tracking-wider">
                   Scan {loadingBarcode}...
