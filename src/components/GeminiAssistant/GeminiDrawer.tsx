@@ -18,7 +18,7 @@ export function GeminiDrawer({ state, isMuted, error, autoAccept, setAutoAccept,
   const active = state === AssistantState.Listening || state === AssistantState.Speaking || state === AssistantState.Thinking;
   return (
     <motion.section initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl bg-white p-6 shadow-sm">
-      <div className="mx-auto max-w-md space-y-4">
+      <div className="mx-auto max-w-md space-y-6">
         <div className="flex items-center justify-between">
           <div><p className="text-sm font-bold text-stone-900">Assistant vocal</p><p className="text-xs text-stone-500"></p></div>
           <div className="flex gap-2">
@@ -38,15 +38,15 @@ export function GeminiDrawer({ state, isMuted, error, autoAccept, setAutoAccept,
           </div>
         </div>
         <div className="grid place-items-center py-4">
-          <div className="relative grid h-28 w-28 place-items-center rounded-full bg-indigo-600 text-white">
-            {active && <span className="absolute inset-0 animate-ping rounded-full bg-indigo-400/50" />}
+          <div className="relative grid h-28 w-28 place-items-center rounded-full bg-slate-900 text-white">
+            {active && <span className="absolute inset-0 animate-ping rounded-full bg-slate-900/20" />}
             {state === AssistantState.Connecting || state === AssistantState.Thinking ? <Loader className="h-10 w-10 animate-spin" /> : isMuted ? <MicOff className="h-10 w-10" /> : <Mic className="h-10 w-10" />}
           </div>
         </div>
-        {error && <p className="rounded-2xl bg-rose-50 p-3 text-center text-xs font-medium text-rose-700">{error}</p>}
+        {error && <p className="rounded-2xl bg-rose-50 p-3 text-center text-xs font-medium text-rose-500">{error}</p>}
         <div className="flex justify-center gap-3">
           <button onClick={onMuteToggle} className="rounded-2xl bg-stone-100 px-5 py-3 font-semibold text-stone-700">{isMuted ? 'Micro' : 'Pause'}</button>
-          <button onClick={onStop} className="rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white"><Pause className="inline h-4 w-4" /> Stop</button>
+          <button onClick={onStop} className="rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white"><Pause className="inline h-4 w-4" /> Stop</button>
         </div>
       </div>
     </motion.section>
