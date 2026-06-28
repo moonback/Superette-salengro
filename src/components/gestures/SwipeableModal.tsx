@@ -91,7 +91,7 @@ export function SwipeableModal({
             onDragStart={handleDragStart}
             onDrag={handleDrag}
             onDragEnd={handleDragEnd}
-            className={`w-full sm:max-w-md bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl shadow-stone-900/25 overflow-hidden pb-safe touch-pan-x ${className}`}
+            className={`w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-sm overflow-hidden pb-safe touch-pan-x ${className}`}
             style={{ touchAction: 'pan-x' }}
           >
             {showHandle && (

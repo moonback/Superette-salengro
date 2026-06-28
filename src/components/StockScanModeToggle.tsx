@@ -20,7 +20,7 @@ export function StockScanModeToggle({
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <ScanLine className="h-4 w-4 text-indigo-600" />
+            <ScanLine className="h-4 w-4 text-slate-900" />
             <h3 className="text-xs font-bold text-slate-900">Scan automatique</h3>
           </div>
           <p className="mt-0.5 text-[10px] text-slate-500">

@@ -556,7 +556,7 @@ export function ExportModal({
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        className="w-full sm:max-w-md bg-white border-t sm:border border-stone-200 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl shadow-stone-900/25 overflow-hidden pb-safe max-h-[92vh] overflow-y-auto no-scrollbar"
+        className="w-full sm:max-w-md bg-white border-t sm:border border-stone-200 rounded-t-2xl sm:rounded-2xl shadow-sm overflow-hidden pb-safe max-h-[92vh] overflow-y-auto no-scrollbar"
         style={{ touchAction: 'pan-x' }}
       >
         <div className="flex justify-center py-3 sm:hidden sticky top-0 bg-white z-10">
