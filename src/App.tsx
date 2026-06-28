@@ -1583,7 +1583,7 @@ export default function App() {
             onCancel={() => setActionModal(null)}
           />
         )}
-        <Toast message={toastMessage?.text || null} visible={!!toastMessage} />
+<Toast message={toastMessage?.text || null} visible={!!toastMessage} />
     </GeminiAssistantProvider>
   );
 }
