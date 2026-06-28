@@ -13,10 +13,10 @@ type NavItem = {
 };
 
 export const navItems: NavItem[] = [
-  { tab: "scan", label: "Scanner", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Scan },
-  { tab: "autoScan", label: "Scan Rapide", activeClass: "text-amber-600", activeBgClass: "bg-amber-50", icon: Zap },
-  { tab: "stock", label: "Gestion Stock", activeClass: "text-emerald-600", activeBgClass: "bg-emerald-50", icon: Package },
-  { tab: "categories", label: "Catégories", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Tags },
+  { tab: "scan", label: "Scanner", activeClass: "text-slate-900", activeBgClass: "bg-stone-50", icon: Scan },
+  { tab: "autoScan", label: "Scan Rapide", activeClass: "text-amber-500", activeBgClass: "bg-amber-50", icon: Zap },
+  { tab: "stock", label: "Gestion Stock", activeClass: "text-emerald-500", activeBgClass: "bg-emerald-50", icon: Package },
+  { tab: "categories", label: "Catégories", activeClass: "text-slate-900", activeBgClass: "bg-stone-50", icon: Tags },
 ];
 
 type AppNavigationProps = {
@@ -29,8 +29,8 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
   const isAssistantActive = assistant.isOpen && !assistant.isMinimized;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe">
-      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-[1.75rem] border px-2 py-2 shadow-2xl shadow-stone-900/10">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-safe">
+      <div className="bg-white border border-slate-200 mx-auto flex max-w-md justify-around rounded-2xl px-2 py-2 shadow-sm shadow-stone-900/10">
         {navItems.map(({ tab, label, activeClass, activeBgClass, icon: Icon }) => {
           const isActive = activeTab === tab;
           return (

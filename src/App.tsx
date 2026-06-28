@@ -829,7 +829,7 @@ export default function App() {
   if (isSessionLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-stone-500">
-        <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+        <Loader2 className="h-7 w-7 animate-spin text-slate-900" />
         <span className="text-xs font-semibold tracking-wider font-mono">
           Vérification de la session...
         </span>
@@ -1383,7 +1383,7 @@ export default function App() {
         {/* Mobile layout */}
         <div className="lg:hidden">
           <div className="app-shell text-stone-800 font-sans">
-            <div className="border-b border-stone-200/70 bg-white/70 backdrop-blur-xl">
+            <div className="border-b border-stone-200/70 bg-white ">
               <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
                 <Header
                   email={session.email}
@@ -1401,7 +1401,7 @@ export default function App() {
                 />
               </div>
             </div>
-            <main className="app-main space-y-3 sm:space-y-4">
+            <main className="app-main space-y-3 sm:space-y-6">
               <SyncNotice
                 syncError={syncError}
                 inventorySource={inventorySource}

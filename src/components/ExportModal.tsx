@@ -536,7 +536,7 @@ export function ExportModal({
   const scale = Math.max(0.95, 1 - dragY / 1000);
 
   return (
-    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <motion.div
         initial={{ opacity: 0, y: '100%' }}
         animate={{

@@ -50,10 +50,10 @@ function SwipeableItem({ children, isCompact = false, onSwipeRight, onSwipeLeft 
   let iconLeft = false;
   let iconRight = false;
   if (currentX > 15) {
-    bgClass = "bg-emerald-100";
+    bgClass = "bg-emerald-50";
     iconLeft = true;
   } else if (currentX < -15) {
-    bgClass = "bg-rose-100";
+    bgClass = "bg-rose-50";
     iconRight = true;
   }
 
@@ -68,7 +68,7 @@ function SwipeableItem({ children, isCompact = false, onSwipeRight, onSwipeLeft 
           <span>Ajouter +1</span>
         </div>
         <div
-          className="flex items-center gap-1.5 text-rose-600 font-bold text-[10px] uppercase tracking-wider transition-opacity duration-150"
+          className="flex items-center gap-1.5 text-rose-500 font-bold text-[10px] uppercase tracking-wider transition-opacity duration-150"
           style={{ opacity: iconRight ? 1 : 0, transform: `scale(${0.85 + intensity * 0.25})` }}
         >
           <span>Supprimer</span>
@@ -145,7 +145,7 @@ export function InventoryGrid({
     if (!isRecentTimestamp(item.lastUpdated)) return null;
 
     return (
-      <span className="inline-flex items-center rounded-full bg-sky-50 border border-sky-200 px-2 py-0.5 text-[9px] font-bold text-sky-700">
+      <span className="inline-flex items-center rounded-full bg-stone-50 border border-slate-200 px-2 py-0.5 text-[9px] font-bold text-stone-700">
         Nouveau
       </span>
     );
@@ -157,14 +157,14 @@ export function InventoryGrid({
     if (quantity === 0) {
       return {
         badge: "border-rose-200 bg-rose-50 text-rose-700",
-        text: "text-rose-600",
+        text: "text-rose-500",
         dot: "bg-rose-500",
       };
     }
     if (quantity <= 5) {
       return {
         badge: "border-amber-200 bg-amber-50 text-amber-700",
-        text: "text-amber-600",
+        text: "text-amber-500",
         dot: "bg-amber-500",
       };
     }
@@ -211,7 +211,7 @@ export function InventoryGrid({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-14 text-center">
+      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-14 text-center">
         <Package className="mx-auto mb-3 h-8 w-8 text-stone-300" />
         <h3 className="font-bold text-stone-900 text-sm">Aucun produit en stock</h3>
         <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-500">
@@ -234,7 +234,7 @@ export function InventoryGrid({
               </h3>
               <span className="h-px flex-1 bg-stone-200" aria-hidden="true" />
               {lowStockCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                   {lowStockCount} à réapprovisionner
                 </span>
@@ -257,12 +257,12 @@ export function InventoryGrid({
                   >
                     {isCompactView ? (
                       <article
-                        className="group flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-3 transition-colors hover:border-stone-300 hover:bg-stone-50/50 cursor-pointer lg:gap-4 lg:px-4 lg:py-4"
+                        className="group flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-4 transition-colors hover:border-stone-300 hover:bg-stone-50/50 cursor-pointer lg:gap-6 lg:px-4 lg:py-4"
                         onClick={() => onEditProduct(item)}
                       >
                         <div className="relative grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50 lg:h-16 lg:w-16">
                           {item.imageUrl ? (
-                            <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-lg object-contain" />
+                            <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-xl object-contain" />
                           ) : (
                             <Package className="h-5 w-5 text-stone-300 lg:h-6 lg:w-6" />
                           )}
@@ -315,7 +315,7 @@ export function InventoryGrid({
                       </article>
                     ) : (
                       <article
-                        className="group rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition-all hover:border-stone-300 hover:shadow-md cursor-pointer"
+                        className="group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-stone-300 hover:shadow-sm cursor-pointer"
                         onClick={() => onEditProduct(item)}
                       >
                         <div className="flex items-start gap-3">

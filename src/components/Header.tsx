@@ -36,7 +36,7 @@ export function Header({
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
 
   return (
-    <header className="sticky top-0 z-40 glass-panel border-b pt-safe">
+    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 pt-safe">
       <div className="mx-auto w-full px-4 pb-3 pt-3">
         {/* Identity row */}
         <div className="flex items-center gap-3">
@@ -142,7 +142,7 @@ export function Header({
             onClick={canSync ? onSyncNow : undefined}
             disabled={!canSync}
             aria-label={`Statut réseau : ${!isOnline ? "Hors-ligne" : `${pendingCount} en attente`}${canSync ? ", touchez pour synchroniser" : ""}`}
-            className={`mt-2.5 flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-semibold text-slate-700 transition ${canSync ? 'tap-active cursor-pointer' : 'cursor-default'}`}
+            className={`mt-2.5 flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-xs font-semibold text-slate-700 transition ${canSync ? 'tap-active cursor-pointer' : 'cursor-default'}`}
           >
             {!isOnline ? (
               <CloudOff className="h-3.5 w-3.5 flex-shrink-0" />
@@ -160,7 +160,7 @@ export function Header({
 
         {/* Embedding progress banner */}
         {isRunning && (
-          <div className="mt-2.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2">
+          <div className="mt-2.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-semibold text-slate-900">
                 Vectorisation {isPaused ? "(en pause)" : "en cours"}

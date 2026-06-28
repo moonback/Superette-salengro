@@ -105,7 +105,7 @@ export function StockTab({
   const pageEnd = Math.min(currentPage * ITEMS_PER_PAGE, filteredInventory.length);
 
   return (
-    <section className="space-y-4 pb-20">
+    <section className="space-y-6 pb-20">
       {/* Header */}
       <div className="space-y-3 px-1">
         <div className="flex items-start justify-between gap-3">
@@ -148,7 +148,7 @@ export function StockTab({
       </div>
 
       {/* Quick Filters */}
-      <div className="-mx-3 flex gap-2 overflow-x-auto px-3 no-scrollbar">
+      <div className="-mx-3 flex gap-2 overflow-x-auto px-4 no-scrollbar">
         <QuickFilter
           label="Toutes"
           active={stockFilter === "all"}
@@ -172,7 +172,7 @@ export function StockTab({
         {categories.length > 0 && (
           <button
             onClick={onShowCategoryModal}
-            className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl border border-slate-200 whitespace-nowrap ${
               selectedCategory ? "bg-slate-900 text-white border-slate-900" : "text-slate-600 bg-white"
             }`}
           >
@@ -185,7 +185,7 @@ export function StockTab({
       {/* Show Stats Button */}
       <button
         onClick={() => setShowStats(!showStats)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 text-xs font-semibold text-slate-600 border border-slate-200 rounded-2xl bg-white hover:bg-slate-50"
+        className="w-full flex items-center justify-center gap-2 px-4 py-4 text-xs font-semibold text-slate-600 border border-slate-200 rounded-2xl bg-white hover:bg-slate-50"
       >
         <Eye className="w-4 h-4" />
         {showStats ? "Masquer les stats" : "Voir les stats"}
@@ -193,7 +193,7 @@ export function StockTab({
 
       {/* Stats - only shown when toggled */}
       {showStats && (
-        <div className="flex gap-2 overflow-x-auto -mx-3 px-3 no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto -mx-3 px-4 no-scrollbar">
           <StatCard
             label="Achat Total"
             value={`${financialStats.totalPurchaseVal.toFixed(2)} €`}
@@ -280,7 +280,7 @@ export function StockTab({
               type="button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPage === 1}
-              className="min-h-10 rounded-xl border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-10 rounded-xl border border-slate-200 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Precedent
             </button>
@@ -308,7 +308,7 @@ export function StockTab({
               type="button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
-              className="min-h-10 rounded-xl border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-10 rounded-xl border border-slate-200 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Suivant
             </button>
@@ -319,7 +319,7 @@ export function StockTab({
       {/* Floating Scanner Button */}
       {/* <button
         onClick={onOpenScan}
-        className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-full shadow-lg shadow-indigo-600/30 flex flex-col items-center justify-center px-6 py-3 z-40 active:scale-95 transition"
+        className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-full  shadow-slate-900/10 flex flex-col items-center justify-center px-6 py-4 z-40 active:scale-95 transition"
       >
         <Zap className="w-6 h-6 mb-0.5" />
         <span className="text-xs font-bold">Scanner</span>
@@ -340,8 +340,8 @@ function QuickFilter({
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 whitespace-nowrap transition ${
-        active ? "bg-indigo-600 text-white border-indigo-600" : "text-slate-600 bg-white"
+      className={`px-4 py-2 text-xs font-semibold rounded-xl border border-slate-200 whitespace-nowrap transition ${
+        active ? "bg-slate-900 text-white border-slate-900" : "text-slate-600 bg-white"
       }`}
     >
       {label}
@@ -352,7 +352,7 @@ function QuickFilter({
 function StatCard({ label, value, tone }: { label: string; value: string; tone: "stone" | "indigo" | "emerald" }) {
   const bgClasses = {
     stone: "bg-stone-100 border-stone-200",
-    indigo: "bg-indigo-50 border-indigo-100",
+    indigo: "bg-stone-50 border-indigo-100",
     emerald: "bg-emerald-50 border-emerald-100",
   }[tone];
 

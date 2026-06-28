@@ -70,7 +70,7 @@ export function SwipeableModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40">
           <motion.div
             ref={modalRef}
             initial={{ opacity: 0, y: '100%' }}

@@ -180,8 +180,8 @@ export function CategoriesManager({
   };
 
   return (
-    <section className="space-y-4">
-      <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6">
+    <section className="space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-slate-900 shadow-sm sm:h-14 sm:w-14">
@@ -200,7 +200,7 @@ export function CategoriesManager({
       </div>
 
       {/* Action Header Card */}
-      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:p-4">
+      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:p-6">
         <div>
           <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
             Administration des Catégories
@@ -213,7 +213,7 @@ export function CategoriesManager({
           {/* <button
             onClick={handleAutoCategorize}
             disabled={isAutoCategorizing || categories.length === 0}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] font-bold text-indigo-600 transition hover:bg-indigo-100 disabled:opacity-40 sm:flex-none"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-indigo-100 bg-stone-50 px-4 py-2 text-[10px] font-bold text-slate-900 transition hover:bg-indigo-100 disabled:opacity-40 sm:flex-none"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isAutoCategorizing ? 'animate-spin' : ''}`} />
             Classer automatiquement
@@ -226,7 +226,7 @@ export function CategoriesManager({
               setName('');
               setIcon('📦');
             }}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-[10px] font-bold text-white transition hover:bg-slate-800 sm:flex-none"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-[10px] font-bold text-white transition hover:bg-slate-800 sm:flex-none"
           >
             <Plus className="w-3.5 h-3.5" />
             Nouvelle
@@ -243,9 +243,9 @@ export function CategoriesManager({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <form onSubmit={handleSave} className="p-4 rounded-2xl border border-slate-200 bg-white space-y-4">
+            <form onSubmit={handleSave} className="p-6 rounded-2xl border border-slate-200 bg-white space-y-6">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">
                   {editingCategory ? 'Modifier la catégorie' : 'Créer une catégorie'}
                 </span>
                 <button
@@ -265,7 +265,7 @@ export function CategoriesManager({
                     maxLength={2}
                     value={icon}
                     onChange={(e) => setIcon(e.target.value)}
-                    className="w-full h-10 text-center glass-input rounded-xl text-lg outline-none transition"
+                    className="w-full h-10 text-center border border-slate-200 bg-white rounded-xl text-lg outline-none transition"
                     placeholder="📦"
                   />
                 </div>
@@ -275,7 +275,7 @@ export function CategoriesManager({
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full h-10 px-3 glass-input rounded-xl text-xs font-semibold text-slate-900 outline-none transition"
+                    className="w-full h-10 px-4 border border-slate-200 bg-white rounded-xl text-xs font-semibold text-slate-900 outline-none transition"
                     placeholder="Ex: Épicerie, Boissons..."
                     required
                   />
@@ -291,7 +291,7 @@ export function CategoriesManager({
                       key={emoji}
                       type="button"
                       onClick={() => setIcon(emoji)}
-                      className={`w-7 h-7 flex items-center justify-center rounded-lg text-sm transition hover:bg-slate-100 ${
+                      className={`w-7 h-7 flex items-center justify-center rounded-xl text-sm transition hover:bg-slate-100 ${
                           icon === emoji ? 'bg-slate-900 text-white' : ''
                         }`}
                     >
@@ -306,14 +306,14 @@ export function CategoriesManager({
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="px-3 py-2 text-[10px] font-bold text-slate-500 bg-transparent border border-slate-200 hover:bg-white rounded-xl transition"
+                  className="px-4 py-2 text-[10px] font-bold text-slate-500 bg-transparent border border-slate-200 hover:bg-white rounded-xl transition"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading || !name.trim()}
-                  className="px-3 py-2 text-[10px] font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition flex items-center gap-1 disabled:opacity-40"
+                  className="px-4 py-2 text-[10px] font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition flex items-center gap-1 disabled:opacity-40"
                 >
                   <Check className="w-3.5 h-3.5" />
                   Sauvegarder
@@ -352,7 +352,7 @@ export function CategoriesManager({
                   aria-expanded={isSelected}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-lg border border-slate-200">
+                    <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-lg border border-slate-200">
                       {category.icon || '📦'}
                     </div>
                     <div>
@@ -370,7 +370,7 @@ export function CategoriesManager({
                       event.stopPropagation();
                       handleEdit(category);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
+                    className="p-1.5 text-slate-400 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition"
                     title="Modifier"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -380,7 +380,7 @@ export function CategoriesManager({
                       event.stopPropagation();
                       handleDelete(category);
                     }}
-                    className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
+                    className="p-1.5 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition"
                     title="Supprimer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -395,7 +395,7 @@ export function CategoriesManager({
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="border-t border-slate-100 px-3 pb-3 pt-2">
+                      <div className="border-t border-slate-100 px-4 pb-3 pt-2">
                         <div className="mb-2 flex items-center justify-between">
                           <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
                             Produits associés
@@ -406,7 +406,7 @@ export function CategoriesManager({
                         </div>
 
                         {associatedProducts.length === 0 ? (
-                          <div className="rounded-xl border border-dashed border-slate-200 bg-white px-3 py-4 text-center text-[10px] font-semibold text-slate-400">
+                          <div className="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-4 text-center text-[10px] font-semibold text-slate-400">
                             Aucun produit dans cette catégorie.
                           </div>
                         ) : (
@@ -416,7 +416,7 @@ export function CategoriesManager({
                                 key={item.barcode}
                                 className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-2"
                               >
-                                <div className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-slate-200 bg-white p-1">
+                                <div className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl border border-slate-200 bg-white p-1">
                                   {item.imageUrl ? (
                                     <img
                                       src={item.imageUrl}
@@ -435,7 +435,7 @@ export function CategoriesManager({
                                     {item.barcode}{item.brand ? ` • ${item.brand}` : ''}
                                   </p>
                                 </div>
-                                <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 font-mono text-[10px] font-bold tabular text-slate-900">
+                                <span className="rounded-xl border border-slate-200 bg-white px-2 py-1 font-mono text-[10px] font-bold tabular text-slate-900">
                                   x{item.quantity}
                                 </span>
                               </div>

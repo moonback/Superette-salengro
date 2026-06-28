@@ -264,7 +264,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
     <div className="rounded-2xl border border-stone-200 bg-stone-50/70 p-3">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-700">
             <Camera className="h-3 w-3" />
             Caméra mobile
           </span>
@@ -282,7 +282,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
         {!isOpen && (
           <div className="absolute inset-0 grid place-items-center bg-stone-900 text-center text-white">
             <div className="px-6">
-              <ScanLine className="mx-auto mb-2 h-8 w-8 text-sky-300" />
+              <ScanLine className="mx-auto mb-2 h-8 w-8 text-stone-400" />
               <p className="text-sm font-bold">Scan caméra smartphone</p>
               <p className="mt-1 text-[11px] text-stone-300">Aucune douchette physique requise.</p>
             </div>
@@ -296,7 +296,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
           </div>
         )}
         {isStarting && (
-          <div className="absolute inset-0 grid place-items-center bg-stone-950/70 text-white backdrop-blur-sm">
+          <div className="absolute inset-0 grid place-items-center bg-stone-950/70 text-white ">
             <Loader2 className="h-7 w-7 animate-spin" />
           </div>
         )}
@@ -313,7 +313,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
             }
           }}
           disabled={!canScan || isStarting}
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-sky-600 px-4 text-xs font-bold text-white shadow-md shadow-sky-600/20 transition hover:bg-sky-700 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 text-xs font-bold text-white shadow-sm shadow-sky-600/20 transition hover:bg-slate-900 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
         >
           {isOpen ? <CameraOff className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
           {isOpen ? "Arrêter" : "Scanner avec la caméra"}
@@ -322,7 +322,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
           <button
             type="button"
             onClick={() => setIsCameraPickerOpen(true)}
-            className="grid h-11 w-11 place-items-center rounded-2xl border border-stone-200 bg-white text-stone-600 transition hover:text-sky-700"
+            className="grid h-11 w-11 place-items-center rounded-2xl border border-stone-200 bg-white text-stone-600 transition hover:text-stone-700"
             aria-label={`Choisir la caméra. Caméra actuelle : ${selectedCameraLabel}`}
             title={`Choisir caméra · ${selectedCameraLabel}`}
           >
@@ -333,7 +333,7 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
           type="button"
           onClick={toggleTorch}
           disabled={!isOpen || !torchSupported}
-          className="grid h-11 w-11 place-items-center rounded-2xl border border-stone-200 bg-white text-stone-600 transition hover:text-sky-700 disabled:pointer-events-none disabled:opacity-40"
+          className="grid h-11 w-11 place-items-center rounded-2xl border border-stone-200 bg-white text-stone-600 transition hover:text-stone-700 disabled:pointer-events-none disabled:opacity-40"
           aria-label={torchEnabled ? "Désactiver la torche" : "Activer la torche"}
           title={torchSupported ? "Torche" : "Torche non prise en charge"}
         >
@@ -342,15 +342,15 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
       </div>
 
       {(status || error) && (
-        <div className={`mt-3 flex gap-2 rounded-2xl border px-3 py-2 text-[11px] font-semibold ${error ? "border-rose-200 bg-rose-50 text-rose-600" : "border-sky-200 bg-sky-50 text-sky-700"}`}>
+        <div className={`mt-3 flex gap-2 rounded-2xl border px-4 py-2 text-[11px] font-semibold ${error ? "border-rose-200 bg-rose-50 text-rose-500" : "border-slate-200 bg-stone-50 text-stone-700"}`}>
           {error && <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
           <span>{error || status}</span>
         </div>
       )}
 
       {isCameraPickerOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-stone-900/40 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="w-full max-w-sm rounded-t-3xl border border-stone-200 bg-white p-4 shadow-2xl sm:rounded-3xl">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-stone-900/40 p-0  sm:items-center sm:p-6">
+          <div className="w-full max-w-sm rounded-t-2xl border border-stone-200 bg-white p-6 shadow-sm sm:rounded-2xl">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-bold text-stone-900">Choisir une caméra</p>
@@ -372,15 +372,15 @@ export function CameraBarcodeScanner({ enabled, isBusy, onScan }: CameraBarcodeS
                   key={device.deviceId || `camera-${index}`}
                   type="button"
                   onClick={() => handleCameraSelection(device.deviceId)}
-                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-3 text-left text-xs font-bold transition ${
+                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-4 text-left text-xs font-bold transition ${
                     device.deviceId === selectedCameraId
-                      ? "border-sky-200 bg-sky-50 text-sky-700"
-                      : "border-stone-200 bg-white text-stone-700 hover:border-sky-200 hover:bg-sky-50/60 hover:text-sky-700"
+                      ? "border-slate-200 bg-stone-50 text-stone-700"
+                      : "border-stone-200 bg-white text-stone-700 hover:border-slate-200 hover:bg-stone-50/60 hover:text-stone-700"
                   }`}
                 >
                   <span>{device.label || `Caméra ${index + 1}`}</span>
                   {device.deviceId === selectedCameraId && (
-                    <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] uppercase tracking-wide">Active</span>
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] uppercase tracking-wide">Active</span>
                   )}
                 </button>
               ))}

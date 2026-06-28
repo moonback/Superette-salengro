@@ -33,8 +33,8 @@ export function AutomaticScanPanel({
   onScan,
 }: AutomaticScanPanelProps) {
   return (
-    <section className="space-y-4">
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 sm:p-6">
+    <section className="space-y-6">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 sm:p-6">
         <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 sm:h-14 sm:w-14">
@@ -69,7 +69,7 @@ export function AutomaticScanPanel({
 
           <div className="relative">
             {loadingBarcode && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/95 text-slate-700 backdrop-blur-md">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 ">
                 <Loader2 className="mb-2 h-6 w-6 animate-spin text-slate-900" />
                 <span className="font-mono text-xs font-semibold tracking-wider">
                   Scan {loadingBarcode}...
@@ -90,7 +90,7 @@ export function AutomaticScanPanel({
       )}
 
       {!enabled && (
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-700">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-[11px] font-semibold text-slate-700">
           Activez le scan automatique pour appliquer les mouvements sans fenêtre de confirmation.
         </div>
       )}

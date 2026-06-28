@@ -71,7 +71,7 @@ export function CategoryFilterModal({
   const scale = Math.max(0.95, 1 - dragY / 1000);
 
   return (
-    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 ">
       <motion.div
         initial={{ opacity: 0, y: '100%' }}
         animate={{
@@ -91,22 +91,22 @@ export function CategoryFilterModal({
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        className="w-full sm:max-w-md bg-white border-t sm:border border-stone-200 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl shadow-stone-900/25 overflow-hidden pb-safe max-h-[92vh] overflow-y-auto no-scrollbar"
+        className="w-full sm:max-w-md bg-white border-t sm:border border-stone-200 rounded-t-2xl sm:rounded-2xl shadow-sm overflow-hidden pb-safe max-h-[92vh] overflow-y-auto no-scrollbar"
         style={{ touchAction: 'pan-x' }}
       >
-        <div className="flex justify-center py-3 sm:hidden sticky top-0 bg-white z-10">
+        <div className="flex justify-center py-4 sm:hidden sticky top-0 bg-white z-10">
           <div className="w-12 h-1.5 bg-stone-300 rounded-full" />
         </div>
 
         <div className="p-6">
-          <div className="absolute top-4 right-4 hidden sm:block">
+          <div className="absolute top-6 right-4 hidden sm:block">
             <button onClick={onClose} className="p-2 text-stone-400 hover:text-stone-900 rounded-full hover:bg-stone-100 transition touch-target">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/25">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-slate-900 text-white shadow-sm shadow-slate-900/10">
               <Tags className="h-5 w-5" />
             </div>
             <div>
@@ -169,12 +169,12 @@ function CategoryButton({ active, title, subtitle, icon, onClick }: CategoryButt
       onClick={onClick}
       className={`w-full flex items-center justify-between p-3 rounded-xl border transition touch-target ${
         active
-          ? "bg-indigo-600 border-indigo-600 text-white"
-          : "bg-white border-stone-200 text-stone-900 hover:border-indigo-300 hover:bg-indigo-50"
+          ? "bg-slate-900 border-slate-900 text-white"
+          : "bg-white border-stone-200 text-stone-900 hover:border-slate-300 hover:bg-stone-50"
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
           active ? "bg-white/20" : "bg-stone-50 border border-stone-200"
         }`}>
           {icon}

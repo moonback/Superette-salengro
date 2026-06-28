@@ -53,7 +53,7 @@ export function ScanChoiceModal({ product, onChooseStock, onChooseEdit, onCancel
   const scale = Math.max(0.95, 1 - dragY / 1000);
 
   return (
-    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 ">
       <motion.div
         initial={{ opacity: 0, y: '100%' }}
         animate={{
@@ -73,15 +73,15 @@ export function ScanChoiceModal({ product, onChooseStock, onChooseEdit, onCancel
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        className="w-full sm:max-w-md bg-white border-t sm:border border-stone-200 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl shadow-stone-900/25 overflow-hidden pb-safe max-h-[92vh] overflow-y-auto no-scrollbar"
+        className="w-full sm:max-w-md bg-white border-t sm:border border-stone-200 rounded-t-2xl sm:rounded-2xl shadow-sm overflow-hidden pb-safe max-h-[92vh] overflow-y-auto no-scrollbar"
         style={{ touchAction: 'pan-x' }}
       >
-        <div className="flex justify-center py-3 sm:hidden sticky top-0 bg-white z-10">
+        <div className="flex justify-center py-4 sm:hidden sticky top-0 bg-white z-10">
           <div className="w-12 h-1.5 bg-stone-300 rounded-full" />
         </div>
 
         <div className="p-6">
-          <div className="absolute top-4 right-4 hidden sm:block">
+          <div className="absolute top-6 right-4 hidden sm:block">
             <button
               onClick={onCancel}
               className="p-2 text-stone-400 hover:text-stone-900 rounded-full hover:bg-stone-100 transition touch-target"
@@ -91,12 +91,12 @@ export function ScanChoiceModal({ product, onChooseStock, onChooseEdit, onCancel
           </div>
 
           <div className="text-center mb-6">
-            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full mb-3">
+            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-full mb-3">
               Produit trouvé
             </span>
             <div className="w-20 h-20 bg-stone-50 border border-stone-200 rounded-2xl flex items-center justify-center p-2 mx-auto mb-3">
               {product.imageUrl ? (
-                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain rounded-lg" />
+                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain rounded-xl" />
               ) : (
                 <Package className="w-8 h-8 text-stone-300" />
               )}
@@ -105,15 +105,15 @@ export function ScanChoiceModal({ product, onChooseStock, onChooseEdit, onCancel
             <p className="text-xs font-mono tabular text-stone-400 mt-1">{product.barcode}</p>
             {product.brand && <p className="text-xs text-stone-500 font-semibold">{product.brand}</p>}
 
-            <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600">
-              Stock actuel : <strong className="text-indigo-600 font-bold font-mono tabular">{product.quantity}</strong>
+            <div className="mt-3 inline-flex items-center gap-1.5 px-4 py-1 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600">
+              Stock actuel : <strong className="text-slate-900 font-bold font-mono tabular">{product.quantity}</strong>
             </div>
           </div>
 
           <div className="space-y-3">
             <button
               onClick={onChooseStock}
-              className="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] rounded-2xl text-white font-bold text-sm shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2.5 transition touch-target"
+              className="w-full py-4 px-4 bg-slate-900 hover:bg-slate-900 active:scale-[0.98] rounded-2xl text-white font-bold text-sm  shadow-slate-900/10 flex items-center justify-center gap-2.5 transition touch-target"
             >
               <ClipboardList className="w-5 h-5" />
               Modifier le stock (+ ou -)
@@ -129,7 +129,7 @@ export function ScanChoiceModal({ product, onChooseStock, onChooseEdit, onCancel
 
             <button
               onClick={onCancel}
-              className="w-full py-3 text-xs font-semibold text-stone-400 hover:text-stone-600 transition touch-target"
+              className="w-full py-4 text-xs font-semibold text-stone-400 hover:text-stone-600 transition touch-target"
             >
               Fermer
             </button>

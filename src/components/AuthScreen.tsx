@@ -53,11 +53,11 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-md space-y-6">
         {/* App Logo & Header */}
         <div className="text-center space-y-2">
-          <div className="inline-grid h-14 w-14 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 mx-auto">
+          <div className="inline-grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-white  shadow-slate-900/10 mx-auto">
             <Store className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-stone-900">NeuroStock</h1>
@@ -67,9 +67,9 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         </div>
 
         {/* Auth Panel */}
-        <div className="surface-card rounded-[2rem] p-6 relative overflow-hidden">
+        <div className="surface-card rounded-2xl p-6 relative overflow-hidden">
           {/* Slide transition container for switching forms */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <h2 className="text-lg font-bold text-stone-900 mb-2">
               {isLogin ? "Connexion" : "Créer un compte"}
             </h2>
@@ -80,7 +80,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-xs text-rose-600"
+                  className="flex gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-4.5 py-4 text-xs text-rose-500"
                 >
                   <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <span>{error}</span>
@@ -92,7 +92,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs text-emerald-600"
+                  className="flex gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-4.5 py-4 text-xs text-emerald-500"
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 animate-pulse" />
                   <span>{successMessage}</span>
@@ -112,7 +112,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-11 pl-10 pr-4 glass-input rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
+                    className="w-full h-11 pl-10 pr-4 border border-slate-200 bg-white rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
                     placeholder="nom@boutique.com"
                     disabled={loading}
                   />
@@ -130,7 +130,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-11 pl-10 pr-4 glass-input rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
+                    className="w-full h-11 pl-10 pr-4 border border-slate-200 bg-white rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
                     placeholder="••••••••"
                     disabled={loading}
                   />
@@ -141,7 +141,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition cursor-pointer select-none mt-2"
+              className="w-full h-12 bg-slate-900 hover:bg-slate-900 active:scale-[0.98] text-white rounded-xl text-sm font-bold  shadow-slate-900/10 flex items-center justify-center gap-2 transition cursor-pointer select-none mt-2"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-white" />
@@ -163,7 +163,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 setSuccessMessage(null);
               }}
               disabled={loading}
-              className="text-xs text-stone-500 hover:text-indigo-600 font-semibold transition"
+              className="text-xs text-stone-500 hover:text-slate-900 font-semibold transition"
             >
               {isLogin
                 ? "Nouveau ici ? Créez un compte"
