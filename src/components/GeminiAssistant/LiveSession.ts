@@ -1,360 +1,164 @@
-import { FunctionCallRequest, LiveSessionState } from './types';
+import { GoogleGenAI } from '@google/genai';
+import { AudioManager, int16ToBase64 } from './AudioManager';
+import type { GeminiToolCall, GeminiToolResult } from './types';
 import { buildSystemPrompt } from './systemPrompt';
-import { getToolsDeclaration, isDestructiveTool } from './tools';
-import { AudioManager, int16ArrayToBase64 } from './AudioManager';
-import { AssistantContext } from './types';
+import { getToolsDeclaration } from './tools';
+import type { AssistantExternalContext } from './types';
 
-const GEMINI_LIVE_MODEL = 'gemini-2.5-flash-preview-native-audio-dialog';
-const WEBSOCKET_URL = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent';
+const MODEL = 'gemini-3.1-flash-live-preview';
+const LOG_PREFIX = '[GeminiAssistant][LiveSession]';
 
-type SetupMessage = {
-  setup: {
-    model: string;
-    generationConfig: {
-      responseModalities: string[];
-      speechConfig?: {
-        voiceConfig?: {
-          prebuiltVoiceConfig?: {
-            voiceName: string;
-          };
-        };
-      };
-    };
-    systemInstruction?: {
-      parts: Array<{ text: string }>;
-    };
-    tools?: Array<{
-      functionDeclarations: Array<{
-        name: string;
-        description: string;
-        parameters: unknown;
-      }>;
-    }>;
-  };
-};
-
-type ContentMessage = {
-  realtimeInput: {
-    mediaChunks: Array<{
-      mimeType: string;
-      data: string;
-    }>;
-  };
-};
-
-type ToolResponseMessage = {
-  toolResponse: {
-    functionResponses: Array<{
-      id: string;
-      name: string;
-      response: unknown;
-    }>;
-  };
-};
-
-type IncomingMessage = {
-  sessionResumptionUpdate?: {
-    newHandle: string;
-  };
-  serverContent?: {
-    modelTurn?: {
-      parts: Array<{
-        text?: string;
-        inlineData?: {
-          mimeType: string;
-          data: string;
-        };
-        functionCall?: {
-          id: string;
-          name: string;
-          args: Record<string, unknown>;
-        };
-      }>;
-    };
-    turnComplete?: boolean;
-  };
-  toolResponse?: {
-    functionResponses: Array<{
-      id: string;
-      name: string;
-      response: unknown;
-      error?: string;
-    }>;
-  };
-  setupComplete?: boolean;
-  error?: {
-    code: number;
-    message: string;
-  };
-};
-
-type LiveSessionCallbacks = {
-  onConnect: () => void;
-  onDisconnect: () => void;
-  onSpeakingStart: () => void;
-  onSpeakingEnd: () => void;
-  onListeningStart: () => void;
-  onListeningEnd: () => void;
-  onFunctionCall: (call: FunctionCallRequest, isDestructive: boolean) => Promise<unknown>;
-  onError: (error: string) => void;
+type LiveCallbacks = {
+  onOpen?: () => void;
+  onClose?: () => void;
+  onAudio?: () => void;
+  onThinking?: () => void;
+  onFunctionCall?: (call: GeminiToolCall) => Promise<GeminiToolResult>;
+  onError?: (message: string) => void;
 };
 
 export class LiveSession {
-  private websocket: WebSocket | null = null;
-  private audioManager: AudioManager;
-  private state: LiveSessionState = {
-    isConnected: false,
-    isReady: false,
-    error: null,
-  };
-  private callbacks: LiveSessionCallbacks | null = null;
-  private context: AssistantContext | null = null;
-  private isProcessingTurn = false;
-  private pendingFunctionCalls: FunctionCallRequest[] = [];
-  private sessionHandle: string | null = null;
+  private ai: GoogleGenAI | null = null;
+  private session: any = null;
+  private reconnectAttempts = 0;
+  private closedByUser = false;
+  private sentAudioChunks = 0;
+  private lastSendLogAt = 0;
 
-  constructor() {
-    this.audioManager = AudioManager.getInstance();
-  }
+  constructor(private readonly audio = AudioManager.getInstance(), private callbacks: LiveCallbacks = {}) {}
 
-  setCallbacks(callbacks: LiveSessionCallbacks): void {
-    this.callbacks = callbacks;
-  }
+  setCallbacks(callbacks: LiveCallbacks): void { this.callbacks = callbacks; }
+  isConnected(): boolean { return Boolean(this.session); }
 
-  setContext(context: AssistantContext): void {
-    this.context = context;
-  }
+  async connect(context: AssistantExternalContext): Promise<void> {
+    this.closedByUser = false;
+    this.sentAudioChunks = 0;
+    this.ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-  async connect(apiKey: string): Promise<void> {
-    if (this.websocket) {
-      this.disconnect();
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        const wsUrl = `${WEBSOCKET_URL}?key=${encodeURIComponent(apiKey)}`;
-
-        this.websocket = new WebSocket(wsUrl);
-
-        this.websocket.onopen = () => {
-          void this.sendSetup(apiKey);
-        };
-
-        this.websocket.onmessage = async (event) => {
-          try {
-            const message: IncomingMessage = JSON.parse(event.data);
-            await this.handleMessage(message);
-          } catch (err) {
-            console.error('Erreur parsing message:', err);
-          }
-        };
-
-        this.websocket.onerror = (error) => {
-          console.error('Erreur WebSocket:', error);
-          this.callbacks?.onError('Erreur de connexion WebSocket');
-          reject(new Error('Erreur de connexion'));
-        };
-
-        this.websocket.onclose = (event) => {
-          this.state.isConnected = false;
-          this.state.isReady = false;
-          this.callbacks?.onDisconnect();
-        };
-
-        const setupTimeout = setTimeout(() => {
-          reject(new Error('Timeout de connexion'));
-          this.disconnect();
-        }, 15000);
-
-        const originalOnMessage = this.websocket.onmessage;
-        this.websocket.onmessage = async (event) => {
-          clearTimeout(setupTimeout);
-          this.websocket!.onmessage = originalOnMessage;
-          try {
-            const message: IncomingMessage = JSON.parse(event.data);
-            await this.handleMessage(message);
-            resolve();
-          } catch (err) {
-            console.error('Erreur parsing message:', err);
-          }
-        };
-
-      } catch (error) {
-        reject(error);
-      }
+    const prompt = buildSystemPrompt(context);
+    const functionDeclarations = getToolsDeclaration();
+    console.info(LOG_PREFIX, 'Connexion Gemini Live demandée', {
+      model: MODEL,
+      responseModalities: ['AUDIO'],
+      hasApiKey: Boolean(import.meta.env.VITE_GEMINI_API_KEY),
+      promptChars: prompt.length,
+      tools: functionDeclarations.map((tool) => tool.name),
+      context: {
+        inventoryCount: context.inventory?.length ?? 0,
+        categoriesCount: context.categories?.length ?? 0,
+        offlineMode: context.offlineMode,
+        language: context.language,
+      },
     });
-  }
 
-  private sendSetup(apiKey: string): void {
-    if (!this.websocket || !this.context) return;
-
-    const systemPrompt = buildSystemPrompt(this.context);
-    const tools = getToolsDeclaration();
-
-    const setupMsg: SetupMessage = {
-      setup: {
-        model: `models/${GEMINI_LIVE_MODEL}`,
-        generationConfig: {
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: {
-                voiceName: 'Orus',
-              },
-            },
-          },
-        },
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        tools: [
-          {
-            functionDeclarations: tools,
-          },
-        ],
+    this.session = await (this.ai as any).live.connect({
+      model: MODEL,
+      config: {
+        responseModalities: ['AUDIO'],
+        systemInstruction: { parts: [{ text: prompt }] },
+        tools: [{ functionDeclarations }],
       },
-    };
+      callbacks: {
+        onopen: () => {
+          this.reconnectAttempts = 0;
+          console.info(LOG_PREFIX, 'Connexion Gemini Live ouverte');
+          this.callbacks.onOpen?.();
+        },
+        onclose: (event: unknown) => {
+          console.warn(LOG_PREFIX, 'Connexion Gemini Live fermée', event);
+          void this.handleClose(context);
+        },
+        onerror: (event: unknown) => {
+          const message = event instanceof Error ? event.message : 'Erreur Gemini Live';
+          console.error(LOG_PREFIX, 'Erreur Gemini Live', event);
+          this.callbacks.onError?.(message);
+        },
+        onmessage: (message: unknown) => void this.handleMessage(message),
+      },
+    });
 
-    this.websocket.send(JSON.stringify(setupMsg));
+    this.audio.onMicrophoneChunk((pcm) => this.sendAudio(pcm));
+    console.info(LOG_PREFIX, 'Session Live créée et handler audio attaché');
   }
 
-  private async handleMessage(message: IncomingMessage): Promise<void> {
-    if (message.error) {
-      console.error('Erreur Gemini:', message.error);
-      this.callbacks?.onError(message.error.message);
+  async startAudio(): Promise<void> {
+    console.info(LOG_PREFIX, 'Démarrage capture audio');
+    await this.audio.startMicrophone();
+    console.info(LOG_PREFIX, 'Capture audio démarrée');
+  }
+
+  sendAudio(pcm: Int16Array): void {
+    if (!this.session) {
+      console.warn(LOG_PREFIX, 'Chunk PCM ignoré: session absente', { samples: pcm.length });
       return;
     }
 
-    if (message.setupComplete) {
-      this.state.isConnected = true;
-      this.state.isReady = true;
-      this.callbacks?.onConnect();
+    this.sentAudioChunks += 1;
+    const now = Date.now();
+    if (now - this.lastSendLogAt > 1000) {
+      this.lastSendLogAt = now;
+      console.info(LOG_PREFIX, 'Envoi audio vers Gemini', { chunks: this.sentAudioChunks, samples: pcm.length, bytes: pcm.byteLength });
+    }
+
+    this.session.sendRealtimeInput?.({ audio: { mimeType: 'audio/pcm;rate=16000', data: int16ToBase64(pcm) } });
+  }
+
+  async sendToolResult(result: GeminiToolResult): Promise<void> {
+    console.info(LOG_PREFIX, 'Retour tool envoyé à Gemini', { id: result.id, name: result.name, success: result.response.success, denied: result.response.denied, error: result.response.error });
+    this.session?.sendToolResponse?.({ functionResponses: [{ id: result.id, name: result.name, response: result.response }] });
+  }
+
+  async disconnect(): Promise<void> {
+    console.info(LOG_PREFIX, 'Déconnexion demandée', { sentAudioChunks: this.sentAudioChunks });
+    this.closedByUser = true;
+    this.audio.onMicrophoneChunk(null);
+    this.audio.stopMicrophone();
+    this.audio.stopPlayback();
+    this.session?.close?.();
+    this.session = null;
+    this.callbacks.onClose?.();
+  }
+
+  private async handleMessage(message: any): Promise<void> {
+    console.debug(LOG_PREFIX, 'Message reçu de Gemini', message);
+    if (message?.serverContent?.interrupted || message?.interrupted) {
+      console.info(LOG_PREFIX, 'Interruption détectée, arrêt de la lecture');
+      this.audio.stopPlayback();
       return;
     }
+    const parts = message?.serverContent?.modelTurn?.parts ?? message?.modelTurn?.parts ?? [];
+    if (message?.setupComplete) console.info(LOG_PREFIX, 'Setup Gemini Live terminé');
+    if (!parts.length && !message?.setupComplete) console.info(LOG_PREFIX, 'Message Gemini sans parts exploitables', Object.keys(message ?? {}));
 
-    if (message.sessionResumptionUpdate) {
-      this.sessionHandle = message.sessionResumptionUpdate.newHandle;
-    }
 
-    if (message.serverContent) {
-      const { modelTurn, turnComplete } = message.serverContent;
-
-      if (modelTurn?.parts) {
-        for (const part of modelTurn.parts) {
-          if (part.inlineData?.mimeType?.startsWith('audio/')) {
-            this.callbacks?.onSpeakingStart();
-            await this.audioManager.playAudioFromBase64(part.inlineData.data);
-            this.callbacks?.onSpeakingEnd();
-          }
-
-          if (part.functionCall) {
-            const call: FunctionCallRequest = {
-              id: part.functionCall.id,
-              name: part.functionCall.name,
-              args: part.functionCall.args,
-            };
-            this.pendingFunctionCalls.push(call);
-          }
-        }
+    for (const part of parts) {
+      if (part.inlineData?.data) {
+        console.info(LOG_PREFIX, 'Audio reçu de Gemini', { mimeType: part.inlineData.mimeType, chars: part.inlineData.data.length });
+        this.callbacks.onAudio?.();
+        await this.audio.playBase64Pcm(part.inlineData.data);
       }
-
-      if (turnComplete) {
-        await this.processPendingFunctionCalls();
+      if (part.functionCall && this.callbacks.onFunctionCall) {
+        console.info(LOG_PREFIX, 'Function call reçu', { id: part.functionCall.id, name: part.functionCall.name, args: part.functionCall.args });
+        this.callbacks.onThinking?.();
+        const result = await this.callbacks.onFunctionCall({ id: part.functionCall.id ?? crypto.randomUUID(), name: part.functionCall.name, args: part.functionCall.args ?? {} });
+        await this.sendToolResult(result);
       }
     }
   }
 
-  private async processPendingFunctionCalls(): Promise<void> {
-    if (this.pendingFunctionCalls.length === 0 || this.isProcessingTurn) return;
-
-    this.isProcessingTurn = true;
-    const calls = [...this.pendingFunctionCalls];
-    this.pendingFunctionCalls = [];
-
-    const responses: Array<{ id: string; name: string; response: unknown; error?: string }> = [];
-
-    for (const call of calls) {
-      try {
-        const isDestructive = isDestructiveTool(call.name);
-        const result = await this.callbacks?.onFunctionCall(call, isDestructive);
-        responses.push({
-          id: call.id,
-          name: call.name,
-          response: result ?? { success: true },
-        });
-      } catch (error) {
-        responses.push({
-          id: call.id,
-          name: call.name,
-          response: { error: true },
-          error: error instanceof Error ? error.message : 'Erreur inconnue',
-        });
-      }
+  private async handleClose(context: AssistantExternalContext): Promise<void> {
+    this.session = null;
+    this.callbacks.onClose?.();
+    if (this.closedByUser || this.reconnectAttempts >= 3) {
+      console.info(LOG_PREFIX, 'Reconnexion non lancée', { closedByUser: this.closedByUser, reconnectAttempts: this.reconnectAttempts });
+      return;
     }
-
-    const toolResponseMsg: ToolResponseMessage = {
-      toolResponse: {
-        functionResponses: responses,
-      },
-    };
-
-    this.websocket?.send(JSON.stringify(toolResponseMsg));
-    this.isProcessingTurn = false;
-  }
-
-  sendAudioChunk(pcmData: Int16Array): void {
-    if (!this.websocket || !this.state.isReady) return;
-
-    const base64Audio = int16ArrayToBase64(pcmData);
-
-    const msg: ContentMessage = {
-      realtimeInput: {
-        mediaChunks: [
-          {
-            mimeType: 'audio/pcm;rate=16000',
-            data: base64Audio,
-          },
-        ],
-      },
-    };
-
-    this.websocket.send(JSON.stringify(msg));
-  }
-
-  sendText(text: string): void {
-    if (!this.websocket || !this.state.isReady) return;
-
-    const msg: ContentMessage = {
-      realtimeInput: {
-        mediaChunks: [
-          {
-            mimeType: 'text/plain',
-            data: btoa(text),
-          },
-        ],
-      },
-    };
-
-    this.websocket.send(JSON.stringify(msg));
-  }
-
-  disconnect(): void {
-    if (this.websocket) {
-      this.websocket.close();
-      this.websocket = null;
-    }
-    this.state.isConnected = false;
-    this.state.isReady = false;
-    this.sessionHandle = null;
-    this.pendingFunctionCalls = [];
-    this.isProcessingTurn = false;
-  }
-
-  getState(): LiveSessionState {
-    return { ...this.state };
-  }
-
-  isConnected(): boolean {
-    return this.state.isConnected && this.state.isReady;
+    const delay = 500 * 2 ** this.reconnectAttempts;
+    this.reconnectAttempts += 1;
+    console.warn(LOG_PREFIX, 'Reconnexion planifiée', { attempt: this.reconnectAttempts, delay });
+    window.setTimeout(() => void this.connect(context).catch((error: unknown) => {
+      console.error(LOG_PREFIX, 'Reconnexion échouée', error);
+      this.callbacks.onError?.(error instanceof Error ? error.message : 'Reconnexion impossible');
+    }), delay);
   }
 }

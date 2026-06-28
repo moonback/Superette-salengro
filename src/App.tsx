@@ -19,7 +19,7 @@ import {
   syncInventoryItem,
   syncDeleteInventoryItem,
 } from "./lib/inventorySync";
-import { fetchCategories } from "./lib/supabaseCategories";
+import { fetchCategories, upsertCategory } from "./lib/supabaseCategories";
 import { CategoriesManager } from "./components/CategoriesManager";
 import { suggestCategory } from "./lib/autoCategorization";
 import { getSession, signOut, UserSession } from "./lib/supabaseAuth";
@@ -34,7 +34,7 @@ import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
 import { ScanTab } from "./components/app/ScanTab";
 import { StockTab } from "./components/app/StockTab";
 import { SyncNotice } from "./components/app/SyncNotice";
-import { GeminiAssistantProvider, AssistantContext } from "./components/GeminiAssistant";
+import { GeminiAssistantProvider } from "./providers/GeminiAssistantProvider";
 
 
 type ActionModalState =
@@ -775,31 +775,68 @@ export default function App() {
     return <AuthScreen onAuthSuccess={(activeSession) => setSession(activeSession)} />;
   }
 
-  const assistantContext: AssistantContext = {
-    inventory: {
-      items: inventory.map((item) => ({
-        barcode: item.barcode,
-        name: item.name,
-        quantity: item.quantity,
-        category: item.category,
-        brand: item.brand,
-      })),
-      categories: dbCategories,
-      totalItems,
-      lowStockCount,
-      offlineMode: !isOnline,
-      pendingSync: pendingCount,
-    },
-    userEmail: session.email,
+  const assistantContext = {
+    inventory: inventory.map((item) => ({
+      barcode: item.barcode,
+      name: item.name,
+      quantity: item.quantity,
+      category: item.category,
+      brand: item.brand,
+    })),
+    categories: dbCategories,
+    user: { email: session.email },
     storeName: "Superette Salengro",
-    isOnline,
+    language: "français",
+    offlineMode: !isOnline,
+    businessRules: [
+      "Tu es Julien",
+      "Assistant vocal d’inventaire",
+      "Tu réponds en français",
+      "Réponses courtes",
+      "Tu n’agis que via tools",
+      "Toute action destructive nécessite confirmation",
+    ],
   };
 
   return (
     <GeminiAssistantProvider
-      context={assistantContext}
-      onExportCSV={handleExport}
-      onRefresh={loadInventoryOnly}
+      getContext={() => assistantContext}
+      toolHandlers={{
+        updateStock: async (args) => {
+          const barcode = String(args.barcode ?? "");
+          const quantity = Number(args.quantity);
+          const item = inventory.find((candidate) => candidate.barcode === barcode);
+          if (!item || !Number.isFinite(quantity)) throw new Error("Produit ou quantité invalide");
+          await syncItem({ ...item, quantity: Math.max(0, quantity), lastUpdated: Date.now(), lastMovement: quantity - item.quantity });
+          return { barcode, quantity };
+        },
+        createCategory: async (args) => {
+          const name = String(args.name ?? "").trim();
+          if (!name) throw new Error("Nom de catégorie requis");
+          const saved = await upsertCategory({ name });
+          setDbCategories((prev) => [saved, ...prev.filter((category) => category.name !== saved.name)]);
+          return saved;
+        },
+        renameCategory: async (args) => {
+          const oldName = String(args.oldName ?? "").trim();
+          const newName = String(args.newName ?? "").trim();
+          const current = dbCategories.find((category) => category.name === oldName);
+          if (!current || !newName) throw new Error("Catégorie invalide");
+          const saved = await upsertCategory({ ...current, name: newName });
+          setDbCategories((prev) => [saved, ...prev.filter((category) => category.id !== saved.id)]);
+          return saved;
+        },
+        deleteProduct: async (args) => {
+          const barcode = String(args.barcode ?? "");
+          await syncDeleteInventoryItem(barcode);
+          setInventory((prev) => prev.filter((item) => item.barcode !== barcode));
+          return { barcode };
+        },
+        exportCSV: () => {
+          handleExport();
+          return { exported: true };
+        },
+      }}
     >
     <div className="app-shell text-stone-800 font-sans">
       <Header

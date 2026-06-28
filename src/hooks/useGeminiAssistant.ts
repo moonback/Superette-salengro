@@ -1,22 +1,8 @@
 import { useContext } from 'react';
-import { GeminiAssistantContext } from './GeminiAssistantContext';
+import { GeminiAssistantContext } from '../providers/GeminiAssistantProvider';
 
 export function useGeminiAssistant() {
   const context = useContext(GeminiAssistantContext);
-
-  if (!context) {
-    throw new Error(
-      'useGeminiAssistant must be used within a GeminiAssistantProvider',
-    );
-  }
-
-  return {
-    open: context.open,
-    close: context.close,
-    minimize: context.minimize,
-    isOpen: context.isOpen,
-    isMinimized: context.isMinimized,
-    state: context.state,
-    error: context.error,
-  };
+  if (!context) throw new Error('useGeminiAssistant must be used within a GeminiAssistantProvider');
+  return context;
 }

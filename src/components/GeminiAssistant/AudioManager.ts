@@ -1,225 +1,250 @@
-export class AudioManager {
-  private audioContext: AudioContext | null = null;
-  private microphoneStream: MediaStream | null = null;
-  private microphoneSource: MediaStreamAudioSourceNode | null = null;
-  private workletNode: AudioWorkletNode | null = null;
-  private speakerDestination: AudioDestinationNode | null = null;
-  private audioBuffers: Int16Array[] = [];
-  private isRecording = false;
-  private onAudioData: ((data: Int16Array) => void) | null = null;
+export type PcmChunkHandler = (pcm: Int16Array) => void;
 
-  private static INSTANCE: AudioManager | null = null;
+const INPUT_SAMPLE_RATE = 16000;
+const OUTPUT_SAMPLE_RATE = 24000;
+const LOG_PREFIX = '[GeminiAssistant][Audio]';
+
+export class AudioManager {
+  private static instance: AudioManager | null = null;
+  private context: AudioContext | null = null;
+  private stream: MediaStream | null = null;
+  private source: MediaStreamAudioSourceNode | null = null;
+  private worklet: AudioWorkletNode | null = null;
+  private workletUrl: string | null = null;
+  private onChunk: PcmChunkHandler | null = null;
+  private muted = false;
+  private lastLevelLogAt = 0;
+  private sentChunks = 0;
+  private accumulationBuffer: Int16Array | null = null;
+  private accumulationIndex = 0;
+  private readonly ACCUMULATION_SIZE = 1024; // ~64ms of audio at 16kHz
+  private playbackQueue: { pcm: Int16Array; resolve: () => void }[] = [];
+  private isPlaying = false;
+  private activeSource: AudioBufferSourceNode | null = null;
+
+
 
   static getInstance(): AudioManager {
-    if (!AudioManager.INSTANCE) {
-      AudioManager.INSTANCE = new AudioManager();
-    }
-    return AudioManager.INSTANCE;
+    AudioManager.instance ??= new AudioManager();
+    return AudioManager.instance;
   }
 
   private constructor() {}
 
   async initialize(): Promise<void> {
-    if (!this.audioContext) {
-      this.audioContext = new AudioContext({ sampleRate: 16000 });
-      this.speakerDestination = this.audioContext.destination;
+    if (!this.context) {
+      this.context = new AudioContext({ sampleRate: INPUT_SAMPLE_RATE });
+      console.info(LOG_PREFIX, 'AudioContext créé', { sampleRate: this.context.sampleRate, state: this.context.state });
     }
+
+    if (this.context.state === 'suspended') {
+      console.info(LOG_PREFIX, 'AudioContext suspendu, reprise demandée');
+      await this.context.resume();
+      console.info(LOG_PREFIX, 'AudioContext repris', { state: this.context.state });
+    }
+  }
+
+  onMicrophoneChunk(handler: PcmChunkHandler | null): void {
+    this.onChunk = handler;
+    console.info(LOG_PREFIX, handler ? 'Handler PCM micro enregistré' : 'Handler PCM micro retiré');
   }
 
   async startMicrophone(): Promise<void> {
-    if (this.isRecording || !this.audioContext) return;
-
-    try {
-      this.audioBuffers = [];
-      this.microphoneStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 16000,
-          channelCount: 1,
-        },
-      });
-
-      this.microphoneSource = this.audioContext.createMediaStreamSource(
-        this.microphoneStream,
-      );
-
-      try {
-        this.workletNode = new AudioWorkletNode(
-          this.audioContext,
-          'pcm-processor',
-        );
-      } catch {
-        await this.audioContext.audioWorklet.addModule(
-          URL.createObjectURL(
-            new Blob(
-              [
-                `
-              class PCMProcessor extends AudioWorkletProcessor {
-                process(inputs) {
-                  const input = inputs[0];
-                  if (input && input[0]) {
-                    const floatData = input[0];
-                    const int16Data = new Int16Array(floatData.length);
-                    for (let i = 0; i < floatData.length; i++) {
-                      int16Data[i] = Math.max(-32768, Math.min(32767, Math.round(floatData[i] * 32768)));
-                    }
-                    this.port.postMessage(int16Data.buffer, [int16Data.buffer]);
-                  }
-                  return true;
-                }
-              }
-              registerProcessor('pcm-processor', PCMProcessor);
-            `,
-              ],
-              { type: 'application/javascript' },
-            ),
-          ),
-        );
-        this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-processor');
-      }
-
-      this.workletNode.port.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) {
-          const int16Data = new Int16Array(event.data);
-          if (this.onAudioData) {
-            this.onAudioData(int16Data);
-          }
-          this.audioBuffers.push(int16Data);
-        }
-      };
-
-      this.microphoneSource.connect(this.workletNode);
-      this.workletNode.connect(this.audioContext.destination);
-      this.isRecording = true;
-    } catch (error) {
-      console.error('Erreur microphone:', error);
-      throw new Error(
-        "Impossible d'accéder au microphone. Vérifiez les permissions.",
-      );
+    await this.initialize();
+    if (!this.context) {
+      console.error(LOG_PREFIX, 'AudioContext indisponible après initialisation');
+      return;
     }
+
+    if (this.stream) {
+      console.info(LOG_PREFIX, 'Micro déjà actif, startMicrophone ignoré');
+      return;
+    }
+
+    console.info(LOG_PREFIX, 'Demande permission micro', { requestedSampleRate: INPUT_SAMPLE_RATE, channelCount: 1 });
+    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: INPUT_SAMPLE_RATE } });
+    console.info(LOG_PREFIX, 'Micro autorisé', {
+      tracks: this.stream.getAudioTracks().map((track) => ({ label: track.label, enabled: track.enabled, muted: track.muted, readyState: track.readyState, settings: track.getSettings() })),
+    });
+
+    await this.ensureWorklet(this.context);
+    this.source = this.context.createMediaStreamSource(this.stream);
+    this.worklet = new AudioWorkletNode(this.context, 'gemini-pcm-processor');
+    this.worklet.port.onmessage = (event: MessageEvent<ArrayBuffer>) => {
+      if (this.muted) return;
+      
+      const newPcm = new Int16Array(event.data);
+      
+      if (!this.accumulationBuffer) {
+        this.accumulationBuffer = new Int16Array(this.ACCUMULATION_SIZE);
+        this.accumulationIndex = 0;
+      }
+      
+      for (let i = 0; i < newPcm.length; i++) {
+        this.accumulationBuffer[this.accumulationIndex++] = newPcm[i];
+        
+        if (this.accumulationIndex >= this.ACCUMULATION_SIZE) {
+          const chunkToSend = new Int16Array(this.accumulationBuffer);
+          this.sentChunks += 1;
+          const now = Date.now();
+          this.logInputLevel(chunkToSend, now);
+          this.onChunk?.(chunkToSend);
+          this.accumulationIndex = 0;
+        }
+      }
+    };
+    this.worklet.port.onmessageerror = (event) => console.error(LOG_PREFIX, 'Erreur message AudioWorklet', event);
+    this.source.connect(this.worklet);
+    this.worklet.connect(this.context.destination);
+    console.info(LOG_PREFIX, 'Micro connecté à AudioWorkletNode', { contextState: this.context.state });
   }
 
   stopMicrophone(): void {
-    if (this.workletNode) {
-      this.workletNode.disconnect();
-      this.workletNode = null;
-    }
-
-    if (this.microphoneSource) {
-      this.microphoneSource.disconnect();
-      this.microphoneSource = null;
-    }
-
-    if (this.microphoneStream) {
-      this.microphoneStream.getTracks().forEach((track) => track.stop());
-      this.microphoneStream = null;
-    }
-
-    this.isRecording = false;
+    console.info(LOG_PREFIX, 'Arrêt micro', { sentChunks: this.sentChunks });
+    this.worklet?.disconnect();
+    this.source?.disconnect();
+    this.stream?.getTracks().forEach((track) => track.stop());
+    this.worklet = null;
+    this.source = null;
+    this.stream = null;
+    this.sentChunks = 0;
+    this.accumulationBuffer = null;
+    this.accumulationIndex = 0;
   }
 
-  async playAudio(pcmData: Int16Array): Promise<void> {
-    if (!this.audioContext) {
-      await this.initialize();
-    }
+  setMuted(muted: boolean): void {
+    this.muted = muted;
+    console.info(LOG_PREFIX, muted ? 'Micro muet' : 'Micro réactivé');
+  }
 
-    if (!this.audioContext) return;
-
-    const floatData = new Float32Array(pcmData.length);
-    for (let i = 0; i < pcmData.length; i++) {
-      floatData[i] = pcmData[i] / 32768;
-    }
-
-    const audioBuffer = this.audioContext.createBuffer(
-      1,
-      floatData.length,
-      16000,
-    );
-    audioBuffer.copyToChannel(floatData, 0);
-
-    const source = this.audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(this.audioContext.destination);
-    source.start();
-
-    return new Promise((resolve) => {
-      source.onended = () => resolve();
+  async playPcm16(pcm: Int16Array, sampleRate = OUTPUT_SAMPLE_RATE): Promise<void> {
+    await this.initialize();
+    if (!this.context) return;
+    return new Promise<void>((resolve) => {
+      this.playbackQueue.push({ pcm, resolve });
+      if (!this.isPlaying) {
+        void this.processPlaybackQueue(sampleRate);
+      }
     });
   }
 
-  async playAudioFromBase64(base64Audio: string): Promise<void> {
+  private async processPlaybackQueue(sampleRate: number): Promise<void> {
+    if (this.isPlaying || !this.context) return;
+    this.isPlaying = true;
+
     try {
-      const binaryString = atob(base64Audio);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+      while (this.playbackQueue.length > 0) {
+        const item = this.playbackQueue.shift();
+        if (!item) continue;
+
+        const { pcm, resolve } = item;
+        const buffer = this.context.createBuffer(1, pcm.length, sampleRate);
+        const channel = buffer.getChannelData(0);
+        for (let i = 0; i < pcm.length; i += 1) channel[i] = Math.max(-1, Math.min(1, pcm[i] / 32768));
+
+        const source = this.context.createBufferSource();
+        this.activeSource = source;
+        source.buffer = buffer;
+        source.connect(this.context.destination);
+        source.start();
+
+        await new Promise<void>((done) => {
+          source.onended = () => {
+            if (this.activeSource === source) {
+              this.activeSource = null;
+            }
+            done();
+          };
+        });
+
+        resolve();
       }
-      const int16Data = new Int16Array(bytes.buffer);
-      return this.playAudio(int16Data);
-    } catch (error) {
-      console.error('Erreur lecture audio:', error);
+    } finally {
+      this.isPlaying = false;
     }
   }
 
-  onAudioChunk(callback: (data: Int16Array) => void): void {
-    this.onAudioData = callback;
-  }
+  stopPlayback(): void {
+    console.info(LOG_PREFIX, 'Arrêt forcé de la lecture');
+    const currentQueue = [...this.playbackQueue];
+    this.playbackQueue = [];
+    currentQueue.forEach((item) => item.resolve());
 
-  getRecordedAudio(): Int16Array {
-    const totalLength = this.audioBuffers.reduce(
-      (sum, buf) => sum + buf.length,
-      0,
-    );
-    const result = new Int16Array(totalLength);
-    let offset = 0;
-    for (const buf of this.audioBuffers) {
-      result.set(buf, offset);
-      offset += buf.length;
-    }
-    return result;
-  }
-
-  clearRecordedAudio(): void {
-    this.audioBuffers = [];
-  }
-
-  isMicrophoneActive(): boolean {
-    return this.isRecording;
-  }
-
-  async resumeContext(): Promise<void> {
-    if (this.audioContext?.state === 'suspended') {
-      await this.audioContext.resume();
+    if (this.activeSource) {
+      try {
+        this.activeSource.stop();
+      } catch (err) {
+        // Source already stopped
+      }
+      this.activeSource = null;
     }
   }
 
-  destroy(): void {
+  async playBase64Pcm(base64: string): Promise<void> {
+    await this.playPcm16(base64ToInt16(base64));
+  }
+
+  async destroy(): Promise<void> {
     this.stopMicrophone();
-    if (this.audioContext) {
-      void this.audioContext.close();
-      this.audioContext = null;
+    this.stopPlayback();
+    if (this.workletUrl) URL.revokeObjectURL(this.workletUrl);
+    this.workletUrl = null;
+    if (this.context && this.context.state !== 'closed') await this.context.close();
+    this.context = null;
+    this.onChunk = null;
+    console.info(LOG_PREFIX, 'AudioManager détruit');
+  }
+
+  private async ensureWorklet(context: AudioContext): Promise<void> {
+    if (this.workletUrl) return;
+    const processorSource = `
+      class GeminiPcmProcessor extends AudioWorkletProcessor {
+        process(inputs) {
+          const input = inputs[0];
+          const channel = input && input[0];
+          if (channel && channel.length) {
+            const pcm = new Int16Array(channel.length);
+            for (let i = 0; i < channel.length; i += 1) {
+              const sample = Math.max(-1, Math.min(1, channel[i]));
+              pcm[i] = sample < 0 ? sample * 32768 : sample * 32767;
+            }
+            this.port.postMessage(pcm.buffer, [pcm.buffer]);
+          }
+          return true;
+        }
+      }
+      registerProcessor('gemini-pcm-processor', GeminiPcmProcessor);
+    `;
+    this.workletUrl = URL.createObjectURL(new Blob([processorSource], { type: 'application/javascript' }));
+    await context.audioWorklet.addModule(this.workletUrl);
+    console.info(LOG_PREFIX, 'AudioWorkletNode chargé');
+  }
+
+  private logInputLevel(pcm: Int16Array, now: number): void {
+    if (now - this.lastLevelLogAt < 1000) return;
+    this.lastLevelLogAt = now;
+    let peak = 0;
+    let sumSquares = 0;
+    for (const sample of pcm) {
+      const abs = Math.abs(sample);
+      peak = Math.max(peak, abs);
+      sumSquares += sample * sample;
     }
-    this.speakerDestination = null;
-    this.onAudioData = null;
-    this.audioBuffers = [];
+    const rms = Math.sqrt(sumSquares / Math.max(1, pcm.length));
+    console.info(LOG_PREFIX, 'PCM micro capturé', { chunk: this.sentChunks, samples: pcm.length, peak, rms: Math.round(rms), muted: this.muted, hasHandler: Boolean(this.onChunk) });
   }
 }
 
-export function int16ArrayToBase64(data: Int16Array): string {
-  const bytes = new Uint8Array(data.buffer);
+export function int16ToBase64(data: Int16Array): string {
+  const bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
   return btoa(binary);
 }
 
-export function base64ToInt16Array(base64: string): Int16Array {
+export function base64ToInt16(base64: string): Int16Array {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
   return new Int16Array(bytes.buffer);
 }

@@ -1,5 +1,6 @@
 import type React from "react";
-import { Package, Scan, Tags, Zap } from "lucide-react";
+import { Bot, Package, Scan, Tags, Zap } from "lucide-react";
+import { useGeminiAssistant } from "../../hooks/useGeminiAssistant";
 
 export type AppTab = "scan" | "autoScan" | "stock" | "categories";
 
@@ -24,6 +25,9 @@ type AppNavigationProps = {
 };
 
 export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
+  const assistant = useGeminiAssistant();
+  const isAssistantActive = assistant.isOpen && !assistant.isMinimized;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe">
       <div className="glass-panel mx-auto flex max-w-md justify-around rounded-[1.75rem] border px-2 py-2 shadow-2xl shadow-stone-900/10">
@@ -44,6 +48,20 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
             </button>
           );
         })}
+
+        <button
+          type="button"
+          onClick={() => void assistant.open()}
+          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 transition select-none tap-active ${
+            isAssistantActive ? "text-violet-600" : "text-stone-400 hover:text-stone-700"
+          }`}
+          aria-label="Ouvrir l’assistant vocal"
+        >
+          <div className={`p-1.5 rounded-xl transition ${isAssistantActive ? "bg-violet-50" : ""}`}>
+            <Bot className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-bold tracking-wide">Julien</span>
+        </button>
       </div>
     </nav>
   );
