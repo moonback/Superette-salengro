@@ -1,3 +1,4 @@
+
 import type React from "react";
 import { Loader2, Search, Filter, Package, X, List, LayoutGrid, Tags, TrendingUp, SlidersHorizontal } from "lucide-react";
 import { InventoryGrid } from "../InventoryGrid";
@@ -76,7 +77,7 @@ export function StockTab({
   onEditProduct,
 }: StockTabProps) {
   return (
-    <section className="glass-card mobile-card space-y-4">
+    <section className="space-y-4">
       <div className="flex flex-col gap-3">
         <StockHero
           filteredCount={filteredInventory.length}
@@ -90,7 +91,7 @@ export function StockTab({
 
         <FinancialSummary financialStats={financialStats} />
 
-        <div className="sticky top-2 z-20 -mx-1 rounded-[1.75rem] border border-stone-200/80 bg-white/90 p-2 shadow-lg shadow-stone-900/5 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-0">
+        <div className="sticky top-[8.25rem] z-20 -mx-1 rounded-[1.75rem] border border-stone-200/80 bg-white/85 p-2 shadow-lg shadow-stone-900/5 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-0">
           <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400" />
             <input
@@ -314,3 +315,4 @@ function FiltersDrawer({ sortBy, stockFilter, onSortByChange, onStockFilterChang
     </div>
   );
 }
+

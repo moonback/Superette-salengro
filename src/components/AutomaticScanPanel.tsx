@@ -1,3 +1,4 @@
+
 import { Loader2, ScanLine, Zap } from "lucide-react";
 import { ManualInput } from "./ManualInput";
 import { CameraBarcodeScanner } from "./CameraBarcodeScanner";
@@ -32,53 +33,25 @@ export function AutomaticScanPanel({
   onScan,
 }: AutomaticScanPanelProps) {
   return (
-    <section className="glass-card mobile-card relative overflow-hidden space-y-4">
-      <div className="absolute right-0 top-0 p-3 opacity-40">
-        <Zap className="h-5 w-5 text-amber-500" />
-      </div>
+    <section className="space-y-4">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-700 p-4 shadow-xl shadow-amber-500/20 sm:p-6">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
 
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">
-            <ScanLine className="h-3 w-3" />
-            Scan auto
-          </span>
-          <h2 className="mt-2 text-base font-bold tracking-tight text-stone-900">
-            Ajouter ou retirer vite
-          </h2>
-          <p className="mt-1 max-w-xs text-[11px] font-medium leading-relaxed text-stone-500">
-            Choisissez le sens du mouvement puis scannez : chaque code applique automatiquement 1 unité.
-          </p>
-        </div>
-        <div
-          className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-            !isOnline
-              ? "border border-rose-200 bg-rose-50 text-rose-600"
-              : pendingCount > 0
-                ? "border border-amber-200 bg-amber-50 text-amber-700"
-                : syncError
-                  ? "border border-rose-200 bg-rose-50 text-rose-600"
-                  : "border border-emerald-200 bg-emerald-50 text-emerald-700"
-          }`}
-        >
-          <span
-            className={`h-1 w-1 rounded-full ${
-              !isOnline
-                ? "bg-rose-500"
-                : pendingCount > 0
-                  ? "animate-pulse bg-amber-500"
-                  : syncError
-                    ? "bg-rose-500"
-                    : "bg-emerald-500"
-            }`}
-          />
-          {!isOnline
-            ? "Hors-ligne"
-            : pendingCount > 0
-              ? `${pendingCount} en attente`
-              : syncError
-                ? "Supabase Off"
-                : "Synchro On"}
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg sm:h-14 sm:w-14">
+              <Zap className="h-5 w-5 text-white sm:h-7 sm:w-7" />
+            </div>
+            <div className="pt-0.5 sm:pt-1">
+              <h2 className="text-xl font-bold text-white tracking-tight sm:text-2xl">Scan Auto</h2>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm sm:px-2.5 sm:text-xs">
+                  {!isOnline ? "Hors-ligne" : pendingCount > 0 ? `${pendingCount} en attente` : syncError ? "Erreur" : "Synchro On"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
