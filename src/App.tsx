@@ -9,6 +9,7 @@ import { ScannerInputMode } from "./components/ScannerInputModeToggle";
 import { AuthScreen } from "./components/AuthScreen";
 import { Toast } from "./components/Toast";
 import { ExportModal } from "./components/ExportModal";
+import { ProductDetailsModal } from "./components/ProductDetailsModal";
 import { InventoryItem, ProductLookupData, CategoryItem } from "./types";
 import {
   isSupabaseConfigured,
@@ -47,7 +48,60 @@ type ActionModalState =
   | { type: "manual"; barcode: string }
   | { type: "edit"; product: InventoryItem }
   | { type: "scan_choice"; product: InventoryItem }
+  | { type: "product_details"; product: InventoryItem }
   | null;
+
+const MOBILE_BREAKPOINT_QUERY = "(max-width: 639px)";
+
+function isMobileViewport(): boolean {
+  return typeof window !== "undefined" && window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
+}
+
+function normalizeAssistantQuery(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function findInventoryItemForAssistant(
+  items: InventoryItem[],
+  args: Record<string, unknown>,
+): { item: InventoryItem | null; ambiguousMatches: InventoryItem[] } {
+  const barcode = String(args.barcode ?? "").trim();
+  const rawQuery = String(args.query ?? args.name ?? "").trim();
+  const query = normalizeAssistantQuery(rawQuery);
+
+  if (barcode) {
+    const barcodeMatch = items.find((item) => item.barcode === barcode);
+    if (barcodeMatch) return { item: barcodeMatch, ambiguousMatches: [] };
+  }
+
+  if (!query) return { item: null, ambiguousMatches: [] };
+
+  const exactMatches = items.filter((item) => {
+    const name = normalizeAssistantQuery(item.name);
+    const brand = normalizeAssistantQuery(item.brand ?? "");
+    return name === query || brand === query || item.barcode === rawQuery;
+  });
+  if (exactMatches.length === 1) return { item: exactMatches[0], ambiguousMatches: [] };
+  if (exactMatches.length > 1) return { item: null, ambiguousMatches: exactMatches.slice(0, 5) };
+
+  const startsWithMatches = items.filter((item) => {
+    const name = normalizeAssistantQuery(item.name);
+    const brand = normalizeAssistantQuery(item.brand ?? "");
+    return name.startsWith(query) || brand.startsWith(query) || item.barcode.startsWith(rawQuery);
+  });
+  if (startsWithMatches.length === 1) return { item: startsWithMatches[0], ambiguousMatches: [] };
+  if (startsWithMatches.length > 1) return { item: null, ambiguousMatches: startsWithMatches.slice(0, 5) };
+
+  const containsMatches = items.filter((item) => {
+    const name = normalizeAssistantQuery(item.name);
+    const brand = normalizeAssistantQuery(item.brand ?? "");
+    return name.includes(query) || brand.includes(query) || item.barcode.includes(rawQuery);
+  });
+  if (containsMatches.length === 1) return { item: containsMatches[0], ambiguousMatches: [] };
+  if (containsMatches.length > 1) return { item: null, ambiguousMatches: containsMatches.slice(0, 5) };
+
+  return { item: null, ambiguousMatches: [] };
+}
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(null);
@@ -802,6 +856,44 @@ export default function App() {
     <GeminiAssistantProvider
       getContext={() => assistantContext}
       toolHandlers={{
+        openProductDetails: async (args) => {
+          if (!isMobileViewport()) {
+            return {
+              opened: false,
+              mobileOnly: true,
+              error: "Cette action est disponible uniquement sur mobile.",
+            };
+          }
+
+          const { item, ambiguousMatches } = findInventoryItemForAssistant(inventory, args);
+          if (item) {
+            setActionModal({ type: "product_details", product: item });
+            return {
+              opened: true,
+              barcode: item.barcode,
+              name: item.name,
+            };
+          }
+
+          if (ambiguousMatches.length > 0) {
+            return {
+              opened: false,
+              ambiguous: true,
+              matches: ambiguousMatches.map((match) => ({
+                barcode: match.barcode,
+                name: match.name,
+                brand: match.brand,
+                category: match.category,
+              })),
+            };
+          }
+
+          return {
+            opened: false,
+            notFound: true,
+            query: String(args.query ?? args.name ?? args.barcode ?? ""),
+          };
+        },
         updateStock: async (args) => {
           const barcode = String(args.barcode ?? "");
           const quantity = Number(args.quantity);
@@ -1005,6 +1097,27 @@ export default function App() {
           onCancel={() => setActionModal(null)}
         />
       )}
+      {actionModal?.type === "product_details" && (
+        <ProductDetailsModal
+          product={actionModal.product}
+          onClose={() => setActionModal(null)}
+          onEditStock={() =>
+            setActionModal({
+              type: "quantity",
+              product: actionModal.product,
+              existingQty: actionModal.product.quantity,
+              isNew: false,
+            })
+          }
+          onEdit={() =>
+            setActionModal({
+              type: "edit",
+              product: actionModal.product,
+            })
+          }
+        />
+      )}
+
       {actionModal?.type === "quantity" && (
         <QuantityModal
           product={actionModal.product}

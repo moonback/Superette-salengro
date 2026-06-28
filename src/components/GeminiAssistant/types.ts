@@ -12,6 +12,7 @@ export enum AssistantState {
 
 export type ToolName =
   | 'searchProduct'
+  | 'openProductDetails'
   | 'updateStock'
   | 'createCategory'
   | 'renameCategory'
