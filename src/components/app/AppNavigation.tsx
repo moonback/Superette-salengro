@@ -28,20 +28,26 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe bg-gradient-to-t from-stone-100/30 to-transparent pointer-events-none">
-      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-2xl border border-stone-200/60 px-2 py-1.5 shadow-xl shadow-stone-900/5 pointer-events-auto">
+      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-2xl border border-stone-200/60 px-2 py-1 shadow-xl shadow-stone-900/5 pointer-events-auto">
         {navItems.map(({ tab, label, icon: Icon }) => {
           const isActive = activeTab === tab;
           return (
             <button
               key={tab}
+              type="button"
               onClick={() => onTabChange(tab)}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 transition select-none tap-active ${isActive ? "text-indigo-600" : "text-stone-400 hover:text-stone-700"
+              aria-current={isActive ? "page" : undefined}
+              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-2.5 transition-colors duration-150 select-none touch-manipulation tap-active [-webkit-tap-highlight-color:transparent] active:scale-95 ${isActive ? "text-indigo-600" : "text-stone-400 active:text-stone-600"
                 }`}
+              style={{ minHeight: 48 }}
             >
-              <div className={`p-1.5 rounded-xl transition-colors duration-200 ${isActive ? "bg-indigo-50/70" : ""}`}>
+              <div
+                className={`p-1.5 rounded-xl transition-colors duration-200 ${isActive ? "bg-indigo-50/70" : ""
+                  }`}
+              >
                 <Icon className={`w-5 h-5 ${isActive ? "stroke-[2.5]" : "stroke-[2]"}`} />
               </div>
-              <span className="text-[10px] font-bold tracking-wide">{label}</span>
+              <span className="text-[10px] font-bold tracking-wide leading-none">{label}</span>
             </button>
           );
         })}
@@ -49,14 +55,19 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
         <button
           type="button"
           onClick={() => void assistant.open()}
-          className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 transition select-none tap-active ${isAssistantActive ? "text-violet-650" : "text-stone-400 hover:text-stone-700"
+          aria-label="Ouvrir l'assistant vocal"
+          aria-pressed={isAssistantActive}
+          className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-2.5 transition-colors duration-150 select-none touch-manipulation tap-active [-webkit-tap-highlight-color:transparent] active:scale-95 ${isAssistantActive ? "text-violet-600" : "text-stone-400 active:text-stone-600"
             }`}
-          aria-label="Ouvrir l’assistant vocal"
+          style={{ minHeight: 48 }}
         >
-          <div className={`p-1.5 rounded-xl transition-colors duration-200 ${isAssistantActive ? "bg-violet-50" : ""}`}>
+          <div
+            className={`p-1.5 rounded-xl transition-colors duration-200 ${isAssistantActive ? "bg-violet-50" : ""
+              }`}
+          >
             <Bot className={`w-5 h-5 ${isAssistantActive ? "stroke-[2.5]" : "stroke-[2]"}`} />
           </div>
-          <span className="text-[10px] font-bold tracking-wide">Lina</span>
+          <span className="text-[10px] font-bold tracking-wide leading-none">Lina</span>
         </button>
       </div>
     </nav>
