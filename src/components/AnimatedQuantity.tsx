@@ -60,12 +60,12 @@ export function AnimatedQuantity({
       initial={false}
       animate={
         direction > 0
-          ? { scale: [1, 1.18, 1], y: [0, -2, 0] }
+          ? { scale: [1, 1.25, 1], y: [0, -2, 0], color: ["#10b981", "#059669", "currentColor"] }
           : direction < 0
-            ? { scale: [1, 1.12, 1], y: [0, 2, 0] }
+            ? { scale: [1, 1.15, 1], y: [0, 2, 0], color: ["#ef4444", "#dc2626", "currentColor"] }
             : { scale: 1, y: 0 }
       }
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
       className={className}
     >
       {displayValue}

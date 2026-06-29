@@ -1,6 +1,7 @@
 
 import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Check, Brain, Pause, Play, X, Package, FileText, AlertTriangle } from 'lucide-react';
 import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
+import { motion } from 'motion/react';
 
 interface HeaderProps {
   email: string;
@@ -37,102 +38,117 @@ export function Header({
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
 
   return (
-    <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/60 pt-safe">
+    <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/50 pt-safe transition-all duration-300">
       <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
         {/* Identity row */}
-        <div className="flex items-center gap-3">
-          <div className="min-w-0 flex-1 flex flex-col justify-center">
-            <h1 className="text-sm font-extrabold tracking-tight text-stone-900 leading-tight">
-              NeuroStock
+        <div className="flex items-center justify-between gap-3">
+          <motion.div 
+            initial={{ opacity: 0, x: -15 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="min-w-0 flex-1 flex flex-col justify-center"
+          >
+            <h1 className="text-base font-black tracking-tight text-stone-900 leading-tight flex items-center gap-1.5">
+              <Store className="h-4 w-4 text-indigo-600" />
+              <span>NeuroStock</span>
             </h1>
             {/* Compact stats */}
-            <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-500">
-              <span className="flex items-center gap-1">
+            <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400">
+              <span className="flex items-center gap-1 bg-stone-100/60 px-1.5 py-0.5 rounded-md">
                 <Package className="h-3 w-3 text-stone-400" />
                 <span>{inventoryLength} articles</span>
               </span>
-              {/* <span className="flex items-center gap-1">
-                <FileText className="h-3 w-3 text-stone-400" />
-                <span>{totalItems} u.</span>
-              </span> */}
-              {/* <span className="flex items-center gap-1">
-                <AlertTriangle className={`h-3 w-3 ${lowStockCount > 0 ? "text-amber-500 animate-pulse" : "text-stone-400"}`} />
-                <span className={lowStockCount > 0 ? "text-amber-600 font-bold" : ""}>{lowStockCount} alerte{lowStockCount > 1 ? "s" : ""}</span>
-              </span> */}
             </div>
-          </div>
+          </motion.div>
 
           {/* Action icons: always reachable with the thumb, never wrap, never crowd the title */}
-          <div className="flex flex-shrink-0 items-center gap-1.5">
+          <motion.div 
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="flex flex-shrink-0 items-center gap-1.5"
+          >
             {canSync && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onSyncNow}
                 disabled={isSyncing}
                 aria-label={isSyncing ? "Synchronisation en cours" : "Synchroniser les modifications en attente"}
-                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition tap-active disabled:opacity-50 cursor-pointer"
+                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 {isSyncing ? (
                   <RefreshCw className="h-4 w-4 animate-spin text-amber-700" />
                 ) : (
                   <CloudUpload className="h-4 w-4 text-amber-700" />
                 )}
-              </button>
+              </motion.button>
             )}
             {showExport && (embeddedCount < inventoryLength || isRunning) && (
               <div className="relative">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => isRunning ? (isPaused ? resume() : pause()) : (onRequestVectorize ? onRequestVectorize() : start())}
                   disabled={!canStart && !isRunning}
                   aria-label={
                     isRunning ? (isPaused ? "Reprendre la génération" : "Mettre en pause")
                       : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
                   }
-                  className={`touch-target grid h-10 w-10 place-items-center rounded-xl border transition tap-active disabled:opacity-50 cursor-pointer ${isRunning
+                  className={`touch-target grid h-10 w-10 place-items-center rounded-xl border transition-all duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${isRunning
                     ? isPaused
-                      ? "border-amber-200 bg-amber-50/50 text-amber-600"
-                      : "border-indigo-200 bg-indigo-50/55 text-indigo-600"
-                    : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                      ? "border-amber-200 bg-amber-50/50 text-amber-600 animate-pulse"
+                      : "border-indigo-200 bg-indigo-50/55 text-indigo-600 animate-glow-pulse"
+                    : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900"
                     }`}
                 >
                   {isRunning ? (
                     isPaused ? (
-                      <Play className="h-4 w-4" />
+                      <Play className="h-4 w-4 text-amber-600" />
                     ) : (
-                      <Pause className="h-4 w-4" />
+                      <Pause className="h-4 w-4 text-indigo-600" />
                     )
                   ) : (
                     <Brain className="h-4 w-4" />
                   )}
-                </button>
+                </motion.button>
                 {isRunning && (
-                  <button
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
                     onClick={stop}
                     aria-label="Arrêter la génération"
-                    className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-rose-500 text-white text-[9px] font-bold"
+                    className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-rose-500 text-white text-[9px] font-bold shadow-sm"
                   >
                     <X className="h-2.5 w-2.5" />
-                  </button>
+                  </motion.button>
                 )}
               </div>
             )}
             {showExport && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onExport}
                 aria-label="Exporter l'inventaire en CSV"
-                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-sm transition tap-active hover:bg-stone-50 hover:text-stone-900"
+                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-xs transition-colors duration-200 hover:bg-stone-50 hover:text-stone-900"
               >
                 <Download className="h-4 w-4" />
-              </button>
+              </motion.button>
             )}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onLogout}
               aria-label="Se déconnecter"
-              className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition tap-active"
+              className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-rose-600 transition-colors duration-200 shadow-xs"
             >
               <LogOut className="h-4 w-4" />
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
+
 
         {/* Single connection banner — tappable only when there's something to do */}
         {(!isOnline || pendingCount > 0) && (

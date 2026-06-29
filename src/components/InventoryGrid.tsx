@@ -3,6 +3,7 @@ import { InventoryItem, CategoryItem } from "../types";
 import { Package, Plus, Minus, Trash2 } from "lucide-react";
 import { AnimatedQuantity } from "./AnimatedQuantity";
 import { isRecentTimestamp } from "../lib/utils";
+import { motion } from "motion/react";
 
 interface SwipeableItemProps {
   children: React.ReactNode;
@@ -151,19 +152,17 @@ export function InventoryGrid({
     );
   };
 
-  // Single source of truth for stock tone, used by both the badge and the
-  // quantity readout so a low-stock item reads consistently everywhere on the card.
   const getStockTone = (quantity: number) => {
     if (quantity === 0) {
       return {
-        badge: "border-rose-200 bg-rose-50 text-rose-700",
+        badge: "border-rose-200 bg-rose-50 text-rose-700 animate-pulse",
         text: "text-rose-600",
         dot: "bg-rose-500",
       };
     }
     if (quantity <= 5) {
       return {
-        badge: "border-amber-200 bg-amber-50 text-amber-700",
+        badge: "border-amber-200 bg-amber-50 text-amber-750",
         text: "text-amber-600",
         dot: "bg-amber-500",
       };
@@ -183,7 +182,7 @@ export function InventoryGrid({
           expanded ? "min-h-7 text-[11px]" : ""
         } ${tone.badge}`}
       >
-        {expanded ? `${quantity} en stock` : quantity}
+        {expanded ? `${quantity} en rayon` : quantity}
       </span>
     );
   };
@@ -211,35 +210,35 @@ export function InventoryGrid({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50/50 px-4 py-14 text-center">
-        <Package className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-        <h3 className="font-bold text-stone-900 text-sm">Aucun produit en stock</h3>
-        <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-500">
-          Scannez un code-barres ou saisissez-le manuellement pour ajouter votre premier article.
+      <div className="rounded-3xl border border-dashed border-stone-250 bg-white/50 px-4 py-14 text-center">
+        <Package className="mx-auto mb-3.5 h-9 w-9 text-stone-300 animate-float" />
+        <h3 className="font-extrabold text-stone-850 text-sm">Aucun produit trouvé</h3>
+        <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-400 font-semibold">
+          Ajustez vos filtres ou scannez un produit pour l'ajouter à votre inventaire.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5.5">
       {groupedItems.map((group) => {
         const lowStockCount = group.items.filter((item) => item.quantity <= 5).length;
 
         return (
-          <div key={group.category} className="space-y-2 product-grid-enter">
+          <div key={group.category} className="space-y-2.5">
             <div className="flex items-center gap-2 px-1">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              <h3 className="text-xs font-black uppercase tracking-wider text-stone-400">
                 {getCategoryLabel(group.category)}
               </h3>
-              <span className="h-px flex-1 bg-stone-200" aria-hidden="true" />
+              <span className="h-px flex-1 bg-stone-200/60" aria-hidden="true" />
               {lowStockCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                  {lowStockCount} à réapprovisionner
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  {lowStockCount} bas
                 </span>
               )}
-              <span className="text-[10px] font-bold font-mono tabular-nums px-2 py-0.5 bg-stone-100 text-stone-500 rounded-full">
+              <span className="text-[10px] font-extrabold font-mono tabular-nums px-2 py-0.5 bg-stone-100 text-stone-500 rounded-full border border-stone-200/50">
                 {group.items.length}
               </span>
             </div>
@@ -256,13 +255,18 @@ export function InventoryGrid({
                     onSwipeLeft={() => onRemove(item.barcode)}
                   >
                     {isCompactView ? (
-                      <article
-                        className="group flex items-center gap-3 rounded-xl border border-stone-200/60 bg-white px-3 py-2.5 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50/30 cursor-pointer"
+                      <motion.article
+                        initial={{ opacity: 0, y: 12 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-10px" }}
+                        transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                        whileHover={{ y: -1 }}
+                        className="group flex items-center gap-3 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 shadow-xs hover:border-stone-300 hover:bg-stone-50/20 cursor-pointer select-none"
                         onClick={() => onEditProduct(item)}
                       >
-                        <div className="relative grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-150 bg-stone-50/50">
+                        <div className="relative grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50/50">
                           {item.imageUrl ? (
-                            <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-lg object-contain p-1" />
+                            <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-lg object-contain p-1" loading="lazy" />
                           ) : (
                             <Package className="h-5 w-5 text-stone-300" />
                           )}
@@ -273,55 +277,60 @@ export function InventoryGrid({
 
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-1.5">
-                            <h4 className="font-bold text-xs text-stone-850 truncate leading-snug">
+                            <h4 className="font-extrabold text-xs text-stone-850 truncate leading-snug">
                               {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
                             </h4>
                             {renderNewBadge(item)}
                           </div>
                           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-bold text-stone-400">
                             {item.brand && <span className="truncate text-stone-500 font-semibold">{item.brand}</span>}
-                            <span className="font-mono text-[9px] text-stone-400/90">{item.barcode}</span>
+                            <span className="font-mono text-[9px] text-stone-450">{item.barcode}</span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                           {item.quantity <= 5 && renderStockBadge(item.quantity)}
                           <div
-                            className="flex items-center rounded-lg border border-stone-200/80 bg-white shadow-xs"
+                            className="flex items-center rounded-xl border border-stone-200 bg-white shadow-xs"
                             onClick={(event) => event.stopPropagation()}
                           >
                             <button
                               onClick={() => onUpdateQuantity(item.barcode, -1)}
-                              className="grid h-8 w-8 place-items-center text-stone-500 hover:text-stone-900 hover:bg-stone-50 rounded-l-lg transition-colors active:scale-90 select-none"
+                              className="grid h-8 w-8 place-items-center text-stone-400 hover:text-stone-800 active:bg-stone-50 rounded-l-xl transition-colors select-none cursor-pointer"
                               aria-label="Diminuer la quantité"
                             >
                               <Minus className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => onEditQuantity(item)}
-                              className={`min-w-[28px] px-1 py-0.5 text-center font-mono text-[11px] font-extrabold tabular-nums transition-colors hover:text-stone-900 ${tone.text}`}
+                              className={`min-w-[28px] px-1 py-0.5 text-center font-mono text-[11px] font-extrabold tabular-nums transition-colors hover:text-indigo-650 cursor-pointer ${tone.text}`}
                             >
                               <AnimatedQuantity value={item.quantity} />
                             </button>
                             <button
                               onClick={() => onUpdateQuantity(item.barcode, 1)}
-                              className="grid h-8 w-8 place-items-center text-stone-500 hover:text-stone-900 hover:bg-stone-50 rounded-r-lg transition-colors active:scale-90 select-none"
+                              className="grid h-8 w-8 place-items-center text-stone-400 hover:text-stone-800 active:bg-stone-50 rounded-r-xl transition-colors select-none cursor-pointer"
                               aria-label="Augmenter la quantité"
                             >
                               <Plus className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         </div>
-                      </article>
+                      </motion.article>
                     ) : (
-                      <article
-                        className="group rounded-2xl border border-stone-200/60 bg-white p-4 shadow-sm transition-all hover:border-stone-300 hover:shadow-md cursor-pointer"
+                      <motion.article
+                        initial={{ opacity: 0, y: 15 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-10px" }}
+                        transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                        whileHover={{ y: -2 }}
+                        className="group rounded-3xl border border-stone-200 bg-white p-4 shadow-sm hover:border-stone-300 hover:shadow-md cursor-pointer select-none"
                         onClick={() => onEditProduct(item)}
                       >
                         <div className="flex items-start gap-4">
-                          <div className="relative grid h-14 w-14 flex-shrink-0 place-items-center rounded-xl border border-stone-150 bg-stone-50/50">
+                          <div className="relative grid h-14 w-14 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50/50">
                             {item.imageUrl ? (
-                              <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-xl object-contain p-1" />
+                              <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-xl object-contain p-1" loading="lazy" />
                             ) : (
                               <Package className="h-6 w-6 text-stone-300" />
                             )}
@@ -331,7 +340,7 @@ export function InventoryGrid({
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  <h4 className="text-sm font-bold text-stone-900 leading-snug">
+                                  <h4 className="text-sm font-extrabold text-stone-900 leading-snug">
                                     {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
                                   </h4>
                                   {renderNewBadge(item)}
@@ -342,7 +351,7 @@ export function InventoryGrid({
                                       {item.brand}
                                     </span>
                                   )}
-                                  <span className="font-mono text-stone-400/90">{item.barcode}</span>
+                                  <span className="font-mono text-stone-450">{item.barcode}</span>
                                 </div>
                               </div>
 
@@ -355,23 +364,23 @@ export function InventoryGrid({
                               className="mt-4 flex items-center justify-end gap-3 border-t border-stone-100 pt-3"
                               onClick={(event) => event.stopPropagation()}
                             >
-                              <div className="flex items-center rounded-lg border border-stone-200/85 bg-white shadow-xs">
+                              <div className="flex items-center rounded-xl border border-stone-200 bg-white shadow-xs">
                                 <button
                                   onClick={() => onUpdateQuantity(item.barcode, -1)}
-                                  className="grid h-9 w-9 place-items-center text-stone-500 hover:text-stone-900 hover:bg-stone-50 rounded-l-lg transition-colors active:scale-90 select-none"
+                                  className="grid h-9 w-9 place-items-center text-stone-400 hover:text-stone-850 active:bg-stone-50 rounded-l-xl transition-colors select-none cursor-pointer"
                                   aria-label="Diminuer la quantité"
                                 >
                                   <Minus className="h-4 w-4" />
                                 </button>
                                 <button
                                   onClick={() => onEditQuantity(item)}
-                                  className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-extrabold tabular-nums transition-colors hover:text-stone-900 ${tone.text}`}
+                                  className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-extrabold tabular-nums transition-colors hover:text-indigo-650 cursor-pointer ${tone.text}`}
                                 >
                                   <AnimatedQuantity value={item.quantity} />
                                 </button>
                                 <button
                                   onClick={() => onUpdateQuantity(item.barcode, 1)}
-                                  className="grid h-9 w-9 place-items-center text-stone-500 hover:text-stone-900 hover:bg-stone-50 rounded-r-lg transition-colors active:scale-90 select-none"
+                                  className="grid h-9 w-9 place-items-center text-stone-400 hover:text-stone-850 active:bg-stone-50 rounded-r-xl transition-colors select-none cursor-pointer"
                                   aria-label="Augmenter la quantité"
                                 >
                                   <Plus className="h-4 w-4" />
@@ -380,7 +389,7 @@ export function InventoryGrid({
                             </div>
                           </div>
                         </div>
-                      </article>
+                      </motion.article>
                     )}
                   </SwipeableItem>
                 );

@@ -99,16 +99,16 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
     switch (state) {
       case AssistantState.Listening:
         return {
-          bg: 'bg-emerald-600',
+          bg: 'bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-650',
           ring: 'shadow-emerald-500/40',
           label: "À l'écoute",
-          icon: <Mic className="h-4 w-4" />,
+          icon: <Mic className="h-4 w-4 animate-pulse" />,
           pulse: true,
           pingColor: 'bg-emerald-400',
         };
       case AssistantState.Speaking:
         return {
-          bg: 'bg-indigo-600',
+          bg: 'bg-gradient-to-r from-indigo-500 via-indigo-650 to-violet-650',
           ring: 'shadow-indigo-500/40',
           label: 'Répond…',
           icon: <Volume2 className="h-4 w-4" />,
@@ -117,7 +117,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
         };
       case AssistantState.Thinking:
         return {
-          bg: 'bg-violet-600',
+          bg: 'bg-gradient-to-r from-violet-500 via-violet-600 to-purple-650',
           ring: 'shadow-violet-500/40',
           label: 'Réfléchit…',
           icon: <Loader2 className="h-4 w-4 animate-spin" />,
@@ -126,7 +126,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
         };
       case AssistantState.Connecting:
         return {
-          bg: 'bg-sky-500',
+          bg: 'bg-gradient-to-r from-sky-400 via-sky-500 to-blue-550',
           ring: 'shadow-sky-500/40',
           label: 'Connexion…',
           icon: <Wifi className="h-4 w-4" />,
@@ -135,7 +135,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
         };
       case AssistantState.Error:
         return {
-          bg: 'bg-rose-600',
+          bg: 'bg-gradient-to-r from-rose-500 via-rose-600 to-pink-650',
           ring: 'shadow-rose-500/40',
           label: 'Erreur',
           icon: <MicOff className="h-4 w-4" />,
@@ -144,7 +144,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
         };
       case AssistantState.Muted:
         return {
-          bg: 'bg-stone-500',
+          bg: 'bg-gradient-to-r from-stone-400 via-stone-500 to-stone-600',
           ring: 'shadow-stone-400/30',
           label: 'Muet',
           icon: <MicOff className="h-4 w-4" />,
@@ -153,7 +153,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
         };
       default:
         return {
-          bg: 'bg-indigo-600',
+          bg: 'bg-gradient-to-r from-indigo-500 via-indigo-650 to-violet-650',
           ring: 'shadow-indigo-500/30',
           label: 'Lina',
           icon: <Mic className="h-4 w-4" />,
@@ -166,7 +166,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
   const cfg = getConfig();
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50">
+    <div className="fixed inset-0 pointer-events-none z-55">
       <motion.div
         drag
         dragMomentum={false}
@@ -182,20 +182,26 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
       >
         <motion.button
           type="button"
-          whileTap={{ scale: 0.96 }}
+          whileTap={{ scale: 0.94 }}
           aria-label={`Assistant Lina — ${cfg.label}. Glisser pour déplacer, appuyer pour ouvrir.`}
-          className={`relative flex h-11 items-center gap-2.5 rounded-full px-4 text-white shadow-xl ${cfg.bg} ${cfg.ring}`}
+          className={`relative flex h-11 items-center gap-2.5 rounded-full px-4.5 text-white shadow-xl ${cfg.bg} ${cfg.ring} border border-white/10`}
           style={{ minWidth: BUBBLE_WIDTH }}
         >
-          {/* Ping/sonar rings for active states */}
+          {/* Multiple Sonar Rings for a richer soundwave visual */}
           {cfg.pulse && (
             <>
-              <span className={`absolute inset-0 rounded-full ${cfg.pingColor} opacity-30 animate-ping`} aria-hidden="true" />
+              <span className={`absolute inset-0 rounded-full ${cfg.pingColor} opacity-25 animate-ping`} aria-hidden="true" />
               <motion.span
-                className="absolute inset-0 rounded-full border-2 border-white/30"
+                className="absolute inset-0 rounded-full border border-white/40"
                 aria-hidden="true"
-                animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0, 0.4] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.span
+                className="absolute inset-0 rounded-full border border-white/20"
+                aria-hidden="true"
+                animate={{ scale: [1, 1.6, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
               />
             </>
           )}
@@ -204,13 +210,13 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
           <span className="relative z-10 flex-shrink-0" aria-hidden="true">{cfg.icon}</span>
 
           {/* Label */}
-          <span className="relative z-10 text-[11px] font-bold tracking-wide whitespace-nowrap">
+          <span className="relative z-10 text-[11px] font-black tracking-wide whitespace-nowrap">
             {cfg.label}
           </span>
 
-          {/* Live dot for active states */}
+          {/* Live indicator dot */}
           {cfg.pulse && (
-            <span className="relative z-10 h-1.5 w-1.5 rounded-full bg-white/80 animate-pulse flex-shrink-0" aria-hidden="true" />
+            <span className="relative z-10 h-1.5 w-1.5 rounded-full bg-white animate-pulse flex-shrink-0" aria-hidden="true" />
           )}
         </motion.button>
       </motion.div>

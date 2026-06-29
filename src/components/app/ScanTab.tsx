@@ -5,6 +5,7 @@ import { ManualInput } from "../ManualInput";
 import { ScannerInputMode, ScannerInputModeToggle } from "../ScannerInputModeToggle";
 import { AnimatedQuantity } from "../AnimatedQuantity";
 import { InventoryItem } from "../../types";
+import { motion, AnimatePresence } from "motion/react";
 
 type ScanTabProps = {
   isOnline: boolean;
@@ -41,31 +42,58 @@ export function ScanTab({
     <section className="space-y-4">
       {/* Main Scanner Area */}
       <div className="relative">
-        {loadingBarcode && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-white/95 border border-stone-200 text-stone-700 backdrop-blur-xs">
-            <Loader2 className="mb-2 h-6 w-6 animate-spin text-indigo-600" />
-            <span className="text-xs font-semibold tracking-wider font-mono">Recherche {loadingBarcode}...</span>
-          </div>
-        )}
+        <AnimatePresence>
+          {loadingBarcode && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-white/95 border border-stone-200/50 text-stone-700 backdrop-blur-md"
+            >
+              <Loader2 className="mb-2 h-7 w-7 animate-spin text-indigo-650" />
+              <span className="text-xs font-bold tracking-wider font-mono text-stone-800">
+                Recherche {loadingBarcode}...
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {scannerInputMode === "hardware" ? (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            animate={{
+              y: [0, -6, 0],
+            }}
+            transition={{
+              y: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }
+            }}
             onClick={() => document.getElementById("barcode-input")?.focus()}
             disabled={isScannerDisabled}
-            className="w-full bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-3xl p-5 flex flex-col items-center justify-center gap-3 shadow-lg shadow-indigo-600/25 transition active:scale-98 hover:from-indigo-700 hover:to-violet-700 mb-5"
+            className="w-full bg-gradient-to-br from-indigo-600 via-indigo-650 to-violet-600 text-white rounded-3xl p-6.5 flex flex-col items-center justify-center gap-4.5 shadow-xl shadow-indigo-650/20 transition-all disabled:opacity-50 cursor-pointer select-none mb-5"
           >
-            <div className="h-12 w-12 bg-white/20 rounded-2xl grid place-items-center">
-              <Scan className="h-6 w-6 animate-pulse" />
+            <div className="h-14 w-14 bg-white/15 rounded-2xl grid place-items-center shadow-inner">
+              <Scan className="h-7 w-7 animate-pulse text-white" />
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold">Prêt à scanner</div>
-              <div className="text-[11px] text-white/80 mt-1">Utilisez votre scanner physique</div>
+              <div className="text-lg font-black tracking-tight">Prêt à scanner</div>
+              <div className="text-[11px] text-indigo-100 font-semibold mt-1">
+                Utilisez votre scanner physique ou touchez ici
+              </div>
             </div>
-          </button>
+          </motion.button>
         ) : (
-          <div className="rounded-3xl overflow-hidden shadow-lg shadow-stone-900/10 mb-5 bg-stone-900 aspect-[4/3] relative">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-3xl overflow-hidden shadow-lg shadow-stone-900/10 mb-5 bg-stone-950 aspect-[4/3] relative border border-stone-200/40"
+          >
             <CameraBarcodeScanner enabled={!isScannerDisabled} isBusy={!!loadingBarcode} onScan={onScan} />
-          </div>
+          </motion.div>
         )}
 
         {/* Scanner Mode Toggle */}
@@ -85,26 +113,47 @@ export function ScanTab({
 
       {/* Recently Scanned */}
       {recentlyScanned.length > 0 && (
-        <div className="space-y-3 px-1">
+        <div className="space-y-3 px-1 pt-1">
           <div className="flex items-center justify-between">
-            <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-stone-500">
+            <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-stone-400">
               Derniers scans
             </h3>
             <span className="text-[10px] font-bold text-stone-400 tabular">
               {recentlyScanned.length} article{recentlyScanned.length > 1 ? "s" : ""}
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <motion.div 
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.08
+                }
+              }
+            }}
+            className="grid grid-cols-2 gap-3"
+          >
             {recentlyScanned.map((item) => (
-              <RecentScanGridItem
+              <motion.div
                 key={item.barcode}
-                item={item}
-                onEditProduct={onEditProduct}
-                onEditQuantity={onEditQuantity}
-                onUpdateQuantity={onUpdateQuantity}
-              />
+                variants={{
+                  hidden: { opacity: 0, y: 15 },
+                  show: { opacity: 1, y: 0 }
+                }}
+                className="h-full"
+              >
+                <RecentScanGridItem
+                  item={item}
+                  onEditProduct={onEditProduct}
+                  onEditQuantity={onEditQuantity}
+                  onUpdateQuantity={onUpdateQuantity}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       )}
     </section>

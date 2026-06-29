@@ -16,7 +16,9 @@
   --color-brand-700: #4338ca;
 }
 
-/* ---------- Foundation ---------- */
+/* ══════════════════════════════════════════════════
+   FOUNDATION
+   ══════════════════════════════════════════════════ */
 html {
   background-color: var(--color-paper);
   min-height: 100%;
@@ -28,16 +30,15 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-
 body {
   min-width: 320px;
   min-height: 100dvh;
   color: var(--color-ink);
   background-color: var(--color-paper);
   background-image:
-    radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 42%),
+    radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.06) 0px, transparent 42%),
     radial-gradient(at 100% 0%, rgba(5, 150, 105, 0.04) 0px, transparent 38%),
-    radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.02) 0px, transparent 48%);
+    radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.03) 0px, transparent 48%);
   background-attachment: fixed;
 }
 
@@ -48,7 +49,7 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.10;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
 }
 
@@ -58,6 +59,9 @@ body::before {
   min-height: 100dvh;
 }
 
+/* ══════════════════════════════════════════════════
+   SAFE AREAS & SHELL
+   ══════════════════════════════════════════════════ */
 .pb-safe {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
@@ -98,8 +102,9 @@ body::before {
   }
 }
 
-
-/* ---------- Surfaces ---------- */
+/* ══════════════════════════════════════════════════
+   SURFACES — Enhanced Glass & Cards
+   ══════════════════════════════════════════════════ */
 .surface-card {
   background: #ffffff;
   border: 1px solid rgba(24, 22, 20, 0.05);
@@ -110,42 +115,47 @@ body::before {
 
 /* Frosted paper for sticky header / bottom nav */
 .glass-panel {
-  background: rgba(250, 249, 246, 0.88);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  border: 1px solid rgba(24, 22, 20, 0.06);
+  background: rgba(250, 249, 246, 0.82);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(24, 22, 20, 0.05);
+  box-shadow: 0 1px 2px rgba(24, 22, 20, 0.03);
 }
 
 /* Translucent white card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(12px) saturate(1.4);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  border: 1px solid rgba(24, 22, 20, 0.05);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(24, 22, 20, 0.04);
   box-shadow:
     0 1px 3px rgba(24, 22, 20, 0.02),
-    0 14px 32px -20px rgba(24, 22, 20, 0.12);
+    0 14px 32px -20px rgba(24, 22, 20, 0.10);
 }
 
-/* ---------- Inputs ---------- */
+/* ══════════════════════════════════════════════════
+   INPUTS
+   ══════════════════════════════════════════════════ */
 .glass-input {
   background: #ffffff;
-  border: 1px solid rgba(24, 22, 20, 0.1);
+  border: 1.5px solid rgba(24, 22, 20, 0.08);
   color: var(--color-ink);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .glass-input:focus {
   background: #ffffff;
-  border-color: rgba(79, 70, 229, 0.5);
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+  border-color: rgba(79, 70, 229, 0.55);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.10);
 }
 
 .glass-input::placeholder {
-  color: rgba(28, 25, 23, 0.32);
+  color: rgba(28, 25, 23, 0.30);
 }
 
-/* ---------- Scrollbar ---------- */
+/* ══════════════════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════════════════ */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -154,23 +164,25 @@ body::before {
   scrollbar-width: none;
 }
 
-/* ---------- Interactions ---------- */
+/* ══════════════════════════════════════════════════
+   INTERACTIONS — Enhanced Touch Feedback
+   ══════════════════════════════════════════════════ */
 .tap-active:active {
   transform: scale(0.96);
+  opacity: 0.90;
 }
 
-/* ---------- Entrance animation ---------- */
-.product-grid-enter {
-  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Focus-visible for accessibility */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
 }
 
-/* Staggered children reveal */
-.product-grid-enter:nth-child(1) { animation-delay: 0.02s; }
-.product-grid-enter:nth-child(2) { animation-delay: 0.07s; }
-.product-grid-enter:nth-child(3) { animation-delay: 0.12s; }
-.product-grid-enter:nth-child(4) { animation-delay: 0.17s; }
-.product-grid-enter:nth-child(5) { animation-delay: 0.22s; }
+/* ══════════════════════════════════════════════════
+   KEYFRAMES — Animation Library
+   ══════════════════════════════════════════════════ */
 
+/* Fade in from below */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -182,10 +194,93 @@ body::before {
   }
 }
 
-/* Tabular numbers for tidy data columns */
-.tabular {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+/* Slide up entrance */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide down entrance */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale in (pop) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Floating / breathing animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Subtle glow pulse for active states */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(79, 70, 229, 0);
+  }
+}
+
+/* Progress bar countdown */
+@keyframes progressShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Ambient gradient rotation */
+@keyframes gradientRotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Animated scan line for the scanner target */
@@ -206,6 +301,139 @@ body::before {
   }
 }
 
+/* ══════════════════════════════════════════════════
+   ANIMATION UTILITY CLASSES
+   ══════════════════════════════════════════════════ */
+.animate-fade-in {
+  animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
 .animate-scan-line {
   animation: scanLine 1.6s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientRotate 6s ease infinite;
+}
+
+/* ══════════════════════════════════════════════════
+   SKELETON & SHIMMER LOADING
+   ══════════════════════════════════════════════════ */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(24, 22, 20, 0.06) 25%,
+    rgba(24, 22, 20, 0.10) 50%,
+    rgba(24, 22, 20, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+.shimmer-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════
+   STAGGERED CHILDREN REVEAL — Extended to 12
+   ══════════════════════════════════════════════════ */
+.product-grid-enter {
+  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.product-grid-enter:nth-child(1)  { animation-delay: 0.02s; }
+.product-grid-enter:nth-child(2)  { animation-delay: 0.06s; }
+.product-grid-enter:nth-child(3)  { animation-delay: 0.10s; }
+.product-grid-enter:nth-child(4)  { animation-delay: 0.14s; }
+.product-grid-enter:nth-child(5)  { animation-delay: 0.18s; }
+.product-grid-enter:nth-child(6)  { animation-delay: 0.22s; }
+.product-grid-enter:nth-child(7)  { animation-delay: 0.26s; }
+.product-grid-enter:nth-child(8)  { animation-delay: 0.30s; }
+.product-grid-enter:nth-child(9)  { animation-delay: 0.34s; }
+.product-grid-enter:nth-child(10) { animation-delay: 0.38s; }
+.product-grid-enter:nth-child(11) { animation-delay: 0.42s; }
+.product-grid-enter:nth-child(12) { animation-delay: 0.46s; }
+
+/* Stagger utility — generic */
+.stagger-enter > * {
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger-enter > *:nth-child(1)  { animation-delay: 0.03s; }
+.stagger-enter > *:nth-child(2)  { animation-delay: 0.08s; }
+.stagger-enter > *:nth-child(3)  { animation-delay: 0.13s; }
+.stagger-enter > *:nth-child(4)  { animation-delay: 0.18s; }
+.stagger-enter > *:nth-child(5)  { animation-delay: 0.23s; }
+.stagger-enter > *:nth-child(6)  { animation-delay: 0.28s; }
+.stagger-enter > *:nth-child(7)  { animation-delay: 0.33s; }
+.stagger-enter > *:nth-child(8)  { animation-delay: 0.38s; }
+
+/* ══════════════════════════════════════════════════
+   TABULAR NUMBERS
+   ══════════════════════════════════════════════════ */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ══════════════════════════════════════════════════
+   TRANSITIONS — Global smooth defaults
+   ══════════════════════════════════════════════════ */
+.transition-premium {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ══════════════════════════════════════════════════
+   HOVER LIFT — For cards on desktop
+   ══════════════════════════════════════════════════ */
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 12px rgba(24, 22, 20, 0.06),
+      0 20px 40px -20px rgba(24, 22, 20, 0.15);
+  }
 }

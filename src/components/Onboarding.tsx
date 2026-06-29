@@ -29,31 +29,31 @@ export function Onboarding({ userId, onComplete }: OnboardingProps) {
       title: "Bienvenue sur NeuroStock",
       description:
         "Gérez votre inventaire simplement : scannez, suivez et synchronisez vos stocks en temps réel.",
-      icon: <CheckCircle2 className="h-10 w-10 text-indigo-600" />,
+      icon: <CheckCircle2 className="h-9 w-9 text-indigo-600 animate-float" />,
     },
     {
       title: "Scannez vos produits",
       description:
         "Utilisez le scanner physique ou l'appareil photo pour ajouter des produits en un instant.",
-      icon: <Scan className="h-10 w-10 text-indigo-600" />,
+      icon: <Scan className="h-9 w-9 text-indigo-600 animate-float" />,
     },
     {
       title: "Suivez votre stock",
       description:
         "Visualisez les quantités, les alertes de stock bas et classifiez par catégories.",
-      icon: <Package className="h-10 w-10 text-indigo-600" />,
+      icon: <Package className="h-9 w-9 text-indigo-600 animate-float" />,
     },
     {
       title: "Synchronisation",
       description:
         "Toutes les modifications sont synchronisées automatiquement quand vous êtes en ligne.",
-      icon: <Wifi className="h-10 w-10 text-indigo-600" />,
+      icon: <Wifi className="h-9 w-9 text-indigo-600 animate-float" />,
     },
     {
       title: "Assistant vocal",
       description:
         "Posez des questions à l'assistant pour mettre à jour le stock ou chercher un produit.",
-      icon: <Bot className="h-10 w-10 text-indigo-600" />,
+      icon: <Bot className="h-9 w-9 text-indigo-600 animate-float" />,
     },
   ];
 
@@ -73,68 +73,90 @@ export function Onboarding({ userId, onComplete }: OnboardingProps) {
   const current = steps[step];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/40 p-5 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/40 p-5 backdrop-blur-md">
+      {/* Outer Click dismiss wrapper */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0"
+        onClick={skip}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.93, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 220, damping: 22 }}
+        className="relative w-full max-w-sm rounded-[2.2rem] border border-stone-200/50 bg-white p-6.5 shadow-2xl z-10"
       >
         {/* Close button */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           type="button"
           onClick={skip}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-stone-400 hover:bg-stone-100 transition cursor-pointer"
+          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-stone-400 hover:bg-stone-100 transition cursor-pointer"
           aria-label="Fermer l'onboarding"
         >
           <X className="h-4 w-4" />
-        </button>
+        </motion.button>
 
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step}
             custom={direction}
-            initial={{ opacity: 0, x: direction > 0 ? 60 : -60 }}
+            initial={{ opacity: 0, x: direction > 0 ? 50 : -50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction > 0 ? -60 : 60 }}
-            transition={{ duration: 0.25 }}
+            exit={{ opacity: 0, x: direction > 0 ? -50 : 50 }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
             className="space-y-6"
           >
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <motion.div
+                animate={{ scale: [0.95, 1.05, 0.95] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 shadow-inner"
+              >
                 {current.icon}
-              </div>
-              <h2 className="text-lg font-extrabold text-stone-900">{current.title}</h2>
-              <p className="text-sm text-stone-500 leading-relaxed">{current.description}</p>
+              </motion.div>
+              <h2 className="text-lg font-black text-stone-900 tracking-tight">{current.title}</h2>
+              <p className="text-xs text-stone-450 font-semibold leading-relaxed px-2">{current.description}</p>
             </div>
 
-            {/* Dots */}
-            <div className="flex items-center justify-center gap-1.5">
-              {steps.map((_, idx) => (
-                <span
-                  key={idx}
-                  className={
-                    idx === step
-                      ? "h-2 w-2 rounded-full bg-indigo-600"
-                      : "h-2 w-2 rounded-full bg-stone-200"
-                  }
-                />
-              ))}
+            {/* Dots dynamic layout capsules */}
+            <div className="flex items-center justify-center gap-1.5 py-1">
+              {steps.map((_, idx) => {
+                const isActive = idx === step;
+                return (
+                  <motion.span
+                    key={idx}
+                    animate={{
+                      width: isActive ? 18 : 6,
+                      backgroundColor: isActive ? "#4f46e5" : "#e5e5e0",
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="h-1.5 rounded-full block"
+                  />
+                );
+              })}
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               type="button"
               onClick={next}
-              className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition cursor-pointer select-none"
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold shadow-lg shadow-indigo-600/15 flex items-center justify-center gap-2 transition cursor-pointer select-none"
             >
               {step < steps.length - 1 ? (
                 <>
                   <span>Continuer</span>
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 stroke-[2.5]" />
                 </>
               ) : (
                 <span>Commencer</span>
               )}
-            </button>
+            </motion.button>
           </motion.div>
         </AnimatePresence>
       </motion.div>

@@ -53,30 +53,69 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-5 overflow-hidden">
-      {/* Ambient background */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(99,102,241,0.08),transparent)]" />
-      <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-indigo-100/40 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-violet-100/30 blur-3xl" />
+    <div className="relative min-h-screen flex items-center justify-center p-5 overflow-hidden bg-[#faf9f6]">
+      {/* Animated premium ambient background */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(99,102,241,0.12),transparent)]" />
+      <motion.div
+        animate={{
+          scale: [1, 1.1, 0.95, 1],
+          x: [0, 20, -10, 0],
+          y: [0, -30, 20, 0],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl"
+      />
+      <motion.div
+        animate={{
+          scale: [1, 0.9, 1.1, 1],
+          x: [0, -15, 25, 0],
+          y: [0, 20, -25, 0],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-violet-200/20 blur-3xl"
+      />
 
-      <div className="relative w-full max-w-sm space-y-7">
+      <div className="relative w-full max-w-sm space-y-8">
         {/* App Logo & Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-grid h-16 w-16 place-items-center rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/25 mx-auto">
+        <div className="text-center space-y-4">
+          <motion.div
+            initial={{ scale: 0, rotate: -15 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.15 }}
+            className="inline-grid h-16 w-16 place-items-center rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/20 mx-auto"
+          >
             <Store className="h-8 w-8" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-stone-900">NeuroStock</h1>
-            <p className="mt-1 text-xs text-stone-400 font-medium leading-relaxed">
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <h1 className="text-3xl font-black tracking-tight text-stone-900">NeuroStock</h1>
+            <p className="mt-1.5 text-xs text-stone-400 font-semibold leading-relaxed">
               Connectez-vous pour accéder à votre inventaire
             </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Auth Panel */}
-        <div className="rounded-2xl border border-stone-200/60 bg-white p-6 shadow-xl shadow-stone-900/5">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 180, damping: 20, delay: 0.45 }}
+          className="rounded-3xl border border-stone-200/50 bg-white/90 backdrop-blur-md p-6.5 shadow-xl shadow-stone-900/4"
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
-            <h2 className="text-base font-bold text-stone-900 mb-1">
+            <h2 className="text-base font-extrabold text-stone-900 mb-1">
               {isLogin ? "Connexion" : "Créer un compte"}
             </h2>
 
@@ -89,7 +128,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                   className="flex gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-xs text-rose-600"
                 >
                   <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                  <span>{error}</span>
+                  <span className="font-semibold">{error}</span>
                 </motion.div>
               )}
 
@@ -101,14 +140,14 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                   className="flex gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs text-emerald-600"
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 animate-pulse" />
-                  <span>{successMessage}</span>
+                  <span className="font-semibold">{successMessage}</span>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400">
                   Adresse e-mail
                 </label>
                 <div className="relative">
@@ -118,15 +157,15 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-11 pl-10 pr-4 glass-input rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
+                    className="w-full h-12 pl-10 pr-4 glass-input rounded-2xl text-sm font-semibold text-stone-900 outline-none transition"
                     placeholder="nom@neurostock.com"
                     disabled={loading}
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400">
                   Mot de passe
                 </label>
                 <div className="relative">
@@ -136,7 +175,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-11 pl-10 pr-4 glass-input rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
+                    className="w-full h-12 pl-10 pr-4 glass-input rounded-2xl text-sm font-semibold text-stone-900 outline-none transition"
                     placeholder="••••••••"
                     disabled={loading}
                   />
@@ -144,10 +183,12 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               </div>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition cursor-pointer select-none mt-2"
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-2xl text-sm font-bold shadow-lg shadow-indigo-600/15 flex items-center justify-center gap-2 transition cursor-pointer select-none mt-4.5"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-white" />
@@ -157,26 +198,26 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           {/* Toggle link */}
-          <div className="mt-5 pt-4 border-t border-stone-200 text-center">
-            {/* <button
+          <div className="mt-5 pt-4 border-t border-stone-100 text-center">
+            <button
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError(null);
                 setSuccessMessage(null);
               }}
               disabled={loading}
-              className="text-xs text-stone-500 hover:text-indigo-600 font-semibold transition"
+              className="text-xs text-stone-400 hover:text-indigo-600 font-bold transition duration-200 cursor-pointer"
             >
               {isLogin
                 ? "Nouveau ici ? Créez un compte"
                 : "Vous avez déjà un compte ? Connectez-vous"}
-            </button> */}
+            </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
