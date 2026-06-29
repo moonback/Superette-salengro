@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { GeminiAssistant } from '../components/GeminiAssistant/GeminiAssistant';
 import { AudioManager } from '../components/GeminiAssistant/AudioManager';
 import { FunctionDispatcher } from '../components/GeminiAssistant/FunctionDispatcher';
@@ -10,7 +10,7 @@ export const GeminiAssistantContext = createContext<GeminiAssistantContextValue 
 
 const emptyContext = async (): Promise<AssistantExternalContext> => ({ language: 'français', offlineMode: !navigator.onLine });
 
-export function GeminiAssistantProvider({ children, getContext = emptyContext, toolHandlers = {}, autoRender = true }: GeminiAssistantProviderProps) {
+export function GeminiAssistantProvider({ children, getContext = emptyContext, toolHandlers = {}, autoRender = true, onOpenChange }: GeminiAssistantProviderProps & { onOpenChange?: (open: boolean) => void }) {
   const [state, setState] = useState(AssistantState.Idle);
   const [isOpen, setOpen] = useState(false);
   const [isMinimized, setMinimized] = useState(false);
@@ -44,6 +44,7 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
 
   const open = useCallback(async () => {
     setOpen(true);
+    onOpenChange?.(true);
     setMinimized(false);
     setError(null);
     if (session.current?.isConnected()) {
@@ -74,6 +75,7 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
     await session.current?.disconnect();
     session.current = null;
     setOpen(false);
+    onOpenChange?.(false);
     setMinimized(false);
     setState(AssistantState.Idle);
   }, []);
@@ -92,4 +94,10 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
       {autoRender && <GeminiAssistant state={state} isOpen={isOpen} isMinimized={isMinimized} isMuted={isMuted} error={error} autoAccept={autoAccept} setAutoAccept={setAutoAccept} permission={permission} onOpen={() => void open()} onClose={() => void close()} onMinimize={minimize} onMuteToggle={isMuted ? unmute : mute} onStop={() => void stop()} onPermission={resolvePermission} />}
     </GeminiAssistantContext.Provider>
   );
+}
+
+export function useGeminiAssistant() {
+  const ctx = useContext(GeminiAssistantContext);
+  if (!ctx) throw new Error('useGeminiAssistant must be used within GeminiAssistantProvider');
+  return ctx;
 }

@@ -33,6 +33,7 @@ import { useSupabaseRealtime } from "./hooks/useSupabaseRealtime";
 import { useOfflineSync } from './hooks/useOfflineSync';
 import { useEmbeddingGenerator } from './hooks/useEmbeddingGenerator';
 import { triggerHaptic } from "./lib/haptics";
+import { speak } from "./lib/speechSynthesis";
 import { AppNavigation, AppTab } from "./components/app/AppNavigation";
 import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
 import { ScanTab } from "./components/app/ScanTab";
@@ -170,6 +171,7 @@ export default function App() {
   const [scannerInputMode, setScannerInputMode] = useState<ScannerInputMode>("hardware");
   const [isGeneratingEmbeddings, setIsGeneratingEmbeddings] = useState(false);
   const [showVectorizeConfirm, setShowVectorizeConfirm] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   const showToast = useCallback((text: string) => {
     const id = Date.now();
@@ -353,6 +355,96 @@ export default function App() {
 
       setLoadingBarcode(barcode);
 
+      // Scan reçu pendant que Lina est ouverte : réaction immédiate en mode auto + TTS.
+      if (assistantOpen) {
+        try {
+          const movement = stockScanMode === "add" ? 1 : -1;
+          const existingItem = inventory.find((i) => i.barcode === barcode);
+          if (existingItem) {
+            const nextQuantity = Math.max(0, existingItem.quantity + movement);
+            const appliedMovement = nextQuantity - existingItem.quantity;
+            if (stockScanMode === "remove" && appliedMovement === 0) {
+              triggerHaptic("warning");
+              speak(`${existingItem.name} est déjà à 0`);
+              setLoadingBarcode(null);
+              return;
+            }
+
+            const updatedItem = {
+              ...existingItem,
+              quantity: nextQuantity,
+              lastUpdated: Date.now(),
+              lastMovement: appliedMovement,
+            };
+
+            await syncItem(updatedItem);
+            triggerHaptic("success");
+            speak(`${existingItem.name}. Total ${nextQuantity}`);
+            setLoadingBarcode(null);
+            return;
+          }
+
+          if (stockScanMode === "remove") {
+            triggerHaptic("warning");
+            speak("Produit introuvable, impossible de retirer du stock");
+            setLoadingBarcode(null);
+            return;
+          }
+
+          const databaseItem = isSupabaseConfigured
+            ? await fetchInventoryItemWithFallback(barcode)
+            : null;
+          if (databaseItem) {
+            const nextQuantity = Math.max(0, databaseItem.quantity + 1);
+            const updatedItem = {
+              ...databaseItem,
+              quantity: nextQuantity,
+              lastUpdated: Date.now(),
+              lastMovement: 1,
+            };
+
+            await syncItem(updatedItem);
+            triggerHaptic("success");
+            speak(`${databaseItem.name} ajouté. Total ${nextQuantity}`);
+            setLoadingBarcode(null);
+            return;
+          }
+
+          const data = await getProductData(barcode);
+          if (data) {
+            const suggested = suggestCategory(data.name, data.category, dbCategories);
+            const item: InventoryItem = {
+              barcode,
+              name: data.name,
+              imageUrl: data.imageUrl,
+              brand: data.brand,
+              category: suggested || data.category,
+              quantity: 1,
+              lastUpdated: Date.now(),
+              lastMovement: 1,
+            };
+
+            await autoEmbed(item);
+            const queued = await syncItem(item);
+            triggerHaptic("success");
+            speak(queued ? `${data.name} créé, en attente de synchronisation` : `${data.name} ajouté`);
+            setLoadingBarcode(null);
+            return;
+          }
+
+          triggerHaptic("warning");
+          speak("Produit inconnu, veuillez le créer manuellement");
+          setLoadingBarcode(null);
+          return;
+        } catch (error) {
+          console.error("Erreur scan assistant:", error);
+          triggerHaptic("warning");
+          speak("Erreur lors du scan");
+          setLoadingBarcode(null);
+          return;
+        }
+      }
+
       // Mode automatique : chaque scan ajoute ou retire 1 unité sans ouvrir de fenêtre.
       if (activeTab === "autoScan" && isBatchMode) {
         const movement = stockScanMode === "add" ? 1 : -1;
@@ -512,7 +604,7 @@ export default function App() {
         setLoadingBarcode(null);
       }
     },
-    [inventory, loadingBarcode, actionModal, session, activeTab, isBatchMode, stockScanMode, dbCategories, showToast],
+    [inventory, loadingBarcode, actionModal, session, activeTab, isBatchMode, stockScanMode, dbCategories, showToast, assistantOpen],
   );
 
   // Hook for physical hardware scanners globally
@@ -908,6 +1000,7 @@ export default function App() {
     <>
       <GeminiAssistantProvider
         getContext={() => assistantContext}
+        onOpenChange={setAssistantOpen}
         toolHandlers={{
           searchProduct: async (args) => {
             const rawQuery = String(args.query ?? "");
