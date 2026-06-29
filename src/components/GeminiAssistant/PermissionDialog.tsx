@@ -54,7 +54,7 @@ export function PermissionDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-sm bg-white rounded-[2rem] shadow-2xl shadow-stone-900/25 overflow-hidden"
+            className="w-full max-w-sm bg-white rounded-2xl border border-stone-200/60 shadow-2xl shadow-stone-900/15 overflow-hidden"
           >
             <div className="p-6 space-y-4">
               <div className="flex items-start gap-3">
@@ -109,22 +109,20 @@ export function PermissionDialog({
 
               <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={onDeny}
-                  className="flex-1 py-3 text-sm font-semibold text-stone-500 bg-transparent border border-stone-200 hover:bg-stone-50 hover:text-stone-800 active:scale-[0.98] rounded-2xl transition"
+                  className="flex-1 py-3 text-xs font-bold text-stone-500 bg-white border border-stone-200/80 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] rounded-xl transition cursor-pointer select-none flex items-center justify-center gap-1.5"
                 >
-                  <span className="flex items-center justify-center gap-2">
-                    <X className="h-4 w-4" />
-                    Annuler
-                  </span>
+                  <X className="h-4 w-4" />
+                  Annuler
                 </button>
                 <button
+                  type="button"
                   onClick={onConfirm}
-                  className="flex-1 py-3 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.98] rounded-2xl shadow-lg shadow-rose-600/25 transition"
+                  className="flex-1 py-3 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.98] rounded-xl shadow-md shadow-rose-600/10 transition cursor-pointer select-none flex items-center justify-center gap-1.5"
                 >
-                  <span className="flex items-center justify-center gap-2">
-                    <Check className="h-4 w-4" />
-                    Confirmer
-                  </span>
+                  <Check className="h-4 w-4" />
+                  Confirmer
                 </button>
               </div>
             </div>
