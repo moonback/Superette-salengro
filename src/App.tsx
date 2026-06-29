@@ -421,6 +421,8 @@ export default function App() {
               quantity: 1,
               lastUpdated: Date.now(),
               lastMovement: 1,
+              numeroLot: undefined,
+              dlc: undefined,
             };
             await syncItem(item);
             triggerHaptic("success");
@@ -611,6 +613,8 @@ export default function App() {
         purchasePrice: product.purchasePrice,
         salesPrice: product.salesPrice,
         lastMovement: quantity,
+        numeroLot: product.numeroLot,
+        dlc: product.dlc,
       };
 
       try {
@@ -647,6 +651,8 @@ export default function App() {
         purchasePrice: product.purchasePrice,
         salesPrice: product.salesPrice,
         lastMovement: delta,
+        numeroLot: product.numeroLot,
+        dlc: product.dlc,
       };
 
       try {
@@ -689,6 +695,8 @@ export default function App() {
         purchasePrice: product.purchasePrice,
         salesPrice: product.salesPrice,
         lastMovement: delta,
+        numeroLot: product.numeroLot,
+        dlc: product.dlc,
       };
 
       try {
@@ -1184,6 +1192,8 @@ export default function App() {
                 : undefined,
               lastMovement: quantity,
               lastUpdated: Date.now(),
+              numeroLot: normalizeOptionalText(args.numeroLot) ?? undefined,
+              dlc: normalizeOptionalText(args.dlc) ?? undefined,
             };
 
             // Générer un embedding pour le nouveau produit

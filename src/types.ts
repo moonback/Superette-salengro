@@ -6,10 +6,10 @@ export interface ProductLookupData {
   purchasePrice?: number;
   salesPrice?: number;
   lastMovement?: number;
-  /** Contenance/format renvoyé par OpenFoodFacts (ex : « 330 ml »). Transitoire, non persisté. */
-  format?: string;
-  /** Nutri-Score a–e renvoyé par OpenFoodFacts. Transitoire, non persisté. */
-  nutriScore?: string;
+  /** Numéro de lot */
+  numeroLot?: string;
+  /** DLC au format YYYY-MM-DD */
+  dlc?: string;
 }
 
 export interface InventoryItem extends ProductLookupData {

@@ -131,6 +131,18 @@ export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: P
                   <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Categorie</p>
                   <p className="mt-1 text-stone-700">{product.category || "Non classe"}</p>
                 </div>
+                {product.numeroLot && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Numero de lot</p>
+                    <p className="mt-1 text-stone-700">{product.numeroLot}</p>
+                  </div>
+                )}
+                {product.dlc && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">DLC</p>
+                    <p className="mt-1 text-stone-700">{new Date(product.dlc + 'T00:00:00').toLocaleDateString('fr-FR')}</p>
+                  </div>
+                )}
               </div>
             </div>
 

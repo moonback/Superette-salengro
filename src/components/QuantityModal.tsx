@@ -11,6 +11,8 @@ interface QuantityModalProps {
     category?: string;
     format?: string;
     nutriScore?: string;
+    numeroLot?: string;
+    dlc?: string;
   };
   existingQty: number;
   isNew: boolean;

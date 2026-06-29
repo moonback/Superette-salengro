@@ -16,6 +16,8 @@ interface ManualProductModalProps {
     imageUrl?: string;
     purchasePrice?: number;
     salesPrice?: number;
+    numeroLot?: string;
+    dlc?: string;
   };
   onSave: (
     product: {
@@ -25,6 +27,8 @@ interface ManualProductModalProps {
       imageUrl?: string;
       purchasePrice?: number;
       salesPrice?: number;
+      numeroLot?: string;
+      dlc?: string;
     },
     quantity: number
   ) => void;
@@ -39,6 +43,8 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl ?? '');
   const [purchasePrice, setPurchasePrice] = useState(initialValues?.purchasePrice !== undefined ? String(initialValues.purchasePrice) : '');
   const [salesPrice, setSalesPrice] = useState(initialValues?.salesPrice !== undefined ? String(initialValues.salesPrice) : '');
+  const [numeroLot, setNumeroLot] = useState(initialValues?.numeroLot ?? '');
+  const [dlc, setDlc] = useState(initialValues?.dlc ?? '');
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -137,6 +143,8 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
         imageUrl: imageUrl.trim() || undefined,
         purchasePrice: pPrice !== undefined && !isNaN(pPrice) ? pPrice : undefined,
         salesPrice: sPrice !== undefined && !isNaN(sPrice) ? sPrice : undefined,
+        numeroLot: numeroLot.trim() || undefined,
+        dlc: dlc.trim() || undefined,
       }, num);
     }
   };
@@ -382,6 +390,29 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
                   inputMode="decimal"
                   className="w-full h-11 px-4 glass-input rounded-xl text-sm font-semibold font-mono tabular text-stone-900 outline-none transition"
                   placeholder="Ex: 15.00"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">Numero de lot</label>
+                <input
+                  type="text"
+                  value={numeroLot}
+                  onChange={e => setNumeroLot(e.target.value)}
+                  className="w-full h-11 px-4 glass-input rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
+                  placeholder="Ex: LOT-2024-001"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">DLC</label>
+                <input
+                  type="date"
+                  value={dlc}
+                  onChange={e => setDlc(e.target.value)}
+                  className="w-full h-11 px-4 glass-input rounded-xl text-sm font-semibold text-stone-900 outline-none transition"
                 />
               </div>
             </div>

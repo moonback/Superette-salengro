@@ -38,6 +38,8 @@ create policy "Allow public inventory deletes"
 ALTER TABLE public.inventory_items ADD COLUMN IF NOT EXISTS purchase_price numeric check (purchase_price >= 0);
 ALTER TABLE public.inventory_items ADD COLUMN IF NOT EXISTS sales_price numeric check (sales_price >= 0);
 ALTER TABLE public.inventory_items ADD COLUMN IF NOT EXISTS last_movement integer default 0;
+ALTER TABLE public.inventory_items ADD COLUMN IF NOT EXISTS numero_lot text;
+ALTER TABLE public.inventory_items ADD COLUMN IF NOT EXISTS dlc date;
 
 
 -- MIGRATION: CRÉATION DU BUCKET DE STOCKAGE POUR LES PHOTOS DE PRODUITS
