@@ -2,6 +2,8 @@ export type PcmChunkHandler = (pcm: Int16Array) => void;
 
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
+const INT16_MAX = 32767;
+const INT16_MIN = 32768;
 
 export class AudioManager {
   private static instance: AudioManager | null = null;
@@ -9,6 +11,7 @@ export class AudioManager {
   private stream: MediaStream | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private worklet: AudioWorkletNode | null = null;
+  private silentSink: GainNode | null = null;
   private workletUrl: string | null = null;
   private onChunk: PcmChunkHandler | null = null;
   private muted = false;
@@ -25,7 +28,7 @@ export class AudioManager {
     return AudioManager.instance;
   }
 
-  private constructor() {}
+  private constructor() { }
 
   async initialize(): Promise<void> {
     if (!this.context) {
@@ -41,6 +44,10 @@ export class AudioManager {
     this.onChunk = handler;
   }
 
+  get chunksSent(): number {
+    return this.sentChunks;
+  }
+
   async startMicrophone(): Promise<void> {
     await this.initialize();
     if (!this.context) {
@@ -51,7 +58,14 @@ export class AudioManager {
       return;
     }
 
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: INPUT_SAMPLE_RATE } });
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: INPUT_SAMPLE_RATE },
+      });
+    } catch (err) {
+      this.stream = null;
+      throw new Error(`Unable to access microphone: ${err instanceof Error ? err.message : String(err)}`);
+    }
 
     await this.ensureWorklet(this.context);
     this.source = this.context.createMediaStreamSource(this.stream);
@@ -77,19 +91,43 @@ export class AudioManager {
         }
       }
     };
+
     this.source.connect(this.worklet);
-    this.worklet.connect(this.context.destination);
+
+    // IMPORTANT: ne pas connecter le worklet à context.destination,
+    // sinon l'utilisateur entend sa propre voix en écho. Certains
+    // navigateurs (anciens Safari) exigent toutefois un nœud de sortie
+    // connecté pour que le graphe audio reste actif, donc on route vers
+    // un gain à volume nul plutôt que vers la sortie réelle.
+    this.silentSink = this.context.createGain();
+    this.silentSink.gain.value = 0;
+    this.worklet.connect(this.silentSink);
+    this.silentSink.connect(this.context.destination);
   }
 
   stopMicrophone(): void {
+    this.flushAccumulationBuffer();
+
     this.worklet?.disconnect();
+    this.silentSink?.disconnect();
     this.source?.disconnect();
     this.stream?.getTracks().forEach((track) => track.stop());
     this.worklet = null;
+    this.silentSink = null;
     this.source = null;
     this.stream = null;
     this.sentChunks = 0;
     this.accumulationBuffer = null;
+    this.accumulationIndex = 0;
+  }
+
+  /** Envoie les échantillons accumulés restants avant qu'ils ne soient perdus. */
+  private flushAccumulationBuffer(): void {
+    if (!this.accumulationBuffer || this.accumulationIndex === 0 || this.muted) return;
+
+    const remaining = this.accumulationBuffer.slice(0, this.accumulationIndex);
+    this.sentChunks += 1;
+    this.onChunk?.(remaining);
     this.accumulationIndex = 0;
   }
 
@@ -120,7 +158,7 @@ export class AudioManager {
         const { pcm, resolve } = item;
         const buffer = this.context.createBuffer(1, pcm.length, sampleRate);
         const channel = buffer.getChannelData(0);
-        for (let i = 0; i < pcm.length; i += 1) channel[i] = Math.max(-1, Math.min(1, pcm[i] / 32768));
+        for (let i = 0; i < pcm.length; i += 1) channel[i] = Math.max(-1, Math.min(1, pcm[i] / INT16_MIN));
 
         const source = this.context.createBufferSource();
         this.activeSource = source;
@@ -152,8 +190,8 @@ export class AudioManager {
     if (this.activeSource) {
       try {
         this.activeSource.stop();
-      } catch (err) {
-        // Source already stopped
+      } catch {
+        // stop() lève si la source est déjà arrêtée/terminée naturellement ; sans danger ici.
       }
       this.activeSource = null;
     }
@@ -200,8 +238,11 @@ export class AudioManager {
 
 export function int16ToBase64(data: Int16Array): string {
   const bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  const CHUNK_SIZE = 0x8000; // évite de dépasser la limite d'arguments de String.fromCharCode
   let binary = '';
-  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
+  }
   return btoa(binary);
 }
 
