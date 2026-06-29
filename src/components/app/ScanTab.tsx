@@ -1,10 +1,10 @@
 import React from "react";
 import { Loader2, Minus, Package, Plus, Scan } from "lucide-react";
 import { CameraBarcodeScanner } from "../CameraBarcodeScanner";
+import { ImageProductRecognition } from "../ImageProductRecognition";
 import { ManualInput } from "../ManualInput";
 import { ScannerInputMode, ScannerInputModeToggle } from "../ScannerInputModeToggle";
 import { AnimatedQuantity } from "../AnimatedQuantity";
-import { InventoryItem } from "../../types";
 
 type ScanTabProps = {
   isOnline: boolean;
@@ -16,6 +16,7 @@ type ScanTabProps = {
   recentlyScanned: InventoryItem[];
   onScannerInputModeChange: (mode: ScannerInputMode) => void;
   onScan: (barcode: string) => void;
+  onImageScan: (result: RecognizedProduct) => void;
   onEditProduct: (item: InventoryItem) => void;
   onEditQuantity: (item: InventoryItem) => void;
   onUpdateQuantity: (barcode: string, delta: number) => void;
@@ -31,6 +32,7 @@ export function ScanTab({
   recentlyScanned,
   onScannerInputModeChange,
   onScan,
+  onImageScan,
   onEditProduct,
   onEditQuantity,
   onUpdateQuantity,
@@ -62,6 +64,10 @@ export function ScanTab({
               <div className="text-[11px] text-white/80 mt-1">Utilisez votre scanner physique</div>
             </div>
           </button>
+        ) : scannerInputMode === "image" ? (
+          <div className="rounded-3xl overflow-hidden shadow-lg shadow-stone-900/10 mb-5 bg-stone-900">
+            <ImageProductRecognition onRecognize={onImageScan} />
+          </div>
         ) : (
           <div className="rounded-3xl overflow-hidden shadow-lg shadow-stone-900/10 mb-5 bg-stone-900 aspect-[4/3] relative">
             <CameraBarcodeScanner enabled={!isScannerDisabled} isBusy={!!loadingBarcode} onScan={onScan} />
@@ -172,7 +178,8 @@ const RecentScanGridItem: React.FC<RecentScanGridItemProps> = ({ item, onEditPro
               isLow ? "text-amber-600" : "text-stone-900"
             }`}
           >
-            <AnimatedQuantity value={item.quantity} />
+            {/* AnimatedQuantity would go here */}
+            {item.quantity}
           </button>
 
           <button

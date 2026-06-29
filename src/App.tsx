@@ -39,16 +39,17 @@ import { StockTab } from "./components/app/StockTab";
 import { SyncNotice } from "./components/app/SyncNotice";
 import { GeminiAssistantProvider } from "./providers/GeminiAssistantProvider";
 import { generateProductEmbedding, fullSemanticSearch } from "./lib/embeddingService";
+import type { RecognizedProduct } from "./lib/geminiVision";
 
 
 type ActionModalState =
   | {
-    type: "quantity";
-    product: InventoryItem | ({ barcode: string } & ProductLookupData);
-    existingQty: number;
-    isNew: boolean;
-  }
-  | { type: "manual"; barcode: string }
+      type: "quantity";
+      product: InventoryItem | ({ barcode: string } & ProductLookupData);
+      existingQty: number;
+      isNew: boolean;
+    }
+  | { type: "manual"; barcode: string; initialValues?: Partial<ProductLookupData> & { quantity?: number } }
   | { type: "edit"; product: InventoryItem }
   | { type: "scan_choice"; product: InventoryItem }
   | { type: "product_details"; product: InventoryItem }
@@ -1308,6 +1309,20 @@ export default function App() {
               recentlyScanned={recentlyScanned}
               onScannerInputModeChange={setScannerInputMode}
               onScan={handleScan}
+              onImageScan={(result) => {
+                const tempBarcode = `img-${Date.now()}`;
+                setActionModal({
+                  type: "manual",
+                  barcode: tempBarcode,
+                  initialValues: {
+                    name: result.name,
+                    brand: result.brand,
+                    category: result.category,
+                    imageUrl: result.imageUrl,
+                    quantity: 1,
+                  },
+                });
+              }}
               onEditProduct={(item) => setActionModal({ type: "edit", product: item })}
               onEditQuantity={(item) =>
                 setActionModal({
@@ -1423,6 +1438,7 @@ export default function App() {
           <ManualProductModal
             barcode={actionModal.barcode}
             categories={dbCategories}
+            initialValues={actionModal.initialValues}
             onSave={handleManualProductSave}
             onCancel={() => setActionModal(null)}
           />
