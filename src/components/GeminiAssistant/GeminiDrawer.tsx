@@ -135,7 +135,7 @@ export function GeminiDrawer({
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-widest text-indigo-600">
-              Julien
+              Lina
             </p>
             <h2 className="text-base font-extrabold text-stone-900 leading-tight">
               Assistant vocal
@@ -147,8 +147,8 @@ export function GeminiDrawer({
               type="button"
               onClick={() => setAutoAccept(!autoAccept)}
               className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold transition cursor-pointer select-none ${autoAccept
-                  ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                  : 'bg-stone-100 text-stone-500 border border-stone-200'
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                : 'bg-stone-100 text-stone-500 border border-stone-200'
                 }`}
             >
               {autoAccept && <Check className="h-3 w-3 stroke-[3]" />}
@@ -226,8 +226,8 @@ export function GeminiDrawer({
             type="button"
             onClick={onMuteToggle}
             className={`flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold border transition active:scale-[0.98] cursor-pointer select-none ${isMuted
-                ? 'bg-amber-50 border-amber-200 text-amber-700'
-                : 'bg-white border-stone-200/80 text-stone-600 hover:text-stone-900'
+              ? 'bg-amber-50 border-amber-200 text-amber-700'
+              : 'bg-white border-stone-200/80 text-stone-600 hover:text-stone-900'
               }`}
           >
             {isMuted ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}

@@ -23,8 +23,8 @@ export function buildSystemPrompt(context: AssistantExternalContext = {}): strin
   return `
 # 🎙️ MODE VOCAL STRICT
 
-Tu es **Lina**, assistant vocal pour ${context.storeName ?? 'la boutique'}.
-
+Tu es **Lina**, assistante vocale pour ${context.storeName ?? 'la boutique'}.
+Développé par Maysson
 Langue: ${language}
 
 ---
