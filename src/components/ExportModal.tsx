@@ -1,13 +1,16 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef, type ChangeEvent } from "react";
 import { motion, PanInfo } from "motion/react";
-import { X, FileText, Table, Check, Loader as Loader2 } from "lucide-react";
+import { X, FileText, Table, Check, Loader as Loader2, Upload } from "lucide-react";
 import { InventoryItem, CategoryItem } from "../types";
 import { jsPDF } from "jspdf";
+import { upsertInventoryItem } from "../lib/supabaseInventory";
+import { getProductData } from "../api";
 
 type ExportModalProps = {
   items: InventoryItem[];
   categories?: CategoryItem[];
   onClose: () => void;
+  onImport?: (items: InventoryItem[]) => void;
 };
 
 type ExportProgress = {
@@ -20,10 +23,12 @@ export function ExportModal({
   items,
   categories = [],
   onClose,
+  onImport,
 }: ExportModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [exportType, setExportType] = useState<"csv" | "pdf" | null>(null);
+  const [exportType, setExportType] = useState<"csv" | "pdf" | "import" | null>(null);
   const [showPdfProgress, setShowPdfProgress] = useState(false);
+  const [showImportProgress, setShowImportProgress] = useState(false);
   const [progress, setProgress] = useState<ExportProgress>({
     current: 0,
     total: items.length,
@@ -32,6 +37,7 @@ export function ExportModal({
 
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -531,6 +537,188 @@ export function ExportModal({
     }
   };
 
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const next = line[i + 1];
+
+      if (inQuotes) {
+        if (char === '"' && next === '"') {
+          current += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = false;
+        } else {
+          current += char;
+        }
+      } else {
+        if (char === '"') {
+          inQuotes = true;
+        } else if (char === ",") {
+          result.push(current);
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+    }
+    result.push(current);
+    return result;
+  };
+
+  const handleImportCSV = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setIsGenerating(true);
+      setExportType("import");
+      setShowImportProgress(true);
+      setProgress({
+        current: 0,
+        total: 0,
+        label: "Lecture du fichier CSV...",
+      });
+
+      try {
+        const text = await file.text();
+        const normalized = text.replace(/\r\n/g, '\n');
+        const lines = normalized.split('\n').filter((line) => line.trim() !== "");
+
+        if (lines.length < 2) {
+          alert("Le fichier CSV est vide ou ne contient pas d'en-tête.");
+          return;
+        }
+
+        const headers = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
+        const barcodeIdx = headers.indexOf("code-barres");
+        const nameIdx = headers.indexOf("nom");
+        const brandIdx = headers.indexOf("marque");
+        const categoryIdx = headers.indexOf("catégorie");
+        const quantityIdx = headers.indexOf("quantité");
+        const purchaseIdx = headers.indexOf("prix d'achat");
+        const salesIdx = headers.indexOf("prix de vente");
+
+        if (barcodeIdx === -1 || nameIdx === -1) {
+          alert(
+            "Format CSV invalide. En-têtes requis : Code-barres, Nom, Marque, Catégorie, Quantité, Prix d'achat, Prix de vente",
+          );
+          return;
+        }
+
+        const parsed: InventoryItem[] = [];
+        const totalDataLines = lines.length - 1;
+
+        for (let i = 1; i < lines.length; i++) {
+          const cols = parseCSVLine(lines[i]);
+          if (cols.length < Math.max(barcodeIdx, nameIdx, brandIdx, categoryIdx, quantityIdx, purchaseIdx, salesIdx) + 1) continue;
+
+          const barcode = (cols[barcodeIdx] || "").trim();
+          const name = (cols[nameIdx] || "").trim();
+          if (!barcode || !name) continue;
+
+          const brand = (cols[brandIdx] || "").trim() || undefined;
+          const category = (cols[categoryIdx] || "").trim() || undefined;
+          const quantity = cols[quantityIdx] ? parseInt(cols[quantityIdx], 10) : 1;
+          const purchasePrice = cols[purchaseIdx] ? parseFloat(cols[purchaseIdx]) : undefined;
+          const salesPrice = cols[salesIdx] ? parseFloat(cols[salesIdx]) : undefined;
+
+          const item: InventoryItem = {
+            barcode,
+            name,
+            quantity: isNaN(quantity) ? 1 : quantity,
+            brand,
+            category,
+            lastUpdated: Date.now(),
+            purchasePrice: isNaN(purchasePrice ?? NaN) ? undefined : purchasePrice,
+            salesPrice: isNaN(salesPrice ?? NaN) ? undefined : salesPrice,
+          };
+
+          parsed.push(item);
+
+          setProgress({
+            current: i - 1,
+            total: totalDataLines,
+            label: `Import CSV en cours - ${name}`,
+          });
+        }
+
+        setProgress({
+          current: 0,
+          total: parsed.length,
+          label: "Enregistrement en base...",
+        });
+
+        for (let j = 0; j < parsed.length; j++) {
+          try {
+            await upsertInventoryItem(parsed[j]);
+          } catch (err) {
+            console.error("Erreur import ligne:", parsed[j], err);
+          }
+          setProgress({
+            current: j + 1,
+            total: parsed.length,
+            label: `Enregistrement en base - ${parsed[j].name}`,
+          });
+        }
+
+        onImport?.(parsed);
+
+        // Rattrapage images OpenFoodFacts après import (débit très espacé pour éviter 429)
+        const missingImage = parsed.filter((p) => !p.imageUrl && p.barcode);
+        if (missingImage.length > 0) {
+          setProgress({
+            current: 0,
+            total: missingImage.length,
+            label: "Recherche d'images OpenFoodFacts...",
+          });
+          for (let k = 0; k < missingImage.length; k++) {
+            const product = missingImage[k];
+            try {
+              const offData = await getProductData(product.barcode!);
+              if (offData?.imageUrl) {
+                product.imageUrl = offData.imageUrl;
+                await upsertInventoryItem(product);
+              }
+            } catch {
+              // silencieux
+            }
+            setProgress({
+              current: k + 1,
+              total: missingImage.length,
+              label: `Image OpenFoodFacts - ${product.name}`,
+            });
+            // Délai long (~1s) entre chaque requête pour rester sous les limites de taux OFF
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+          onImport?.(parsed);
+        }
+
+        onClose();
+      } catch (error) {
+        console.error("Erreur lors de l'import CSV:", error);
+        alert("Une erreur est survenue lors de l'import du CSV.");
+      } finally {
+        setIsGenerating(false);
+        setExportType(null);
+        setShowImportProgress(false);
+        setProgress({
+          current: 0,
+          total: items.length,
+          label: "Pret a exporter",
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    },
+    [items, onClose, onImport],
+  );
+
   const progressPercent = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
   const opacity = Math.max(0, 1 - dragY / 300);
   const scale = Math.max(0.95, 1 - dragY / 1000);
@@ -564,6 +752,13 @@ export function ExportModal({
         </div>
 
         <div className="p-6">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={handleImportCSV}
+          />
           <div className="absolute top-4 right-4 hidden sm:block">
             <button onClick={onClose} className="p-2 text-stone-400 hover:text-stone-900 rounded-full hover:bg-stone-100 transition touch-target">
               <X className="w-5 h-5" />
@@ -574,12 +769,20 @@ export function ExportModal({
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/25">
               <FileText className="h-5 w-5" />
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="text-base font-bold text-stone-900">Exporter l'inventaire</h3>
               <p className="text-xs text-stone-500 font-medium mt-0.5">
                 {items.length} produit{items.length > 1 ? "s" : ""} a exporter
               </p>
             </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50 transition disabled:opacity-50 disabled:cursor-not-allowed touch-target"
+            >
+              <Upload className="w-4 h-4 text-stone-600" />
+              <span className="text-sm font-semibold text-stone-700 hidden sm:inline">Importer CSV</span>
+            </button>
           </div>
 
           {showPdfProgress && (
@@ -604,6 +807,32 @@ export function ExportModal({
               </div>
               <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-stone-500">
                 <span>{isGenerating ? "Export PDF en cours..." : "En attente"}</span>
+                <span>{progressPercent}%</span>
+              </div>
+            </div>
+          )}
+          {showImportProgress && (
+            <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">Import CSV</p>
+                  <p className="mt-1 text-sm font-bold text-stone-900">{progress.label}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-extrabold tabular-nums text-emerald-700">
+                    {progress.current}/{progress.total}
+                  </p>
+                  <p className="text-[11px] font-medium text-stone-500">produits</p>
+                </div>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full bg-stone-200">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-stone-500">
+                <span>Import en cours...</span>
                 <span>{progressPercent}%</span>
               </div>
             </div>

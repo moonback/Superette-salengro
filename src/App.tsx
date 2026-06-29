@@ -1397,6 +1397,11 @@ export default function App() {
             items={inventory}
             categories={dbCategories}
             onClose={() => setShowExportModal(false)}
+            onImport={async () => {
+              const result = await loadInventoryItems();
+              setInventory(result.items);
+              setInventorySource(result.source);
+            }}
           />
         )}
 

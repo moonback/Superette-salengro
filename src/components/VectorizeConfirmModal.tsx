@@ -134,6 +134,9 @@ export function VectorizeConfirmModal({
                   : 'Vectorisation en cours...'
                 : 'Confirmer le lancement de la vectorisation ?'}
             </p>
+            <p className="text-[11px] text-stone-500 mt-2 leading-relaxed">
+              Cela cree des representations numeriques de vos produits pour permettre des recherches intelligentes dans l'inventaire (recherche par similarite, tri automatique, suggestions contextuelles...).
+            </p>
           </div>
 
           <div className="space-y-3">
