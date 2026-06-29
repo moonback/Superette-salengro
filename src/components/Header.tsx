@@ -1,7 +1,9 @@
 
-import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Check, Brain, Pause, Play, X, Package, FileText, AlertTriangle } from 'lucide-react';
+import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Brain, Pause, Play, X, Package, HelpCircle } from 'lucide-react';
 import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
 import { motion } from 'motion/react';
+import { useState } from 'react';
+import { HelpModal } from './HelpModal';
 
 interface HeaderProps {
   email: string;
@@ -36,8 +38,10 @@ export function Header({
 }: HeaderProps) {
   const { isRunning, isPaused, progress, start, pause, resume, stop, canStart, currentProductName, embeddedCount } = embeddingGenerator;
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
+  const [showHelp, setShowHelp] = useState(false);
 
   return (
+    <>
     <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/50 pt-safe transition-all duration-300">
       <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
         {/* Identity row */}
@@ -126,6 +130,16 @@ export function Header({
                 )}
               </div>
             )}
+            {/* Help button — always visible */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowHelp(true)}
+              aria-label="Guide des fonctionnalités"
+              className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200"
+            >
+              <HelpCircle className="h-4 w-4" />
+            </motion.button>
             {showExport && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -202,5 +216,8 @@ export function Header({
         )}
       </div>
     </header>
+
+    <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
+    </>
   );
 }
