@@ -10,6 +10,7 @@ export const tools: ToolDefinition[] = [
   { name: 'detectAnomalies', description: 'Detecte les anomalies inventaire (prix aberrant, stock negatif, doublons potentiels)', parameters: { type: 'object', properties: {} } },
   { name: 'generateDailyInsights', description: 'Genere un resume vocal proactif : alertes, top mouvements, valeur stock', parameters: { type: 'object', properties: {} } },
   { name: 'smartCategorySuggestion', description: 'Suggere une categorie pour un produit via IA lorsque les rules locales ne matchent pas', parameters: { type: 'object', properties: { name: { type: 'string' }, brand: { type: 'string' } }, required: ['name'] } },
+  { name: 'predictStockOut', description: 'Anticipe les ruptures : retourne les produits dont le stock predit est bas ou negatif', parameters: { type: 'object', properties: { thresholdDays: { type: 'number' } } } },
   { name: 'updateStock', description: 'Modifier un stock', sensitive: true, parameters: { type: 'object', properties: { barcode: { type: 'string' }, query: { type: 'string' }, name: { type: 'string' }, quantity: { type: 'number' } }, required: ['quantity'] } },
   {
     name: 'updateProduct',

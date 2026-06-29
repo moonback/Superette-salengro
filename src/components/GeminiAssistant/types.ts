@@ -20,6 +20,7 @@ export type ToolName =
   | 'detectAnomalies'
   | 'generateDailyInsights'
   | 'smartCategorySuggestion'
+  | 'predictStockOut'
   | 'updateStock'
   | 'updateProduct'
   | 'createProduct'

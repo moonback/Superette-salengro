@@ -24,6 +24,8 @@ export interface InventoryItem extends ProductLookupData {
   salesPrice?: number;
   lastMovement?: number;
   embedding?: number[];
+  predictedStock?: number;
+  daysUntilStockout?: number | null;
 }
 
 export interface CategoryItem {

@@ -82,6 +82,7 @@ Processus obligatoire :
 ## Proactivité
 → Apres un scan, si stock faible detecte → proposer suggestRestock
 → Si l'utilisateur demande "resume", "bilan", "alertes" → generateDailyInsights
+→ Sur demande de risque rupture / prediction → predictStockOut
 → En cas de categorie inconnue ou absente → smartCategorySuggestion
 → Periodiquement ou sur demande → detectAnomalies (prix negatifs, doublons)
 

@@ -197,6 +197,25 @@ export default function App() {
     [],
   );
 
+  const computePredictions = useCallback((items: InventoryItem[]): InventoryItem[] => {
+    const now = Date.now();
+    return items.map((item) => {
+      if (!item.lastMovement || item.lastMovement >= 0 || item.quantity <= 0) {
+        return item;
+      }
+
+      const dailyConsumption = Math.abs(item.lastMovement);
+      const daysSinceUpdate = Math.max(0, (now - item.lastUpdated) / (1000 * 60 * 60 * 24));
+      const predictedStock = Math.max(0, Math.round(item.quantity - dailyConsumption * daysSinceUpdate));
+      const daysUntilStockout = dailyConsumption > 0 ? predictedStock / dailyConsumption : null;
+
+      return {
+        ...item,
+        predictedStock,
+        daysUntilStockout,
+      };
+    });
+  }, []);
 
   const handleOfflineFlushComplete = useCallback(
     async (result: { synced: number; failed: number; remaining: number }) => {
@@ -204,7 +223,8 @@ export default function App() {
         showToast(`${result.synced} modification(s) synchronisée(s)`);
         try {
           const { items, source } = await loadInventoryItems();
-          setInventory(items);
+          const predicted = computePredictions(items);
+          setInventory(predicted);
           setInventorySource(source);
           setSyncError(null);
         } catch (error) {
@@ -251,7 +271,8 @@ export default function App() {
 
     try {
       const { items, source } = await loadInventoryItems();
-      setInventory(items);
+      const predicted = computePredictions(items);
+      setInventory(predicted);
       setInventorySource(source);
       setSyncError(
         source === "cache" && !isOnline
@@ -292,7 +313,8 @@ export default function App() {
           fetchCategories(),
         ]);
         if (isMounted) {
-          setInventory(items);
+          const predicted = computePredictions(items);
+          setInventory(predicted);
           setInventorySource(source);
           setDbCategories(cats);
           setSyncError(
@@ -336,8 +358,9 @@ export default function App() {
 
   const syncItem = async (item: InventoryItem) => {
     const { item: savedItem, queued } = await syncInventoryItem(item);
+    const predicted = computePredictions([savedItem])[0];
     setInventory((prev) => [
-      savedItem,
+      predicted,
       ...prev.filter((i) => i.barcode !== savedItem.barcode),
     ]);
     if (queued) {
@@ -1202,6 +1225,24 @@ export default function App() {
             }
 
             return { suggested: undefined, source: "none" };
+          },
+          predictStockOut: async (args) => {
+            const thresholdDays = Number(args.thresholdDays) || 3;
+
+            const risky = inventory
+              .filter((item) => typeof item.daysUntilStockout === 'number' && item.daysUntilStockout <= thresholdDays)
+              .sort((a, b) => (a.daysUntilStockout ?? 0) - (b.daysUntilStockout ?? 0))
+              .slice(0, 5);
+
+            return {
+              items: risky.map((item) => ({
+                barcode: item.barcode,
+                name: item.name,
+                quantity: item.quantity,
+                predictedStock: item.predictedStock,
+                daysUntilStockout: item.daysUntilStockout,
+              })),
+            };
           },
           updateStock: async (args) => {
             const quantity = Number(args.quantity);
