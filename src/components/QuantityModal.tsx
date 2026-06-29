@@ -155,23 +155,23 @@ export function QuantityModal({ product, existingQty, isNew, onSave, onCancel }:
             </div>
 
             {!isNew && (
-              <div className="mb-5 flex justify-between items-center bg-stone-50 border border-stone-200 rounded-2xl p-3.5">
-                <span className="text-sm text-stone-500">Stock actuel en rayon</span>
-                <span className="text-lg font-bold font-mono tabular text-indigo-600">{existingQty} {existingQty > 1 ? 'unités' : 'unité'}</span>
+              <div className="mb-5 flex justify-between items-center bg-stone-50/50 border border-stone-200/60 rounded-xl p-3.5">
+                <span className="text-xs font-bold text-stone-500">Stock actuel en rayon</span>
+                <span className="text-base font-extrabold font-mono tabular text-indigo-600">{existingQty} {existingQty > 1 ? 'unités' : 'unité'}</span>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-1 p-1 bg-stone-100 border border-stone-200 rounded-2xl mb-6">
+            <div className="grid grid-cols-2 gap-1 p-1 bg-stone-100/60 border border-stone-200/60 rounded-xl mb-5">
               <button
                 type="button"
                 onClick={() => {
                   setMode('set');
                   setQty(isNew ? '1' : String(existingQty));
                 }}
-                className={`py-3.5 text-xs font-semibold rounded-xl transition touch-target ${
+                className={`py-2.5 text-xs font-bold rounded-lg transition-all duration-150 select-none tap-active cursor-pointer ${
                   mode === 'set'
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
-                    : 'text-stone-500 hover:text-stone-700'
+                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200/50'
+                    : 'text-stone-500 hover:text-stone-850'
                 }`}
               >
                 Définir le stock
@@ -182,24 +182,24 @@ export function QuantityModal({ product, existingQty, isNew, onSave, onCancel }:
                   setMode('add');
                   setQty('1');
                 }}
-                className={`py-3.5 text-xs font-semibold rounded-xl transition touch-target ${
+                className={`py-2.5 text-xs font-bold rounded-lg transition-all duration-150 select-none tap-active cursor-pointer ${
                   mode === 'add'
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
-                    : 'text-stone-500 hover:text-stone-700'
+                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200/50'
+                    : 'text-stone-500 hover:text-stone-850'
                 }`}
               >
                 Ajouter au stock
               </button>
             </div>
 
-            <div className="relative flex items-center justify-between gap-2 bg-stone-50 border border-stone-200 rounded-2xl p-3 mb-6">
+            <div className="relative flex items-center justify-between gap-2 bg-stone-50/50 border border-stone-200/60 rounded-2xl p-3 mb-5">
               <button
                 type="button"
                 onClick={() => adjustQty(-1)}
-                className="w-14 h-14 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-100 active:scale-95 border border-stone-200 shadow-sm rounded-2xl transition touch-target"
+                className="w-12 h-12 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-50 active:scale-95 border border-stone-200/80 shadow-xs rounded-xl transition cursor-pointer"
                 aria-label="Diminuer"
               >
-                <Minus className="w-6 h-6" />
+                <Minus className="w-5 h-5" />
               </button>
 
               <div className="flex-1 text-center">
@@ -214,11 +214,11 @@ export function QuantityModal({ product, existingQty, isNew, onSave, onCancel }:
                     setQty(e.target.value);
                   }}
                   onKeyDown={e => e.key === 'Enter' && handleSave()}
-                  className="w-full bg-transparent text-stone-900 text-4xl font-bold font-mono tabular text-center outline-none border-none focus:ring-0 p-0"
+                  className="w-full bg-transparent text-stone-900 text-3xl font-extrabold font-mono tabular text-center outline-none border-none focus:ring-0 p-0"
                   placeholder="0"
                   inputMode="numeric"
                 />
-                <p className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider mt-1">
+                <p className="text-[9px] font-bold text-stone-400 uppercase tracking-wider mt-1">
                   {mode === 'set' ? 'Stock total' : 'Quantité à ajouter'}
                 </p>
               </div>
@@ -226,20 +226,20 @@ export function QuantityModal({ product, existingQty, isNew, onSave, onCancel }:
               <button
                 type="button"
                 onClick={() => adjustQty(1)}
-                className="w-14 h-14 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-100 active:scale-95 border border-stone-200 shadow-sm rounded-2xl transition touch-target"
+                className="w-12 h-12 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-50 active:scale-95 border border-stone-200/80 shadow-xs rounded-xl transition cursor-pointer"
                 aria-label="Augmenter"
               >
-                <Plus className="w-6 h-6" />
+                <Plus className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-6">
+            <div className="grid grid-cols-4 gap-2 mb-5">
               {(mode === 'add' ? [1, 5, 10, 25] : [0, 5, 10, 50]).map((preset) => (
                 <button
                   key={preset}
                   type="button"
                   onClick={() => setQty(String(preset))}
-                  className="py-3.5 text-sm font-bold font-mono tabular text-stone-700 bg-stone-50 border border-stone-200 hover:bg-stone-100 hover:border-stone-300 active:scale-95 rounded-xl transition touch-target"
+                  className="py-2.5 text-xs font-bold font-mono tabular text-stone-700 bg-white border border-stone-200/80 hover:bg-stone-50 hover:border-stone-300 active:scale-95 rounded-lg transition cursor-pointer"
                 >
                   {mode === 'add' ? `+${preset}` : `${preset}`}
                 </button>
@@ -249,16 +249,16 @@ export function QuantityModal({ product, existingQty, isNew, onSave, onCancel }:
             <div className="flex gap-3">
               <button
                 onClick={onCancel}
-                className="flex-1 py-4 text-sm font-semibold text-stone-500 bg-transparent border border-stone-200 hover:bg-stone-50 hover:text-stone-800 active:scale-[0.98] rounded-2xl transition touch-target"
+                className="flex-1 py-3 text-xs font-bold text-stone-500 hover:text-stone-850 hover:bg-stone-50 border border-stone-200/80 rounded-xl transition select-none tap-active cursor-pointer"
               >
                 Annuler
               </button>
               <button
                 onClick={handleSave}
                 disabled={qty.trim() === '' || isNaN(parseInt(qty, 10)) || parseInt(qty, 10) < 0}
-                className="flex-1 py-4 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none rounded-2xl shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition touch-target"
+                className="flex-1 py-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none rounded-xl shadow-md shadow-indigo-600/10 flex items-center justify-center gap-1.5 transition select-none tap-active cursor-pointer"
               >
-                <Check className="w-5 h-5" />
+                <Check className="w-4 h-4" />
                 {mode === 'set' ? 'Définir' : 'Ajouter'}
               </button>
             </div>

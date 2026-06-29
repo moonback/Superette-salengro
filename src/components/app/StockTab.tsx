@@ -76,7 +76,6 @@ export function StockTab({
   onEditProduct,
   onOpenScan,
 }: StockTabProps) {
-  const [showStats, setShowStats] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -108,24 +107,24 @@ export function StockTab({
     <section className="space-y-4 pb-20">
       {/* Header */}
       <div className="space-y-3 px-1">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-bold text-stone-900">Inventaire</h2>
-              <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-600">
-                {filteredInventory.length}/{inventoryLength} articles
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-extrabold text-stone-900 tracking-tight">Inventaire</h2>
+              <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-500 tabular">
+                {filteredInventory.length}/{inventoryLength} réf
               </span>
             </div>
-            <p className="mt-1 text-xs text-stone-500">
+            <p className="mt-0.5 text-xs text-stone-400 font-medium">
               Recherche rapide, filtres et scan en un seul écran.
             </p>
           </div>
           <button
             onClick={() => onShowFiltersChange(!showFilters)}
-            className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border transition ${
+            className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border transition ${
               showFilters
                 ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                : "border-stone-200 bg-white text-stone-500 hover:bg-stone-100"
+                : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50 active:scale-95 cursor-pointer"
             }`}
             aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
           >
@@ -133,17 +132,35 @@ export function StockTab({
           </button>
         </div>
 
+        {/* Permanently Visible Premium Stats Grid */}
+        <div className="grid grid-cols-3 gap-2 pt-1.5">
+          <StatCard
+            label="Valeur Achat"
+            value={`${financialStats.totalPurchaseVal.toFixed(2)} €`}
+            tone="stone"
+          />
+          <StatCard
+            label="CA Potentiel"
+            value={`${financialStats.totalSalesVal.toFixed(2)} €`}
+            tone="indigo"
+          />
+          <StatCard
+            label="Marge Est."
+            value={`${financialStats.potentialMargin.toFixed(2)} €`}
+            tone="emerald"
+          />
+        </div>
       </div>
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
         <input
           type="text"
           placeholder="Rechercher par nom, marque..."
           value={searchTerm}
           onChange={(event) => onSearchTermChange(event.target.value)}
-          className="w-full h-14 rounded-2xl border border-stone-200 bg-white pl-12 pr-4 text-sm font-semibold text-stone-900 outline-none focus:border-indigo-500 transition"
+          className="w-full h-12 rounded-xl border border-stone-200/80 bg-white pl-10 pr-4 text-xs font-bold text-stone-900 placeholder-stone-400 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all duration-200"
         />
       </div>
 
@@ -155,12 +172,12 @@ export function StockTab({
           onClick={() => onStockFilterChange("all")}
         />
         <QuickFilter
-          label="Bas"
+          label="Stock faible"
           active={stockFilter === "low"}
           onClick={() => onStockFilterChange("low")}
         />
         <QuickFilter
-          label="Rupture"
+          label="Ruptures"
           active={stockFilter === "out"}
           onClick={() => onStockFilterChange("out")}
         />
@@ -172,8 +189,10 @@ export function StockTab({
         {categories.length > 0 && (
           <button
             onClick={onShowCategoryModal}
-            className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl border border-stone-200 whitespace-nowrap ${
-              selectedCategory ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "text-stone-600 bg-white"
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border whitespace-nowrap transition duration-150 select-none tap-active ${
+              selectedCategory
+                ? "bg-indigo-50 border-indigo-200 text-indigo-750"
+                : "text-stone-600 bg-white border-stone-200/80 hover:border-stone-300"
             }`}
           >
             <Tags className="w-3.5 h-3.5" />
@@ -182,45 +201,15 @@ export function StockTab({
         )}
       </div>
 
-      {/* Show Stats Button */}
-      <button
-        onClick={() => setShowStats(!showStats)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 text-xs font-semibold text-stone-600 border border-stone-200 rounded-2xl bg-white hover:bg-stone-50"
-      >
-        <Eye className="w-4 h-4" />
-        {showStats ? "Masquer les stats" : "Voir les stats"}
-      </button>
-
-      {/* Stats - only shown when toggled */}
-      {showStats && (
-        <div className="flex gap-2 overflow-x-auto -mx-3 px-3 no-scrollbar">
-          <StatCard
-            label="Achat Total"
-            value={`${financialStats.totalPurchaseVal.toFixed(2)} €`}
-            tone="stone"
-          />
-          <StatCard
-            label="CA Potentiel"
-            value={`${financialStats.totalSalesVal.toFixed(2)} €`}
-            tone="indigo"
-          />
-          <StatCard
-            label="Marge Brute"
-            value={`${financialStats.potentialMargin.toFixed(2)} €`}
-            tone="emerald"
-          />
-        </div>
-      )}
-
       {/* Full Filters */}
       {showFilters && (
-        <div className="grid grid-cols-2 gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3 text-xs">
+        <div className="grid grid-cols-2 gap-3 rounded-xl border border-stone-250/20 bg-stone-50/50 p-3.5 text-[11px]">
           <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
-            <span className="font-semibold text-stone-500">Trier par</span>
+            <span className="font-bold text-stone-500 uppercase tracking-wider text-[9px]">Trier par</span>
             <select
               value={sortBy}
               onChange={(event) => onSortByChange(event.target.value as SortBy)}
-              className="h-11 rounded-xl border border-stone-200 bg-white p-2 text-stone-900 outline-none transition focus:border-indigo-500"
+              className="h-10 rounded-lg border border-stone-200/80 bg-white p-2 text-xs font-semibold text-stone-850 outline-none transition focus:border-indigo-500"
             >
               <option value="recent">Date d'ajout</option>
               <option value="name">Alphabétique (A-Z)</option>
@@ -230,11 +219,11 @@ export function StockTab({
           </div>
 
           <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
-            <span className="font-semibold text-stone-500">État du Stock</span>
+            <span className="font-bold text-stone-500 uppercase tracking-wider text-[9px]">État du Stock</span>
             <select
               value={stockFilter}
               onChange={(event) => onStockFilterChange(event.target.value as StockFilter)}
-              className="h-11 rounded-xl border border-stone-200 bg-white p-2 text-stone-900 outline-none transition focus:border-indigo-500"
+              className="h-10 rounded-lg border border-stone-200/80 bg-white p-2 text-xs font-semibold text-stone-850 outline-none transition focus:border-indigo-500"
             >
               <option value="all">Tous les articles</option>
               <option value="instock">En stock (&gt; 5)</option>
@@ -339,9 +328,12 @@ function QuickFilter({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`px-3 py-2 text-xs font-semibold rounded-xl border border-stone-200 whitespace-nowrap transition ${
-        active ? "bg-indigo-600 text-white border-indigo-600" : "text-stone-600 bg-white"
+      className={`px-4 py-2 text-xs font-bold rounded-full border whitespace-nowrap transition duration-150 select-none tap-active ${
+        active
+          ? "bg-stone-900 text-white border-stone-900 shadow-sm"
+          : "bg-white text-stone-600 border-stone-200/80 hover:border-stone-300"
       }`}
     >
       {label}
@@ -350,16 +342,20 @@ function QuickFilter({
 }
 
 function StatCard({ label, value, tone }: { label: string; value: string; tone: "stone" | "indigo" | "emerald" }) {
-  const bgClasses = {
-    stone: "bg-stone-100 border-stone-200",
-    indigo: "bg-indigo-50 border-indigo-100",
-    emerald: "bg-emerald-50 border-emerald-100",
+  const dotColors = {
+    stone: "bg-stone-400",
+    indigo: "bg-indigo-500",
+    emerald: "bg-emerald-500",
   }[tone];
 
   return (
-    <div className={`flex-shrink-0 rounded-2xl border p-3 min-w-[120px] ${bgClasses}`}>
-      <span className="block text-[9px] font-semibold uppercase text-stone-500">{label}</span>
-      <span className="block mt-1 text-sm font-bold font-mono">{value}</span>
+    <div className="flex-1 min-w-[110px] rounded-xl border border-stone-200/60 bg-white p-3.5 shadow-sm">
+      <div className="flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-stone-400">
+        <span className={`h-1.5 w-1.5 rounded-full ${dotColors}`} />
+        {label}
+      </div>
+      <p className="mt-1 text-sm font-extrabold font-mono text-stone-900 leading-tight">{value}</p>
     </div>
   );
 }
+

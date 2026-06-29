@@ -7,16 +7,14 @@ export type AppTab = "scan" | "autoScan" | "stock" | "categories";
 type NavItem = {
   tab: AppTab;
   label: string;
-  activeClass: string;
-  activeBgClass: string;
   icon: React.ComponentType<{ className?: string }>;
 };
 
 const navItems: NavItem[] = [
-  { tab: "scan", label: "Scanner", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Scan },
-  { tab: "autoScan", label: "Auto", activeClass: "text-amber-600", activeBgClass: "bg-amber-50", icon: Zap },
-  { tab: "stock", label: "Stock", activeClass: "text-emerald-600", activeBgClass: "bg-emerald-50", icon: Package },
-  { tab: "categories", label: "Catég.", activeClass: "text-indigo-600", activeBgClass: "bg-indigo-50", icon: Tags },
+  { tab: "scan", label: "Scanner", icon: Scan },
+  { tab: "autoScan", label: "Auto", icon: Zap },
+  { tab: "stock", label: "Stock", icon: Package },
+  { tab: "categories", label: "Catég.", icon: Tags },
 ];
 
 type AppNavigationProps = {
@@ -29,22 +27,22 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
   const isAssistantActive = assistant.isOpen && !assistant.isMinimized;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe">
-      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-[1.75rem] border px-2 py-2 shadow-2xl shadow-stone-900/10">
-        {navItems.map(({ tab, label, activeClass, activeBgClass, icon: Icon }) => {
+    <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe bg-gradient-to-t from-stone-100/30 to-transparent pointer-events-none">
+      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-2xl border border-stone-200/60 px-2 py-1.5 shadow-xl shadow-stone-900/5 pointer-events-auto">
+        {navItems.map(({ tab, label, icon: Icon }) => {
           const isActive = activeTab === tab;
           return (
             <button
               key={tab}
               onClick={() => onTabChange(tab)}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${
-                isActive ? activeClass : "text-stone-400 hover:text-stone-700"
+              className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 transition select-none tap-active ${
+                isActive ? "text-indigo-600" : "text-stone-400 hover:text-stone-700"
               }`}
             >
-              <div className={`p-2 rounded-2xl transition ${isActive ? activeBgClass : ""}`}>
-                <Icon className={`w-6 h-6 ${isActive ? "fill-current" : ""}`} />
+              <div className={`p-1.5 rounded-xl transition-colors duration-200 ${isActive ? "bg-indigo-50/70" : ""}`}>
+                <Icon className={`w-5 h-5 ${isActive ? "stroke-[2.5]" : "stroke-[2]"}`} />
               </div>
-              <span className="text-[11px] font-bold tracking-wide">{label}</span>
+              <span className="text-[10px] font-bold tracking-wide">{label}</span>
             </button>
           );
         })}
@@ -52,15 +50,15 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
         <button
           type="button"
           onClick={() => void assistant.open()}
-          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 transition select-none tap-active ${
-            isAssistantActive ? "text-violet-600" : "text-stone-400 hover:text-stone-700"
+          className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 transition select-none tap-active ${
+            isAssistantActive ? "text-violet-650" : "text-stone-400 hover:text-stone-700"
           }`}
           aria-label="Ouvrir l’assistant vocal"
         >
-          <div className={`p-2 rounded-2xl transition ${isAssistantActive ? "bg-violet-50" : ""}`}>
-            <Bot className={`w-6 h-6 ${isAssistantActive ? "fill-current" : ""}`} />
+          <div className={`p-1.5 rounded-xl transition-colors duration-200 ${isAssistantActive ? "bg-violet-50" : ""}`}>
+            <Bot className={`w-5 h-5 ${isAssistantActive ? "stroke-[2.5]" : "stroke-[2]"}`} />
           </div>
-          <span className="text-[11px] font-bold tracking-wide">Julien</span>
+          <span className="text-[10px] font-bold tracking-wide">Julien</span>
         </button>
       </div>
     </nav>

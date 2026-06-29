@@ -40,20 +40,20 @@ export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: P
         <header className="sticky top-0 z-10 border-b border-stone-200 bg-white/95 px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-indigo-650">
                 Fiche produit
               </p>
-              <h2 className="mt-1 truncate text-base font-bold text-stone-900">
+              <h2 className="mt-1 truncate text-base font-bold text-stone-900 leading-snug">
                 {product.name}
               </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 transition active:scale-95"
+              className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-white text-stone-500 hover:text-stone-900 transition active:scale-95 cursor-pointer"
               aria-label="Fermer la fiche produit"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         </header>
@@ -193,12 +193,12 @@ export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: P
           </section>
         </div>
 
-        <footer className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-200 bg-white/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:hidden">
+        <footer className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-250/15 bg-white/95 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3.5 backdrop-blur sm:hidden">
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={onEditStock}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition active:scale-[0.98]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-indigo-650 px-4 text-xs font-bold text-white shadow-md shadow-indigo-650/10 transition active:scale-[0.98] select-none cursor-pointer"
             >
               <ClipboardList className="h-4 w-4" />
               Stock
@@ -206,7 +206,7 @@ export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: P
             <button
               type="button"
               onClick={onEdit}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-stone-50 px-4 text-sm font-semibold text-stone-700 transition active:scale-[0.98]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-stone-200/80 bg-white px-4 text-xs font-bold text-stone-600 hover:text-stone-900 transition active:scale-[0.98] select-none cursor-pointer"
             >
               <Pencil className="h-4 w-4" />
               Modifier

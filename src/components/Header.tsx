@@ -1,5 +1,5 @@
 
-import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Check, Brain, Pause, Play, X } from 'lucide-react';
+import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Check, Brain, Pause, Play, X, Package, FileText, AlertTriangle } from 'lucide-react';
 import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
 
 interface HeaderProps {
@@ -36,28 +36,31 @@ export function Header({
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
 
   return (
-    <header className="sticky top-0 z-40 glass-panel border-b pt-safe">
+    <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/60 pt-safe">
       <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
         {/* Identity row */}
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/25">
+          <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/15">
             <Store className="h-5 w-5" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-extrabold tracking-tight text-stone-950">
-              NeuroStocks
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            <h1 className="text-sm font-extrabold tracking-tight text-stone-900 leading-tight">
+              Superette Salengro
             </h1>
             {/* Compact stats */}
-            <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-stone-500">
+            <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-500">
               <span className="flex items-center gap-1">
-                <span className="text-stone-400">📦</span> {inventoryLength}
+                <Package className="h-3 w-3 text-stone-400" />
+                <span>{inventoryLength} réf</span>
               </span>
               <span className="flex items-center gap-1">
-                <span className="text-emerald-500">🧾</span> {totalItems}
+                <FileText className="h-3 w-3 text-stone-400" />
+                <span>{totalItems} u.</span>
               </span>
               <span className="flex items-center gap-1">
-                <span className={lowStockCount > 0 ? "text-amber-500" : "text-stone-400"}>⚠️</span> {lowStockCount}
+                <AlertTriangle className={`h-3 w-3 ${lowStockCount > 0 ? "text-amber-500 animate-pulse" : "text-stone-400"}`} />
+                <span className={lowStockCount > 0 ? "text-amber-600 font-bold" : ""}>{lowStockCount} alerte{lowStockCount > 1 ? "s" : ""}</span>
               </span>
             </div>
           </div>
@@ -69,30 +72,31 @@ export function Header({
                 onClick={onSyncNow}
                 disabled={isSyncing}
                 aria-label={isSyncing ? "Synchronisation en cours" : "Synchroniser les modifications en attente"}
-                className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-amber-200 bg-amber-50 text-amber-600 transition tap-active disabled:opacity-50"
+                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition tap-active disabled:opacity-50 cursor-pointer"
               >
                 {isSyncing ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin text-amber-700" />
                 ) : (
-                  <CloudUpload className="h-4 w-4" />
+                  <CloudUpload className="h-4 w-4 text-amber-700" />
                 )}
               </button>
             )}
-            {showExport && (
+            {showExport && (embeddedCount < inventoryLength || isRunning) && (
               <div className="relative">
                 <button
                   onClick={() => isRunning ? (isPaused ? resume() : pause()) : start()}
                   disabled={!canStart && !isRunning}
                   aria-label={
                     isRunning ? (isPaused ? "Reprendre la génération" : "Mettre en pause")
-                      : embeddedCount === inventoryLength
-                        ? "Tous les produits sont vectorisés"
-                        : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
+                      : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
                   }
-                  className={`touch-target grid h-10 w-10 place-items-center rounded-2xl border transition tap-active disabled:opacity-50 ${embeddedCount === inventoryLength && !isRunning
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                    : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                    }`}
+                  className={`touch-target grid h-10 w-10 place-items-center rounded-xl border transition tap-active disabled:opacity-50 cursor-pointer ${
+                    isRunning
+                      ? isPaused
+                        ? "border-amber-200 bg-amber-50/50 text-amber-600"
+                        : "border-indigo-200 bg-indigo-50/55 text-indigo-600"
+                      : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                  }`}
                 >
                   {isRunning ? (
                     isPaused ? (
@@ -108,9 +112,9 @@ export function Header({
                   <button
                     onClick={stop}
                     aria-label="Arrêter la génération"
-                    className="absolute -top-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-white"
+                    className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-rose-500 text-white text-[9px] font-bold"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-2.5 w-2.5" />
                   </button>
                 )}
               </div>
@@ -119,7 +123,7 @@ export function Header({
               <button
                 onClick={onExport}
                 aria-label="Exporter l'inventaire en CSV"
-                className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-sm transition tap-active hover:border-stone-300 hover:text-stone-900"
+                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-sm transition tap-active hover:bg-stone-50 hover:text-stone-900"
               >
                 <Download className="h-4 w-4" />
               </button>
@@ -127,7 +131,7 @@ export function Header({
             <button
               onClick={onLogout}
               aria-label="Se déconnecter"
-              className="touch-target grid h-10 w-10 place-items-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-600 transition tap-active hover:bg-rose-100"
+              className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition tap-active"
             >
               <LogOut className="h-4 w-4" />
             </button>

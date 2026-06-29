@@ -387,15 +387,15 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">Stock en rayon</label>
-              <div className="relative flex items-center justify-between gap-4 bg-stone-50 border border-stone-200 rounded-2xl p-3">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">Stock en rayon</label>
+              <div className="relative flex items-center justify-between gap-4 bg-stone-50/50 border border-stone-200/60 rounded-2xl p-3">
                 <button
                   type="button"
                   onClick={() => adjustQty(-1)}
-                  className="w-14 h-14 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-100 active:scale-95 border border-stone-200 shadow-sm rounded-2xl transition touch-target"
+                  className="w-12 h-12 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-50 active:scale-95 border border-stone-200/80 shadow-xs rounded-xl transition cursor-pointer"
                   aria-label="Diminuer"
                 >
-                  <Minus className="w-6 h-6" />
+                  <Minus className="w-5 h-5" />
                 </button>
 
                 <div className="flex-1 text-center">
@@ -410,7 +410,7 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
                       setQty(e.target.value);
                     }}
                     onKeyDown={e => e.key === 'Enter' && handleSave()}
-                    className="w-full bg-transparent text-stone-900 text-4xl font-bold font-mono tabular text-center outline-none border-none focus:ring-0 p-0"
+                    className="w-full bg-transparent text-stone-900 text-3xl font-extrabold font-mono tabular text-center outline-none border-none focus:ring-0 p-0"
                     placeholder="1"
                     inputMode="numeric"
                   />
@@ -419,10 +419,10 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
                 <button
                   type="button"
                   onClick={() => adjustQty(1)}
-                  className="w-14 h-14 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-100 active:scale-95 border border-stone-200 shadow-sm rounded-2xl transition touch-target"
+                  className="w-12 h-12 flex items-center justify-center text-stone-700 bg-white hover:bg-stone-50 active:scale-95 border border-stone-200/80 shadow-xs rounded-xl transition cursor-pointer"
                   aria-label="Augmenter"
                 >
-                  <Plus className="w-6 h-6" />
+                  <Plus className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -431,16 +431,16 @@ export function ManualProductModal({ barcode, categories, initialValues, onSave,
           <div className="flex gap-3">
             <button
               onClick={onCancel}
-              className="flex-1 py-4 text-sm font-semibold text-stone-500 bg-transparent border border-stone-200 hover:bg-stone-50 hover:text-stone-800 active:scale-[0.98] rounded-2xl transition touch-target"
+              className="flex-1 py-3 text-xs font-bold text-stone-500 hover:text-stone-850 hover:bg-stone-50 border border-stone-200/80 rounded-xl transition select-none tap-active cursor-pointer"
             >
               Annuler
             </button>
             <button
               onClick={handleSave}
               disabled={!name.trim() || qty.trim() === '' || isNaN(parseInt(qty, 10)) || parseInt(qty, 10) < 0 || isUploading}
-              className="flex-1 py-4 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none rounded-2xl shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition touch-target"
+              className="flex-1 py-3 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none rounded-xl shadow-md shadow-indigo-600/10 flex items-center justify-center gap-1.5 transition select-none tap-active cursor-pointer"
             >
-              <Check className="w-5 h-5" />
+              <Check className="w-4 h-4" />
               Sauvegarder
             </button>
           </div>
