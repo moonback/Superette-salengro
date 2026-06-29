@@ -1,6 +1,5 @@
-
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Filter, Eye, Tags, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Search, Filter, Eye, Tags, Zap } from "lucide-react";
 import { InventoryGrid } from "../InventoryGrid";
 import { CategoryItem, InventoryItem } from "../../types";
 
@@ -93,13 +92,6 @@ export function StockTab({
     return filteredInventory.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [currentPage, filteredInventory]);
 
-  const visiblePages = useMemo(() => {
-    const maxVisiblePages = 5;
-    const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - maxVisiblePages + 1));
-    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
-  }, [currentPage, totalPages]);
-
   const pageStart = filteredInventory.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const pageEnd = Math.min(currentPage * ITEMS_PER_PAGE, filteredInventory.length);
 
@@ -121,11 +113,10 @@ export function StockTab({
           </div>
           <button
             onClick={() => onShowFiltersChange(!showFilters)}
-            className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border transition ${
-              showFilters
+            className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border transition ${showFilters
                 ? "border-indigo-200 bg-indigo-50 text-indigo-700"
                 : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50 active:scale-95 cursor-pointer"
-            }`}
+              }`}
             aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
           >
             <Filter className="h-4 w-4" />
@@ -189,11 +180,10 @@ export function StockTab({
         {categories.length > 0 && (
           <button
             onClick={onShowCategoryModal}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border whitespace-nowrap transition duration-150 select-none tap-active ${
-              selectedCategory
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border whitespace-nowrap transition duration-150 select-none tap-active ${selectedCategory
                 ? "bg-indigo-50 border-indigo-200 text-indigo-750"
                 : "text-stone-600 bg-white border-stone-200/80 hover:border-stone-300"
-            }`}
+              }`}
           >
             <Tags className="w-3.5 h-3.5" />
             {selectedCategory || "Catégories"}
@@ -255,51 +245,33 @@ export function StockTab({
 
       {!isInventoryLoading && filteredInventory.length > ITEMS_PER_PAGE && (
         <div className="rounded-2xl border border-stone-200 bg-white p-3">
-          <div className="flex items-center justify-between gap-3 text-xs font-medium text-stone-500">
-            <span>
-              Articles {pageStart}-{pageEnd} sur {filteredInventory.length}
-            </span>
-            <span>
-              Page {currentPage}/{totalPages}
-            </span>
-          </div>
+          <p className="text-center text-xs font-medium text-stone-400 mb-2.5">
+            Articles {pageStart}-{pageEnd} sur {filteredInventory.length}
+          </p>
 
-          <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="flex items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPage === 1}
-              className="min-h-10 rounded-xl border border-stone-200 px-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Page précédente"
+              className="touch-target grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl border border-stone-200 text-stone-700 transition hover:bg-stone-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Precedent
+              <ChevronLeft className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-1">
-              {visiblePages.map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setCurrentPage(page)}
-                  className={`grid h-10 min-w-10 place-items-center rounded-xl border px-2 text-xs font-semibold transition ${
-                    currentPage === page
-                      ? "border-indigo-600 bg-indigo-600 text-white"
-                      : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-                  }`}
-                  aria-label={`Aller a la page ${page}`}
-                  aria-current={currentPage === page ? "page" : undefined}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
+            <span className="min-w-[88px] text-center text-sm font-bold text-stone-900 tabular">
+              Page {currentPage}/{totalPages}
+            </span>
 
             <button
               type="button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
-              className="min-h-10 rounded-xl border border-stone-200 px-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Page suivante"
+              className="touch-target grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl border border-stone-200 text-stone-700 transition hover:bg-stone-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Suivant
+              <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -330,11 +302,10 @@ function QuickFilter({
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 py-2 text-xs font-bold rounded-full border whitespace-nowrap transition duration-150 select-none tap-active ${
-        active
+      className={`px-4 py-2 text-xs font-bold rounded-full border whitespace-nowrap transition duration-150 select-none tap-active ${active
           ? "bg-stone-900 text-white border-stone-900 shadow-sm"
           : "bg-white text-stone-600 border-stone-200/80 hover:border-stone-300"
-      }`}
+        }`}
     >
       {label}
     </button>
@@ -358,4 +329,3 @@ function StatCard({ label, value, tone }: { label: string; value: string; tone: 
     </div>
   );
 }
-
