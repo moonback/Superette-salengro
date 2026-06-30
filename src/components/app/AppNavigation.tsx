@@ -47,82 +47,84 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
 
   if (isDesktop) {
     return (
-      <aside className="desktop-sidebar">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-3 pb-4 pt-1">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/25 flex-shrink-0">
-            <Store className="h-4 w-4 text-white" />
+      <div className="desktop-sidebar-wrapper">
+        <aside className="desktop-sidebar group">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5 px-3 pb-4 pt-1">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/25 flex-shrink-0">
+              <Store className="h-4 w-4 text-white" />
+            </div>
+            <div className="min-w-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <p className="text-[13px] font-black text-stone-900 leading-none tracking-tight">NeuroStock</p>
+              <p className="text-[10px] text-stone-400 font-semibold mt-0.5 leading-none">Gestion intelligente</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-[13px] font-black text-stone-900 leading-none tracking-tight">NeuroStock</p>
-            <p className="text-[10px] text-stone-400 font-semibold mt-0.5 leading-none">Gestion intelligente</p>
+
+          <div className="sidebar-divider" />
+
+          {/* Nav items */}
+          <nav className="flex flex-col gap-0.5 mt-1 flex-1">
+            <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              Navigation
+            </p>
+            {navItems.map(({ tab, label, icon: Icon }) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => onTabChange(tab)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`sidebar-nav-item ${isActive ? "active" : ""}`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="desktopActiveTabPill"
+                      className="absolute inset-0 bg-indigo-50/80 rounded-[0.875rem] -z-10"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-indigo-600 stroke-[2.5]" : "text-stone-500 stroke-[2.5]"}`} />
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">{label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="sidebar-divider mt-1" />
+
+          {/* Assistant Lina at bottom */}
+          <div className="mt-1">
+            <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              Assistant IA
+            </p>
+            <button
+              type="button"
+              onClick={() => void assistant.open()}
+              aria-label="Ouvrir l'assistant vocal Lina"
+              aria-pressed={isAssistantActive}
+              className={`sidebar-nav-item w-full ${isAssistantActive ? "active !text-violet-600 !bg-violet-50/80 !border-violet-200/60" : ""}`}
+            >
+              {isAssistantActive && (
+                <motion.div
+                  layoutId="desktopActiveTabPill"
+                  className="absolute inset-0 bg-violet-50/80 rounded-[0.875rem] -z-10"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Bot className={`w-5 h-5 flex-shrink-0 ${isAssistantActive ? "text-violet-600 stroke-[2.5]" : "text-stone-500 stroke-[2.5]"}`} />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">Lina</span>
+              {isAssistantActive && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="ml-auto h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_6px_2px_rgba(139,92,246,0.4)] opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                />
+              )}
+            </button>
           </div>
-        </div>
-
-        <div className="sidebar-divider" />
-
-        {/* Nav items */}
-        <nav className="flex flex-col gap-0.5 mt-1 flex-1">
-          <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 px-3 py-1.5">
-            Navigation
-          </p>
-          {navItems.map(({ tab, label, icon: Icon }) => {
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => onTabChange(tab)}
-                aria-current={isActive ? "page" : undefined}
-                className={`sidebar-nav-item ${isActive ? "active" : ""}`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="desktopActiveTabPill"
-                    className="absolute inset-0 bg-indigo-50/80 rounded-[0.875rem] -z-10"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-indigo-600 stroke-[2.5]" : "text-stone-500 stroke-[2]"}`} />
-                <span>{label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="sidebar-divider mt-1" />
-
-        {/* Assistant Lina at bottom */}
-        <div className="mt-1">
-          <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 px-3 py-1.5">
-            Assistant IA
-          </p>
-          <button
-            type="button"
-            onClick={() => void assistant.open()}
-            aria-label="Ouvrir l'assistant vocal Lina"
-            aria-pressed={isAssistantActive}
-            className={`sidebar-nav-item w-full ${isAssistantActive ? "active !text-violet-600 !bg-violet-50/80 !border-violet-200/60" : ""}`}
-          >
-            {isAssistantActive && (
-              <motion.div
-                layoutId="desktopActiveTabPill"
-                className="absolute inset-0 bg-violet-50/80 rounded-[0.875rem] -z-10"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              />
-            )}
-            <Bot className={`w-4 h-4 flex-shrink-0 ${isAssistantActive ? "text-violet-600 stroke-[2.5]" : "text-stone-500 stroke-[2]"}`} />
-            <span>Lina</span>
-            {isAssistantActive && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="ml-auto h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_6px_2px_rgba(139,92,246,0.4)]"
-              />
-            )}
-          </button>
-        </div>
-      </aside>
+        </aside>
+      </div>
     );
   }
 
