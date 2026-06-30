@@ -106,7 +106,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           >
             <Store className="h-8 w-8" />
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -214,7 +214,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           </form>
 
           {/* Toggle link */}
-          <div className="mt-5 pt-4 border-t border-stone-100 text-center">
+          {/* <div className="mt-5 pt-4 border-t border-stone-100 text-center">
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
@@ -228,7 +228,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 ? "Nouveau ici ? Créez un compte"
                 : "Vous avez déjà un compte ? Connectez-vous"}
             </button>
-          </div>
+          </div> */}
         </motion.div>
       </div>
     </div>
