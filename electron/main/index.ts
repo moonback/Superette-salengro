@@ -13,9 +13,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // â”‚   â”œâ”€â”€ main
 // â”‚   â”‚   â””â”€â”€ index.js
 // â”‚   â””â”€â”€ preload
-// â”‚       â””â”€â”€ index.js
+// â”‚       â””â”€â”€ index.mjs (or .js / .cjs)
 
-process.env.DIST = path.join(__dirname, '../dist');
+process.env.DIST = path.join(__dirname, '../../dist');
 process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
 
 let win: BrowserWindow | null;
@@ -28,7 +28,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
     },
   });
 

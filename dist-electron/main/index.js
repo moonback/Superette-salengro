@@ -2,7 +2,7 @@ import { app as n, BrowserWindow as s } from "electron";
 import o from "path";
 import { fileURLToPath as a } from "url";
 const t = o.dirname(a(import.meta.url));
-process.env.DIST = o.join(t, "../dist");
+process.env.DIST = o.join(t, "../../dist");
 process.env.VITE_PUBLIC = n.isPackaged ? process.env.DIST : o.join(process.env.DIST, "../public");
 let e;
 const i = process.env.VITE_DEV_SERVER_URL;
@@ -12,7 +12,7 @@ function r() {
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: o.join(t, "../preload/index.js")
+      preload: o.join(t, "../preload/index.cjs")
     }
   }), e.webContents.on("did-finish-load", () => {
     e == null || e.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
