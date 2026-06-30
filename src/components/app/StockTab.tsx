@@ -137,9 +137,9 @@ export function StockTab({
                     {filteredInventory.length}/{inventoryLength} réf
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-stone-400 font-semibold leading-relaxed">
+                {/* <p className="mt-0.5 text-xs text-stone-400 font-semibold leading-relaxed">
                   Recherche rapide, filtres et scan en un seul écran.
-                </p>
+                </p> */}
               </div>
               <div className="flex items-center gap-2">
                 <motion.button
@@ -151,8 +151,8 @@ export function StockTab({
                   aria-label={showMobileStats ? "Masquer les statistiques" : "Afficher les statistiques"}
                   style={{ minHeight: 44, minWidth: 44 }}
                   className={`inline-flex flex-shrink-0 items-center justify-center rounded-xl border transition-all duration-200 touch-manipulation select-none cursor-pointer shadow-xs ${showMobileStats
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 font-bold"
-                      : "border-stone-200 bg-white text-stone-500 active:bg-stone-50"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700 font-bold"
+                    : "border-stone-200 bg-white text-stone-500 active:bg-stone-50"
                     }`}
                 >
                   <BarChart3 className="h-4 w-4" />
@@ -166,8 +166,8 @@ export function StockTab({
                   aria-label={showFilters ? "Masquer les filtres" : "Afficher les filtres"}
                   style={{ minHeight: 44, minWidth: 44 }}
                   className={`inline-flex flex-shrink-0 items-center justify-center rounded-xl border transition-all duration-200 touch-manipulation select-none cursor-pointer shadow-xs ${showFilters
-                      ? "border-indigo-200 bg-indigo-50 text-indigo-700 font-bold"
-                      : "border-stone-200 bg-white text-stone-500 active:bg-stone-50"
+                    ? "border-indigo-200 bg-indigo-50 text-indigo-700 font-bold"
+                    : "border-stone-200 bg-white text-stone-500 active:bg-stone-50"
                     }`}
                 >
                   <Filter className="h-4 w-4" />
@@ -257,11 +257,10 @@ export function StockTab({
                         key={val}
                         type="button"
                         onClick={() => onStockFilterChange(val)}
-                        className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-                          stockFilter === val
-                            ? "bg-stone-900 text-white shadow-sm"
-                            : "text-stone-600 hover:bg-stone-100"
-                        }`}
+                        className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${stockFilter === val
+                          ? "bg-stone-900 text-white shadow-sm"
+                          : "text-stone-600 hover:bg-stone-100"
+                          }`}
                       >
                         <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${stockFilter === val ? 'bg-white/70' : dot}`} />
                         {label}
@@ -293,11 +292,10 @@ export function StockTab({
                       <button
                         type="button"
                         onClick={() => onSelectedCategoryChange(null)}
-                        className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-between gap-2 ${
-                          !selectedCategory
-                            ? "bg-indigo-600 text-white shadow-sm"
-                            : "text-stone-600 hover:bg-stone-100"
-                        }`}
+                        className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-between gap-2 ${!selectedCategory
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-stone-600 hover:bg-stone-100"
+                          }`}
                       >
                         <span>Toutes</span>
                         <span className={`flex-shrink-0 text-[10px] font-bold tabular-nums rounded-full px-1.5 py-0.5 ${!selectedCategory ? 'bg-indigo-500 text-white' : 'bg-stone-200 text-stone-500'}`}>
@@ -309,11 +307,10 @@ export function StockTab({
                           key={name}
                           type="button"
                           onClick={() => onSelectedCategoryChange(name)}
-                          className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-between gap-2 ${
-                            selectedCategory === name
-                              ? "bg-indigo-600 text-white shadow-sm"
-                              : "text-stone-600 hover:bg-stone-100"
-                          }`}
+                          className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-between gap-2 ${selectedCategory === name
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "text-stone-600 hover:bg-stone-100"
+                            }`}
                         >
                           <span className="truncate">{label}</span>
                           <span className={`flex-shrink-0 text-[10px] font-bold tabular-nums rounded-full px-1.5 py-0.5 ${selectedCategory === name ? 'bg-indigo-500 text-white' : 'bg-stone-200 text-stone-500'}`}>
@@ -368,10 +365,10 @@ export function StockTab({
                       className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:bg-stone-200 transition-colors"
                       aria-label="Fermer les filtres"
                     >
-                       <X className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </button>
                   </div>
-                  
+
                   <div className="overflow-y-auto p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-6">
                     {/* Search Bar in modal */}
                     <div>
@@ -423,7 +420,7 @@ export function StockTab({
                         </select>
                       </div>
                     </div>
-                    
+
                     {/* Categories quick pick */}
                     {categoryOptions.length > 0 && (
                       <div>
@@ -445,11 +442,10 @@ export function StockTab({
                               key={cat.name}
                               type="button"
                               onClick={() => onSelectedCategoryChange(cat.name)}
-                              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-                                selectedCategory === cat.name 
-                                ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm" 
+                              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${selectedCategory === cat.name
+                                ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm"
                                 : "bg-white border-stone-200 text-stone-600"
-                              }`}
+                                }`}
                             >
                               {cat.label}
                             </button>
@@ -482,9 +478,8 @@ export function StockTab({
             animate={isSearchFocused ? { scale: 1.005 } : { scale: 1 }}
             className="relative hidden lg:block"
           >
-            <Search className={`absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors duration-200 pointer-events-none ${
-              isSearchFocused ? "text-indigo-650" : "text-stone-400"
-            }`} />
+            <Search className={`absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors duration-200 pointer-events-none ${isSearchFocused ? "text-indigo-650" : "text-stone-400"
+              }`} />
             <input
               type="text"
               inputMode="search"
@@ -562,15 +557,20 @@ export function StockTab({
                 transition={{ type: "spring", stiffness: 300, damping: 28 }}
               >
                 {/* Prompt header */}
-                <div className="flex flex-col items-center text-center mb-6 pt-2">
-                  <div className="h-14 w-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-3 shadow-sm">
+                {/* <div className="flex items-center text-left mb-6 pt-2">
+                  <div className="h-14 w-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mr-4 shadow-sm">
                     <Layers className="h-7 w-7 text-indigo-500" />
                   </div>
-                  <h3 className="text-base font-black text-stone-900 tracking-tight">Choisissez une catégorie</h3>
-                  <p className="mt-1 text-xs text-stone-400 font-semibold max-w-xs">
-                    Sélectionnez une catégorie pour afficher les produits correspondants.
-                  </p>
-                </div>
+
+                  <div>
+                    <h3 className="text-base font-black text-stone-900 tracking-tight">
+                      Choisissez une catégorie
+                    </h3>
+                    <p className="mt-1 text-xs text-stone-400 font-semibold max-w-xs">
+                      Sélectionnez une catégorie pour afficher les produits correspondants.
+                    </p>
+                  </div>
+                </div> */}
 
                 {categoryOptions.length === 0 ? (
                   <div className="flex flex-col items-center gap-3 py-10 text-stone-400">
@@ -651,16 +651,16 @@ export function StockTab({
                 )}
 
                 <div className="min-h-[250px]">
-                <InventoryGrid
-                  items={paginatedInventory}
-                  categories={dbCategories}
-                  isCompactView={!isDesktop}
-                  searchTerm={searchTerm}
-                  onUpdateQuantity={onUpdateQuantity}
-                  onRemove={onRemove}
-                  onEditQuantity={onEditQuantity}
-                  onEditProduct={onEditProduct}
-                />
+                  <InventoryGrid
+                    items={paginatedInventory}
+                    categories={dbCategories}
+                    isCompactView={!isDesktop}
+                    searchTerm={searchTerm}
+                    onUpdateQuantity={onUpdateQuantity}
+                    onRemove={onRemove}
+                    onEditQuantity={onEditQuantity}
+                    onEditProduct={onEditProduct}
+                  />
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -719,11 +719,10 @@ export function StockTab({
                           type="button"
                           onClick={() => setCurrentPage(p as number)}
                           aria-current={currentPage === p ? 'page' : undefined}
-                          className={`h-9 min-w-[36px] px-2 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
-                            currentPage === p
-                              ? 'bg-stone-900 text-white shadow-sm'
-                              : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
-                          }`}
+                          className={`h-9 min-w-[36px] px-2 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${currentPage === p
+                            ? 'bg-stone-900 text-white shadow-sm'
+                            : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
+                            }`}
                         >
                           {p}
                         </motion.button>
