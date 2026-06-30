@@ -1,11 +1,11 @@
 import type React from "react";
-import { Bot, Package, Scan, Store, Tags, Zap, ShoppingCart, Power } from "lucide-react";
+import { Bot, Package, Scan, Store, Tags, ShoppingCart, Power } from "lucide-react";
 import { useGeminiAssistant } from "../../hooks/useGeminiAssistant";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { QuitConfirmModal } from "../QuitConfirmModal";
 
-export type AppTab = "scan" | "autoScan" | "stock" | "categories" | "pos";
+export type AppTab = "scan" | "stock" | "categories" | "pos";
 
 type NavItem = {
   tab: AppTab;
@@ -15,7 +15,6 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { tab: "scan", label: "Scanner", icon: Scan },
-  { tab: "autoScan", label: "Auto-Scan", icon: Zap },
   { tab: "stock", label: "Stock", icon: Package },
   { tab: "categories", label: "Catégories", icon: Tags },
   { tab: "pos", label: "Ajouter stock", icon: ShoppingCart },

@@ -243,7 +243,7 @@ export function InventoryGrid({
               </span>
             </div>
 
-            <div className={isCompactView ? "space-y-2" : "grid grid-cols-1 gap-3 sm:grid-cols-2"}>
+            <div className={isCompactView ? "space-y-2" : "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"}>
               {group.items.map((item) => {
                 const tone = getStockTone(item.quantity);
 
@@ -323,69 +323,89 @@ export function InventoryGrid({
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-10px" }}
                         transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                        whileHover={{ y: -2 }}
-                        className="group rounded-3xl border border-stone-200 bg-white p-4 shadow-sm hover:border-stone-300 hover:shadow-md cursor-pointer select-none"
+                        whileHover={{ y: -3, boxShadow: "0 8px 24px -4px rgba(0,0,0,0.10)" }}
+                        className="group relative flex flex-col rounded-2xl border border-stone-200 bg-white shadow-xs hover:border-stone-300 cursor-pointer select-none overflow-hidden transition-shadow duration-200"
                         onClick={() => onEditProduct(item)}
                       >
-                        <div className="flex items-start gap-4">
-                          <div className="relative grid h-14 w-14 flex-shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-50/50">
-                            {item.imageUrl ? (
-                              <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-xl object-contain p-1" loading="lazy" />
-                            ) : (
-                              <Package className="h-6 w-6 text-stone-300" />
+                        {/* Image header */}
+                        <div className="relative flex items-center justify-center bg-stone-50 border-b border-stone-100" style={{ height: 120 }}>
+                          {item.imageUrl ? (
+                            <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain p-3" loading="lazy" />
+                          ) : (
+                            <Package className="h-10 w-10 text-stone-200" />
+                          )}
+
+                          {/* Stock badge top-right */}
+                          <div className="absolute top-2 right-2">
+                            {renderStockBadge(item.quantity, false)}
+                          </div>
+
+                          {/* New badge top-left */}
+                          {isRecentTimestamp(item.lastUpdated) && (
+                            <div className="absolute top-2 left-2">
+                              <span className="inline-flex items-center rounded-full bg-sky-50 border border-sky-200 px-2 py-0.5 text-[9px] font-bold text-sky-700">
+                                Nouveau
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Low-stock dot indicator */}
+                          {item.quantity <= 5 && (
+                            <span className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full ring-2 ring-white ${tone.dot}`} />
+                          )}
+                        </div>
+
+                        {/* Card body */}
+                        <div className="flex flex-1 flex-col gap-2 p-3">
+                          <div className="min-w-0">
+                            <h4 className="font-extrabold text-[13px] text-stone-900 leading-snug line-clamp-2">
+                              {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
+                            </h4>
+                            {item.brand && (
+                              <p className="mt-0.5 text-[10px] font-semibold text-stone-400 truncate">{item.brand}</p>
                             )}
                           </div>
 
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                  <h4 className="text-sm font-extrabold text-stone-900 leading-snug">
-                                    {renderHighlightedText(item.name, "rounded bg-amber-100 px-0.5 text-stone-950")}
-                                  </h4>
-                                  {renderNewBadge(item)}
-                                </div>
-                                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[10px] font-bold text-stone-400">
-                                  {item.brand && (
-                                    <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 font-bold text-stone-600">
-                                      {item.brand}
-                                    </span>
-                                  )}
-                                  <span className="font-mono text-stone-450">{item.barcode}</span>
-                                </div>
-                              </div>
+                          <div className="flex flex-wrap items-center gap-1 mt-auto">
+                            {item.category && (
+                              <span className="inline-flex items-center rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[9px] font-bold text-stone-500 truncate max-w-[120px]">
+                                {getCategoryLabel(item.category)}
+                              </span>
+                            )}
+                            <span className="ml-auto font-mono text-[9px] text-stone-350 tabular-nums">{item.barcode}</span>
+                          </div>
 
-                              <div className="flex flex-shrink-0 items-start">
-                                {renderStockBadge(item.quantity, true)}
-                              </div>
-                            </div>
-
-                            <div
-                              className="mt-4 flex items-center justify-end gap-3 border-t border-stone-100 pt-3"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              <div className="flex items-center rounded-xl border border-stone-200 bg-white shadow-xs">
-                                <button
-                                  onClick={() => onUpdateQuantity(item.barcode, -1)}
-                                  className="grid h-9 w-9 place-items-center text-stone-400 hover:text-stone-850 active:bg-stone-50 rounded-l-xl transition-colors select-none cursor-pointer"
-                                  aria-label="Diminuer la quantité"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => onEditQuantity(item)}
-                                  className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-extrabold tabular-nums transition-colors hover:text-indigo-650 cursor-pointer ${tone.text}`}
-                                >
-                                  <AnimatedQuantity value={item.quantity} />
-                                </button>
-                                <button
-                                  onClick={() => onUpdateQuantity(item.barcode, 1)}
-                                  className="grid h-9 w-9 place-items-center text-stone-400 hover:text-stone-850 active:bg-stone-50 rounded-r-xl transition-colors select-none cursor-pointer"
-                                  aria-label="Augmenter la quantité"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </button>
-                              </div>
+                          {/* Quantity controls */}
+                          <div
+                            className="flex items-center justify-between gap-2 border-t border-stone-100 pt-2.5 mt-0.5"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <span className={`text-[10px] font-bold uppercase tracking-wide ${
+                              item.quantity === 0 ? 'text-rose-500' : item.quantity <= 5 ? 'text-amber-600' : 'text-stone-400'
+                            }`}>
+                              {item.quantity === 0 ? 'Rupture' : item.quantity <= 5 ? 'Stock bas' : 'En stock'}
+                            </span>
+                            <div className="flex items-center rounded-xl border border-stone-200 bg-white shadow-xs">
+                              <button
+                                onClick={() => onUpdateQuantity(item.barcode, -1)}
+                                className="grid h-8 w-8 place-items-center text-stone-400 hover:text-stone-850 active:bg-stone-50 rounded-l-xl transition-colors select-none cursor-pointer"
+                                aria-label="Diminuer la quantité"
+                              >
+                                <Minus className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => onEditQuantity(item)}
+                                className={`min-w-[32px] px-2 py-0.5 text-center font-mono text-xs font-extrabold tabular-nums transition-colors hover:text-indigo-650 cursor-pointer ${tone.text}`}
+                              >
+                                <AnimatedQuantity value={item.quantity} />
+                              </button>
+                              <button
+                                onClick={() => onUpdateQuantity(item.barcode, 1)}
+                                className="grid h-8 w-8 place-items-center text-stone-400 hover:text-stone-850 active:bg-stone-50 rounded-r-xl transition-colors select-none cursor-pointer"
+                                aria-label="Augmenter la quantité"
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </button>
                             </div>
                           </div>
                         </div>

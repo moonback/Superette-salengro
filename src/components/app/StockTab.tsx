@@ -4,6 +4,19 @@ import { InventoryGrid } from "../InventoryGrid";
 import { CategoryItem, InventoryItem } from "../../types";
 import { motion, AnimatePresence } from "motion/react";
 
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+  return isDesktop;
+}
+
 type SortBy = "recent" | "name" | "quantityAsc" | "quantityDesc";
 type StockFilter = "all" | "low" | "out" | "instock";
 
@@ -19,7 +32,8 @@ type FinancialStats = {
   potentialMargin: number;
 };
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE_MOBILE = 20;
+const ITEMS_PER_PAGE_DESKTOP = 36;
 
 type StockTabProps = {
   inventoryLength: number;
@@ -78,6 +92,8 @@ export function StockTab({
 }: StockTabProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const isDesktop = useIsDesktop();
+  const ITEMS_PER_PAGE = isDesktop ? ITEMS_PER_PAGE_DESKTOP : ITEMS_PER_PAGE_MOBILE;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -450,7 +466,7 @@ export function StockTab({
               <InventoryGrid
                 items={paginatedInventory}
                 categories={dbCategories}
-                isCompactView={true}
+                isCompactView={!isDesktop}
                 searchTerm={searchTerm}
                 onUpdateQuantity={onUpdateQuantity}
                 onRemove={onRemove}
@@ -468,10 +484,21 @@ export function StockTab({
               className="rounded-3xl border border-stone-200/50 bg-white p-3.5 shadow-sm"
             >
               <p className="text-center text-xs font-bold text-stone-400 mb-3 tabular-nums">
-                Articles {pageStart}-{pageEnd} sur {filteredInventory.length}
+                Articles {pageStart}–{pageEnd} sur {filteredInventory.length}
               </p>
 
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.90 }}
+                  type="button"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  aria-label="Première page"
+                  className="hidden lg:grid touch-target h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-stone-200 text-stone-500 bg-white transition-all select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none shadow-xs hover:bg-stone-50 text-xs font-bold"
+                >
+                  «
+                </motion.button>
+
                 <motion.button
                   whileTap={{ scale: 0.90 }}
                   type="button"
@@ -483,7 +510,40 @@ export function StockTab({
                   <ChevronLeft className="h-5 w-5" />
                 </motion.button>
 
-                <span className="min-w-[88px] text-center text-xs font-extrabold text-stone-800 tabular-nums">
+                {/* Desktop: numbered page buttons */}
+                <div className="hidden lg:flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                    .reduce<(number | '...')[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, idx) =>
+                      p === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="px-1 text-stone-400 text-xs font-bold select-none">…</span>
+                      ) : (
+                        <motion.button
+                          key={p}
+                          whileTap={{ scale: 0.9 }}
+                          type="button"
+                          onClick={() => setCurrentPage(p as number)}
+                          aria-current={currentPage === p ? 'page' : undefined}
+                          className={`h-9 min-w-[36px] px-2 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+                            currentPage === p
+                              ? 'bg-stone-900 text-white shadow-sm'
+                              : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
+                          }`}
+                        >
+                          {p}
+                        </motion.button>
+                      )
+                    )
+                  }
+                </div>
+
+                {/* Mobile: page indicator */}
+                <span className="lg:hidden min-w-[88px] text-center text-xs font-extrabold text-stone-800 tabular-nums">
                   Page {currentPage} / {totalPages}
                 </span>
 
@@ -496,6 +556,17 @@ export function StockTab({
                   className="touch-target grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl border border-stone-200 text-stone-700 bg-white transition-all select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none shadow-xs hover:bg-stone-50"
                 >
                   <ChevronRight className="h-5 w-5" />
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.90 }}
+                  type="button"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  aria-label="Dernière page"
+                  className="hidden lg:grid touch-target h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-stone-200 text-stone-500 bg-white transition-all select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none shadow-xs hover:bg-stone-50 text-xs font-bold"
+                >
+                  »
                 </motion.button>
               </div>
             </motion.div>

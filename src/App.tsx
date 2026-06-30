@@ -3,8 +3,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { ManualProductModal } from "./components/ManualProductModal";
 import { QuantityModal } from "./components/QuantityModal";
 import { ScanChoiceModal } from "./components/ScanChoiceModal";
-import { StockScanMode } from "./components/StockScanModeToggle";
-import { AutomaticScanPanel } from "./components/AutomaticScanPanel";
 import { ScannerInputMode } from "./components/ScannerInputModeToggle";
 import { AuthScreen } from "./components/AuthScreen";
 import { Toast } from "./components/Toast";
@@ -166,8 +164,6 @@ export default function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [isBatchMode, setIsBatchMode] = useState(false);
-  const [stockScanMode, setStockScanMode] = useState<StockScanMode>("add");
   const [scannerInputMode, setScannerInputMode] = useState<ScannerInputMode>("hardware");
   const [isGeneratingEmbeddings, setIsGeneratingEmbeddings] = useState(false);
   const [showVectorizeConfirm, setShowVectorizeConfirm] = useState(false);
@@ -339,110 +335,6 @@ export default function App() {
 
       setLoadingBarcode(barcode);
 
-      // Mode automatique : chaque scan ajoute ou retire 1 unité sans ouvrir de fenêtre.
-      if (activeTab === "autoScan" && isBatchMode) {
-        const movement = stockScanMode === "add" ? 1 : -1;
-        const existingItem = inventory.find((i) => i.barcode === barcode);
-        if (existingItem) {
-          const nextQuantity = Math.max(0, existingItem.quantity + movement);
-          const appliedMovement = nextQuantity - existingItem.quantity;
-          if (stockScanMode === "remove" && appliedMovement === 0) {
-            triggerHaptic("warning");
-            showToast(`${existingItem.name} est déjà à 0`);
-            setLoadingBarcode(null);
-            return;
-          }
-
-          const updatedItem = {
-            ...existingItem,
-            quantity: nextQuantity,
-            lastUpdated: Date.now(),
-            lastMovement: appliedMovement,
-          };
-          try {
-            await syncItem(updatedItem);
-            triggerHaptic("success");
-            showToast(
-              `${appliedMovement > 0 ? "+" : ""}${appliedMovement} ${existingItem.name} (Total : ${updatedItem.quantity})`,
-            );
-          } catch (error) {
-            console.error("Erreur de synchronisation Supabase (scan automatique):", error);
-            showToast("Erreur de synchronisation");
-          } finally {
-            setLoadingBarcode(null);
-          }
-          return;
-        }
-
-        try {
-          const databaseItem = isSupabaseConfigured
-            ? await fetchInventoryItemWithFallback(barcode)
-            : null;
-          if (databaseItem) {
-            const nextQuantity = Math.max(0, databaseItem.quantity + movement);
-            const appliedMovement = nextQuantity - databaseItem.quantity;
-            if (stockScanMode === "remove" && appliedMovement === 0) {
-              triggerHaptic("warning");
-              showToast(`${databaseItem.name} est déjà à 0`);
-              setLoadingBarcode(null);
-              return;
-            }
-
-            const updatedItem = {
-              ...databaseItem,
-              quantity: nextQuantity,
-              lastUpdated: Date.now(),
-              lastMovement: appliedMovement,
-            };
-            await syncItem(updatedItem);
-            triggerHaptic("success");
-            showToast(
-              `${appliedMovement > 0 ? "+" : ""}${appliedMovement} ${databaseItem.name} (Total : ${updatedItem.quantity})`,
-            );
-            setLoadingBarcode(null);
-            return;
-          }
-
-          if (stockScanMode === "remove") {
-            triggerHaptic("warning");
-            showToast("Produit introuvable : impossible de retirer du stock");
-            setLoadingBarcode(null);
-            return;
-          }
-
-          const data = await getProductData(barcode);
-          if (data) {
-            const suggested = suggestCategory(data.name, data.category, dbCategories);
-            const item: InventoryItem = {
-              barcode,
-              name: data.name,
-              imageUrl: data.imageUrl,
-              brand: data.brand,
-              category: suggested || data.category,
-              quantity: 1,
-              lastUpdated: Date.now(),
-              lastMovement: 1,
-            };
-            await syncItem(item);
-            triggerHaptic("success");
-            showToast(`${data.name} ajouté (+1)`);
-          } else {
-            // Not found, open manual creation modal
-            triggerHaptic("warning");
-            setActionModal({
-              type: "manual",
-              barcode: barcode,
-            });
-          }
-        } catch (error) {
-          console.error("Erreur de recherche/sync produit (scan automatique):", error);
-          showToast("Erreur de recherche produit");
-        } finally {
-          setLoadingBarcode(null);
-        }
-        return;
-      }
-
       const existingItem = inventory.find((i) => i.barcode === barcode);
       if (existingItem) {
         triggerHaptic("success");
@@ -498,7 +390,7 @@ export default function App() {
         setLoadingBarcode(null);
       }
     },
-    [inventory, loadingBarcode, actionModal, session, activeTab, isBatchMode, stockScanMode, dbCategories, showToast],
+    [inventory, loadingBarcode, actionModal, session, activeTab, dbCategories, showToast],
   );
 
   // Hook for physical hardware scanners globally
@@ -1342,20 +1234,6 @@ export default function App() {
                   })
                 }
                 onUpdateQuantity={handleUpdateQuantity}
-              />
-            ) : activeTab === "autoScan" ? (
-              <AutomaticScanPanel
-                enabled={isBatchMode}
-                mode={stockScanMode}
-                loadingBarcode={loadingBarcode}
-                isOnline={isOnline}
-                pendingCount={pendingCount}
-                syncError={syncError}
-                onEnabledChange={setIsBatchMode}
-                onModeChange={setStockScanMode}
-                scannerInputMode={scannerInputMode}
-                onScannerInputModeChange={setScannerInputMode}
-                onScan={handleScan}
               />
             ) : activeTab === "stock" ? (
               <StockTab
