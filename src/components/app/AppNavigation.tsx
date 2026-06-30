@@ -16,9 +16,9 @@ type NavItem = {
 const navItems: NavItem[] = [
   { tab: "scan", label: "Scanner", icon: Scan },
   { tab: "autoScan", label: "Auto-Scan", icon: Zap },
-  { tab: "pos", label: "Caisse", icon: ShoppingCart },
   { tab: "stock", label: "Stock", icon: Package },
   { tab: "categories", label: "Catégories", icon: Tags },
+  { tab: "pos", label: "Ajouter stock", icon: ShoppingCart },
 ];
 
 type AppNavigationProps = {
@@ -160,9 +160,8 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
               type="button"
               onClick={() => onTabChange(tab)}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${
-                isActive ? "text-indigo-600 font-bold" : "text-stone-400 hover:text-stone-600 active:text-stone-850"
-              }`}
+              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${isActive ? "text-indigo-600 font-bold" : "text-stone-400 hover:text-stone-600 active:text-stone-850"
+                }`}
               style={{ minHeight: 48 }}
             >
               {isActive && (
@@ -189,9 +188,8 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
           onClick={() => void assistant.open()}
           aria-label="Ouvrir l'assistant vocal"
           aria-pressed={isAssistantActive}
-          className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${
-            isAssistantActive ? "text-violet-600 font-bold" : "text-stone-400 hover:text-stone-600 active:text-stone-850"
-          }`}
+          className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${isAssistantActive ? "text-violet-600 font-bold" : "text-stone-400 hover:text-stone-600 active:text-stone-850"
+            }`}
           style={{ minHeight: 48 }}
         >
           {isAssistantActive && (
