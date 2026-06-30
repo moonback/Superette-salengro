@@ -57,7 +57,7 @@ export function Header({
   return (
     <>
       <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/50 pt-safe transition-all duration-300">
-        <div className={`mx-auto w-full pb-3 pt-3 ${isDesktop ? 'px-8 max-w-none' : 'px-4 max-w-2xl'}`}>
+        <div className={`mx-auto w-full transition-all duration-300 ${isDesktop ? 'px-8 py-2 max-w-none' : 'px-4 py-3 max-w-2xl'}`}>
           {/* Identity row */}
           <div className="flex items-center justify-between gap-3">
             <motion.div
@@ -148,12 +148,12 @@ export function Header({
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               className="flex flex-shrink-0 items-center gap-1.5"
             >
-              {isDesktop && (
-                <span className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-200 bg-white text-xs font-semibold text-stone-600 shadow-xs mr-1">
-                  <User className="h-3.5 w-3.5 text-stone-400" />
+              {/* {isDesktop && (
+                <span className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-xl border border-stone-200 bg-white text-[11px] font-semibold text-stone-600 shadow-xs mr-1">
+                  <User className="h-3 w-3 text-stone-400" />
                   <span className="max-w-[180px] truncate">{email}</span>
                 </span>
-              )}
+              )} */}
 
               <AnimatePresence>
                 {canSync && (
@@ -167,7 +167,7 @@ export function Header({
                     onClick={onSyncNow}
                     disabled={isSyncing}
                     aria-label={isSyncing ? 'Synchronisation en cours' : 'Synchroniser les modifications en attente'}
-                    className={`touch-target grid place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+                    className={`touch-target grid place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${isDesktop ? 'h-8 px-2.5 flex items-center gap-2 w-auto' : 'h-10 w-10'
                       }`}
                   >
                     {isSyncing ? (
@@ -196,11 +196,11 @@ export function Header({
                         : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
                     }
                     className={`touch-target grid place-items-center rounded-xl border transition-all duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${isRunning
-                        ? isPaused
-                          ? 'border-amber-200 bg-amber-50/50 text-amber-600 animate-pulse'
-                          : 'border-indigo-200 bg-indigo-50/55 text-indigo-600 animate-glow-pulse'
-                        : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900'
-                      } ${isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'}`}
+                      ? isPaused
+                        ? 'border-amber-200 bg-amber-50/50 text-amber-600 animate-pulse'
+                        : 'border-indigo-200 bg-indigo-50/55 text-indigo-600 animate-glow-pulse'
+                      : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                      } ${isDesktop ? 'h-8 px-2.5 flex items-center gap-2 w-auto' : 'h-10 w-10'}`}
                   >
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.span
@@ -249,7 +249,7 @@ export function Header({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowHelp(true)}
                 aria-label="Guide des fonctionnalités"
-                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${isDesktop ? 'h-8 px-2.5 flex items-center gap-2 w-auto' : 'h-10 w-10'
                   }`}
               >
                 <HelpCircle className="h-4 w-4" />
@@ -262,7 +262,7 @@ export function Header({
                   whileTap={{ scale: 0.95 }}
                   onClick={onExport}
                   aria-label="Exporter l'inventaire en CSV"
-                  className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-xs transition-colors duration-200 hover:bg-stone-50 hover:text-stone-900 ${isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+                  className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-xs transition-colors duration-200 hover:bg-stone-50 hover:text-stone-900 ${isDesktop ? 'h-8 px-2.5 flex items-center gap-2 w-auto' : 'h-10 w-10'
                     }`}
                 >
                   <Download className="h-4 w-4" />
@@ -275,7 +275,7 @@ export function Header({
                 whileTap={{ scale: 0.95 }}
                 onClick={onLogout}
                 aria-label="Se déconnecter"
-                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-rose-600 transition-colors duration-200 shadow-xs ${isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-rose-600 transition-colors duration-200 shadow-xs ${isDesktop ? 'h-8 px-2.5 flex items-center gap-2 w-auto' : 'h-10 w-10'
                   }`}
               >
                 <LogOut className="h-4 w-4" />
