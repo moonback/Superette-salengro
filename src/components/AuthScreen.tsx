@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
-import { Store, Loader2, Mail, Lock, ArrowRight, AlertTriangle } from "lucide-react";
+import { Store, Loader2, Mail, Lock, ArrowRight, AlertTriangle, Power } from "lucide-react";
+import { quitApp } from "../lib/electronUtils";
 import { motion, AnimatePresence } from "motion/react";
 import { signIn, signUp, UserSession } from "../lib/supabaseAuth";
 
@@ -54,6 +55,17 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-5 overflow-hidden bg-[#faf9f6]">
+      {/* Quit button — always visible in fullscreen */}
+      <button
+        type="button"
+        onClick={() => quitApp()}
+        aria-label="Quitter l'application"
+        title="Quitter l'application"
+        className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 backdrop-blur-sm border border-stone-200/60 text-stone-400 hover:text-red-500 hover:bg-red-50/80 hover:border-red-200/60 shadow-sm transition-all duration-200 text-xs font-bold select-none cursor-pointer"
+      >
+        <Power className="w-4 h-4 stroke-[2.5]" />
+        <span>Quitter</span>
+      </button>
       {/* Animated premium ambient background */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(99,102,241,0.12),transparent)]" />
       <motion.div

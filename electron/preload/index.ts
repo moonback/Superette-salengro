@@ -22,3 +22,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   // You can expose other APIs you need here.
   // ...
 });
+
+// --------- Expose electronAPI (quit, etc.) ---------
+contextBridge.exposeInMainWorld('electronAPI', {
+  quit: () => ipcRenderer.send('app:quit'),
+});

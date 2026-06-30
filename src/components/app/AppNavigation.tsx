@@ -1,8 +1,9 @@
 import type React from "react";
-import { Bot, Package, Scan, Store, Tags, Zap, ShoppingCart } from "lucide-react";
+import { Bot, Package, Scan, Store, Tags, Zap, ShoppingCart, Power } from "lucide-react";
 import { useGeminiAssistant } from "../../hooks/useGeminiAssistant";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { quitApp } from "../../lib/electronUtils";
 
 export type AppTab = "scan" | "autoScan" | "stock" | "categories" | "pos";
 
@@ -121,6 +122,23 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
                   className="ml-auto h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_6px_2px_rgba(139,92,246,0.4)] opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 />
               )}
+            </button>
+          </div>
+
+          {/* Quit button */}
+          <div className="mt-auto pt-2">
+            <div className="sidebar-divider mb-1" />
+            <button
+              type="button"
+              onClick={() => quitApp()}
+              aria-label="Quitter l'application"
+              title="Quitter"
+              className="sidebar-nav-item w-full group/quit hover:!bg-red-50/80 hover:!border-red-200/60"
+            >
+              <Power className="w-5 h-5 flex-shrink-0 text-stone-400 group-hover/quit:text-red-500 stroke-[2.5] transition-colors duration-150" />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 group-hover/quit:text-red-500">
+                Quitter
+              </span>
             </button>
           </div>
         </aside>
