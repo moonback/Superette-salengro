@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Camera, CameraOff, Bot } from "lucide-react";
+import { Camera, CameraOff, Bot, Brain, Play, Pause, X } from "lucide-react";
 
 type SettingsTabProps = {
   cameraEnabled: boolean;
   assistantName: string;
   onCameraEnabledChange: (enabled: boolean) => void;
   onAssistantNameChange: (name: string) => void;
+  onRequestVectorize?: () => void;
+  isGeneratingEmbeddings?: boolean;
+  isEmbeddingPaused?: boolean;
+  embeddingProgress?: { current: number; total: number; percentage: number };
+  embeddingCurrentProduct?: string | null;
+  onStopEmbedding?: () => void;
 };
 
-export function SettingsTab({ cameraEnabled, assistantName, onCameraEnabledChange, onAssistantNameChange }: SettingsTabProps) {
+export function SettingsTab({ cameraEnabled, assistantName, onCameraEnabledChange, onAssistantNameChange, onRequestVectorize, isGeneratingEmbeddings, isEmbeddingPaused, embeddingProgress, embeddingCurrentProduct, onStopEmbedding }: SettingsTabProps) {
   const [localName, setLocalName] = useState(assistantName);
   const [nameDraft, setNameDraft] = useState(assistantName);
 
@@ -97,6 +103,77 @@ export function SettingsTab({ cameraEnabled, assistantName, onCameraEnabledChang
           </button>
         </div>
       </div>
+
+      {/* Vectorize action */}
+      {onRequestVectorize && (
+        <div className={`rounded-2xl border p-4 shadow-sm ${isGeneratingEmbeddings ? "border-indigo-200 bg-indigo-50/60" : "border-stone-200/60 bg-white"}`}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className={`grid h-10 w-10 place-items-center rounded-xl border ${isGeneratingEmbeddings ? "border-indigo-200 bg-indigo-50 text-indigo-600" : "border-stone-200 bg-stone-50 text-stone-500"}`}>
+                <Brain className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-stone-900">Vectorisation</p>
+                <p className="text-[11px] font-medium text-stone-400 mt-0.5">
+                  {isGeneratingEmbeddings
+                    ? isEmbeddingPaused
+                      ? "En pause"
+                      : "Génération des embeddings en cours"
+                    : "Générer les embeddings pour la recherche intelligente"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {isGeneratingEmbeddings ? (
+                <button
+                  type="button"
+                  onClick={onStopEmbedding}
+                  className="rounded-xl bg-rose-600 px-3 py-2 text-xs font-bold text-white shadow-sm shadow-rose-600/20 transition active:scale-[0.97] cursor-pointer hover:bg-rose-500"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <X className="h-3.5 w-3.5" />
+                    Stop
+                  </span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onRequestVectorize}
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-indigo-600/20 transition active:scale-[0.97] cursor-pointer hover:bg-indigo-500"
+                >
+                  Lancer
+                </button>
+              )}
+            </div>
+          </div>
+
+          {isGeneratingEmbeddings && embeddingProgress && (
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-700">
+                <span>
+                  {isEmbeddingPaused ? "En pause" : "En cours"}
+                  {!isEmbeddingPaused && ` · ${embeddingProgress.percentage}%`}
+                </span>
+                <span className="font-mono">
+                  {embeddingProgress.current}/{embeddingProgress.total}
+                </span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-indigo-200/80 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
+                  style={{ width: `${Math.min(100, Math.max(0, embeddingProgress.percentage))}%` }}
+                />
+              </div>
+              {embeddingCurrentProduct && (
+                <p className="text-[10px] text-indigo-600 truncate">
+                  En cours : {embeddingCurrentProduct}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

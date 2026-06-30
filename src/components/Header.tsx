@@ -182,6 +182,18 @@ export function Header({
                 )}
               </AnimatePresence>
 
+              <motion.button
+                whileHover={{ scale: 1.05, rotate: 8 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowHelp(true)}
+                aria-label="Guide des fonctionnalités"
+                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
+                  }`}
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+                {isDesktop && <span className="text-[11px] font-bold">Aide</span>}
+              </motion.button>
+
               {showExport && (
                 <div className="relative">
                   <motion.button
@@ -246,17 +258,38 @@ export function Header({
                 </div>
               )}
 
-              <motion.button
-                whileHover={{ scale: 1.05, rotate: 8 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowHelp(true)}
-                aria-label="Guide des fonctionnalités"
-                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
-                  }`}
-              >
-                <HelpCircle className="h-3.5 w-3.5" />
-                {isDesktop && <span className="text-[11px] font-bold">Aide</span>}
-              </motion.button>
+              {/* Embedding progress banner */}
+              <AnimatePresence>
+                {isRunning && (
+                  <motion.div
+                    key="embedding-progress"
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: 'auto', marginTop: 10 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    className="w-full rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-indigo-800">
+                        Vectorisation {isPaused ? '(en pause)' : 'en cours'}
+                      </span>
+                      <span className="text-xs font-mono text-indigo-700">
+                        {progress.current}/{progress.total} ({progress.percentage}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-indigo-200 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-indigo-500 to-violet-500"
+                        animate={{ width: `${progress.percentage}%` }}
+                        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+                      />
+                    </div>
+                    {currentProductName && (
+                      <p className="mt-1 text-[10px] text-indigo-600 truncate">En cours : {currentProductName}</p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {showExport && (
                 <motion.button
@@ -316,39 +349,6 @@ export function Header({
                   </span>
                 )}
               </motion.button>
-            )}
-          </AnimatePresence>
-
-          {/* Embedding progress banner */}
-          <AnimatePresence>
-            {isRunning && (
-              <motion.div
-                key="embedding-progress"
-                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                animate={{ opacity: 1, height: 'auto', marginTop: 10 }}
-                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                className="w-full rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 overflow-hidden"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-indigo-800">
-                    Vectorisation {isPaused ? '(en pause)' : 'en cours'}
-                  </span>
-                  <span className="text-xs font-mono text-indigo-700">
-                    {progress.current}/{progress.total} ({progress.percentage}%)
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-indigo-200 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-indigo-500 to-violet-500"
-                    animate={{ width: `${progress.percentage}%` }}
-                    transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-                  />
-                </div>
-                {currentProductName && (
-                  <p className="mt-1 text-[10px] text-indigo-600 truncate">En cours : {currentProductName}</p>
-                )}
-              </motion.div>
             )}
           </AnimatePresence>
         </div>

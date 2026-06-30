@@ -1487,6 +1487,12 @@ export default function App() {
                 assistantName={assistantName}
                 onCameraEnabledChange={setCameraEnabled}
                 onAssistantNameChange={setAssistantName}
+                onRequestVectorize={() => setShowVectorizeConfirm(true)}
+                isGeneratingEmbeddings={embeddingGenerator.isRunning}
+                isEmbeddingPaused={embeddingGenerator.isPaused}
+                embeddingProgress={embeddingGenerator.progress}
+                embeddingCurrentProduct={embeddingGenerator.currentProductName ?? null}
+                onStopEmbedding={() => embeddingGenerator.stop()}
               />
             ) : (
               <CategoriesManager
