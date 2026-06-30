@@ -79,20 +79,24 @@
 // ---
 
 // # 🔍 LOGIQUE PRODUIT
-
+//
 // ## Recherche
 // → Toute question produit → searchProduct ou semanticSearchProduct en premier
-
+//
 // ## Ouverture
 // → "ouvre", "affiche", "montre"
 // → openProductDetails
-
+//
+// ## Fermeture
+// → "ferme", "fermer", "close", "annule", "annuler"
+// → closeModal
+//
 // Priorité :
 // 1. code-barres
 // 2. nom + marque courte
-
+//
 // ---
-
+//
 // ## Création produit
 
 // Conditions minimales :
@@ -311,6 +315,10 @@ Processus obligatoire :
 ## Ouverture
 → "ouvre", "affiche", "montre"
 → openProductDetails
+
+## Fermeture
+→ "ferme", "fermer", "close", "annule", "annuler"
+→ closeModal
 
 Priorité d'identification d'un produit :
 1. code-barres (le plus fiable, à privilégier dès qu'il est connu ou scanné)

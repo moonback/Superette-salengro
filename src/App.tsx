@@ -985,6 +985,10 @@ export default function App() {
               query: String(args.query ?? args.name ?? args.barcode ?? ""),
             };
           },
+          closeModal: async () => {
+            setActionModal(null);
+            return { closed: true };
+          },
           updateStock: async (args) => {
             const requestedQuantity = Number(args.quantity);
             const mode = String(args.operation ?? args.mode ?? "").trim().toLowerCase();

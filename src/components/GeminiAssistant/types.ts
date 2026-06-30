@@ -15,6 +15,7 @@ export type ToolName =
   | 'semanticSearchProduct'
   | 'regenerateEmbeddings'
   | 'openProductDetails'
+  | 'closeModal'
   | 'updateStock'
   | 'updateProduct'
   | 'createProduct'
