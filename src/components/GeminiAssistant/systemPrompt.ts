@@ -186,12 +186,12 @@ ${categories.length
       ? categories.map((c) => `- ${c.name}`).join('\n')
       : '- aucune'}
 
-## Statistiques de l'inventaire:
+## Statistiques de la boutique:
 - Nombre de produits: ${totalProducts}
 - Stock total: ${totalStock} unités
 - Produits en stock faible (<=5): ${lowStockCount}
 
-## Inventaire complet:
+## Tout article de la boutique:
 ${inventory.length
       ? inventory.map((i) => [
         `${i.name}`,

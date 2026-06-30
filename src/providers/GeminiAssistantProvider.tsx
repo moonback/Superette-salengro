@@ -7,6 +7,7 @@ import { LiveSession } from '../components/GeminiAssistant/LiveSession';
 import type { AssistantExternalContext, GeminiAssistantContextValue, GeminiAssistantProviderProps, PermissionRequest } from '../components/GeminiAssistant/types';
 import { AssistantState } from '../components/GeminiAssistant/types';
 import { registerAssistantSpeaker } from '../components/GeminiAssistant/assistantBridge';
+import { speakAssistantText } from '../components/GeminiAssistant/assistantBridge';
 
 export const GeminiAssistantContext = createContext<GeminiAssistantContextValue | null>(null);
 
@@ -100,6 +101,12 @@ export function GeminiAssistantProvider({ children, getContext = emptyContext, t
       await session.current.connect(currentContext);
       await session.current.startAudio();
       setState(AssistantState.Listening);
+      // Play a short welcome message when Lina is opened
+      try {
+        speakAssistantText('Bonjour, Demande comment je peux t’aider !');
+      } catch (e) {
+        // ignore speak errors
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur assistant vocal');
       setState(AssistantState.Error);
