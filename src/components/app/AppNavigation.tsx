@@ -1,10 +1,10 @@
 import type React from "react";
-import { Bot, Package, Scan, Store, Tags, Zap } from "lucide-react";
+import { Bot, Package, Scan, Store, Tags, Zap, ShoppingCart } from "lucide-react";
 import { useGeminiAssistant } from "../../hooks/useGeminiAssistant";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
-export type AppTab = "scan" | "autoScan" | "stock" | "categories";
+export type AppTab = "scan" | "autoScan" | "stock" | "categories" | "pos";
 
 type NavItem = {
   tab: AppTab;
@@ -15,6 +15,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { tab: "scan", label: "Scanner", icon: Scan },
   { tab: "autoScan", label: "Auto-Scan", icon: Zap },
+  { tab: "pos", label: "Caisse", icon: ShoppingCart },
   { tab: "stock", label: "Stock", icon: Package },
   { tab: "categories", label: "Catégories", icon: Tags },
 ];
@@ -129,7 +130,7 @@ export function AppNavigation({ activeTab, onTabChange }: AppNavigationProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe bg-gradient-to-t from-stone-100/30 to-transparent pointer-events-none">
       <div className="glass-panel mx-auto flex max-w-md justify-around rounded-2xl border border-stone-200/60 px-2 py-1.5 shadow-xl shadow-stone-900/5 pointer-events-auto">
-        {navItems.map(({ tab, label, icon: Icon }) => {
+        {navItems.filter(item => item.tab !== "pos").map(({ tab, label, icon: Icon }) => {
           const isActive = activeTab === tab;
           return (
             <button

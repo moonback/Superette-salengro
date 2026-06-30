@@ -37,6 +37,7 @@ import { AppNavigation, AppTab } from "./components/app/AppNavigation";
 import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
 import { ScanTab } from "./components/app/ScanTab";
 import { StockTab } from "./components/app/StockTab";
+import { POSTab } from "./components/app/POSTab";
 import { SyncNotice } from "./components/app/SyncNotice";
 import { GeminiAssistantProvider } from "./providers/GeminiAssistantProvider";
 import { generateProductEmbedding, fullSemanticSearch } from "./lib/embeddingService";
@@ -1391,6 +1392,11 @@ export default function App() {
                   product: item,
                 })}
                 onOpenScan={() => setActiveTab("scan")}
+              />
+            ) : activeTab === "pos" ? (
+              <POSTab
+                inventory={inventory}
+                onUpdateQuantity={handleUpdateQuantity}
               />
             ) : (
               <CategoriesManager
