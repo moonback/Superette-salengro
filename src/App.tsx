@@ -37,6 +37,7 @@ import { AppNavigation, AppTab } from "./components/app/AppNavigation";
 import { CategoryFilterModal } from "./components/app/CategoryFilterModal";
 import { ScanTab } from "./components/app/ScanTab";
 import { StockTab } from "./components/app/StockTab";
+import { POSTab } from "./components/app/POSTab";
 import { SyncNotice } from "./components/app/SyncNotice";
 import { GeminiAssistantProvider } from "./providers/GeminiAssistantProvider";
 import { generateProductEmbedding, fullSemanticSearch } from "./lib/embeddingService";
@@ -1291,23 +1292,26 @@ export default function App() {
         }}
       >
         <div className="app-shell text-stone-800 font-sans">
-          <Header
-            email={session.email}
-            inventoryLength={inventory.length}
-            totalItems={totalItems}
-            lowStockCount={lowStockCount}
-            showExport={inventory.length > 0}
-            isOnline={isOnline}
-            pendingCount={pendingCount}
-            isSyncing={isSyncing}
-            onExport={() => setShowExportModal(true)}
-            onLogout={handleLogout}
-            onSyncNow={() => void flushQueue()}
-            onRequestVectorize={() => setShowVectorizeConfirm(true)}
-            embeddingGenerator={embeddingGenerator}
-          />
+          <AppNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <main className="app-main space-y-3 sm:space-y-4">
+          <div className="flex-1 min-w-0 flex flex-col w-full relative">
+            <Header
+              email={session.email}
+              inventoryLength={inventory.length}
+              totalItems={totalItems}
+              lowStockCount={lowStockCount}
+              showExport={inventory.length > 0}
+              isOnline={isOnline}
+              pendingCount={pendingCount}
+              isSyncing={isSyncing}
+              onExport={() => setShowExportModal(true)}
+              onLogout={handleLogout}
+              onSyncNow={() => void flushQueue()}
+              onRequestVectorize={() => setShowVectorizeConfirm(true)}
+              embeddingGenerator={embeddingGenerator}
+            />
+
+            <main className="app-main space-y-3 sm:space-y-4">
 
             <SyncNotice
               syncError={syncError}
@@ -1389,6 +1393,11 @@ export default function App() {
                 })}
                 onOpenScan={() => setActiveTab("scan")}
               />
+            ) : activeTab === "pos" ? (
+              <POSTab
+                inventory={inventory}
+                onUpdateQuantity={handleUpdateQuantity}
+              />
             ) : (
               <CategoriesManager
                 categories={dbCategories}
@@ -1399,8 +1408,7 @@ export default function App() {
               />
             )}
           </main>
-
-          <AppNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
 
           {showCategoryModal && (
             <CategoryFilterModal

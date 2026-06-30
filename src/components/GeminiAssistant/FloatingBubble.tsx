@@ -171,6 +171,7 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
         drag
         dragMomentum={false}
         dragElastic={0}
+        onPointerDown={() => { dragDistanceRef.current = 0; }}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
@@ -182,41 +183,47 @@ export function FloatingBubble({ state, onExpand }: FloatingBubbleProps) {
       >
         <motion.button
           type="button"
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.94 }}
           aria-label={`Assistant Lina — ${cfg.label}. Glisser pour déplacer, appuyer pour ouvrir.`}
-          className={`relative flex h-11 items-center gap-2.5 rounded-full px-4.5 text-white shadow-xl ${cfg.bg} ${cfg.ring} border border-white/10`}
+          className={`relative group flex h-12 items-center gap-3 rounded-full pl-2 pr-5 text-white shadow-2xl ${cfg.bg} ${cfg.ring} border border-white/20 backdrop-blur-xl overflow-hidden`}
           style={{ minWidth: BUBBLE_WIDTH }}
         >
+          {/* Animated background gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
           {/* Multiple Sonar Rings for a richer soundwave visual */}
           {cfg.pulse && (
             <>
-              <span className={`absolute inset-0 rounded-full ${cfg.pingColor} opacity-25 animate-ping`} aria-hidden="true" />
+              <span className={`absolute inset-0 rounded-full ${cfg.pingColor} opacity-20 animate-ping`} aria-hidden="true" />
               <motion.span
-                className="absolute inset-0 rounded-full border border-white/40"
+                className="absolute inset-0 rounded-full border border-white/30"
                 aria-hidden="true"
-                animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0, 0.5] }}
+                animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               />
               <motion.span
-                className="absolute inset-0 rounded-full border border-white/20"
+                className="absolute inset-0 rounded-full border border-white/10"
                 aria-hidden="true"
-                animate={{ scale: [1, 1.6, 1], opacity: [0.3, 0, 0.3] }}
+                animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
                 transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
               />
             </>
           )}
 
-          {/* Icon */}
-          <span className="relative z-10 flex-shrink-0" aria-hidden="true">{cfg.icon}</span>
+          {/* Icon Orb */}
+          <div className="relative z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/20 shadow-inner backdrop-blur-sm border border-white/30">
+            {cfg.icon}
+          </div>
 
           {/* Label */}
-          <span className="relative z-10 text-[11px] font-black tracking-wide whitespace-nowrap">
+          <span className="relative z-10 text-[11px] font-black tracking-widest uppercase text-white/95 drop-shadow-sm whitespace-nowrap">
             {cfg.label}
           </span>
 
           {/* Live indicator dot */}
           {cfg.pulse && (
-            <span className="relative z-10 h-1.5 w-1.5 rounded-full bg-white animate-pulse flex-shrink-0" aria-hidden="true" />
+            <span className="relative z-10 h-1.5 w-1.5 rounded-full bg-white animate-pulse flex-shrink-0 shadow-[0_0_8px_2px_rgba(255,255,255,0.6)]" aria-hidden="true" />
           )}
         </motion.button>
       </motion.div>

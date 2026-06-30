@@ -1,8 +1,8 @@
 
-import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Brain, Pause, Play, X, Package, HelpCircle } from 'lucide-react';
+import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Brain, Pause, Play, X, Package, HelpCircle, TrendingUp, AlertTriangle, User } from 'lucide-react';
 import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HelpModal } from './HelpModal';
 
 interface HeaderProps {
@@ -19,6 +19,19 @@ interface HeaderProps {
   onSyncNow?: () => void;
   onRequestVectorize?: () => void;
   embeddingGenerator: ReturnType<typeof useEmbeddingGenerator>;
+}
+
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  );
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)');
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+  return isDesktop;
 }
 
 export function Header({
@@ -39,39 +52,88 @@ export function Header({
   const { isRunning, isPaused, progress, start, pause, resume, stop, canStart, currentProductName, embeddedCount } = embeddingGenerator;
   const canSync = isOnline && pendingCount > 0 && !!onSyncNow;
   const [showHelp, setShowHelp] = useState(false);
+  const isDesktop = useIsDesktop();
 
   return (
     <>
     <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/50 pt-safe transition-all duration-300">
-      <div className="mx-auto w-full max-w-2xl px-4 pb-3 pt-3">
+      <div className={`mx-auto w-full pb-3 pt-3 ${isDesktop ? 'px-8 max-w-none' : 'px-4 max-w-2xl'}`}>
         {/* Identity row */}
         <div className="flex items-center justify-between gap-3">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -15 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="min-w-0 flex-1 flex flex-col justify-center"
+            className="min-w-0 flex-1 flex items-center gap-4"
           >
-            <h1 className="text-base font-black tracking-tight text-stone-900 leading-tight flex items-center gap-1.5">
-              <Store className="h-4 w-4 text-indigo-600" />
-              <span>NeuroStock</span>
-            </h1>
-            {/* Compact stats */}
-            <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400">
-              <span className="flex items-center gap-1 bg-stone-100/60 px-1.5 py-0.5 rounded-md">
-                <Package className="h-3 w-3 text-stone-400" />
-                <span>{inventoryLength} articles</span>
-              </span>
-            </div>
+            {/* Title — hidden on desktop (sidebar shows it) */}
+            {!isDesktop && (
+              <div className="flex flex-col justify-center min-w-0">
+                <h1 className="text-base font-black tracking-tight text-stone-900 leading-tight flex items-center gap-1.5">
+                  <Store className="h-4 w-4 text-indigo-600" />
+                  <span>NeuroStock</span>
+                </h1>
+                <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400">
+                  <span className="flex items-center gap-1 bg-stone-100/60 px-1.5 py-0.5 rounded-md">
+                    <Package className="h-3 w-3 text-stone-400" />
+                    <span>{inventoryLength} articles</span>
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Desktop: rich inline stats */}
+            {isDesktop && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Articles count */}
+                <span className="desktop-stat-badge bg-stone-100/80 border-stone-200/60 text-stone-700">
+                  <Package className="h-3.5 w-3.5 text-stone-500" />
+                  <span className="tabular">{inventoryLength}</span>
+                  <span className="text-stone-400 font-semibold">articles</span>
+                </span>
+
+                {/* Total units */}
+                {totalItems > 0 && (
+                  <span className="desktop-stat-badge bg-indigo-50/80 border-indigo-200/50 text-indigo-700">
+                    <TrendingUp className="h-3.5 w-3.5 text-indigo-500" />
+                    <span className="tabular">{totalItems}</span>
+                    <span className="text-indigo-400 font-semibold">unités</span>
+                  </span>
+                )}
+
+                {/* Low stock warning */}
+                {lowStockCount > 0 && (
+                  <span className="desktop-stat-badge bg-amber-50/80 border-amber-200/50 text-amber-700">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                    <span className="tabular">{lowStockCount}</span>
+                    <span className="text-amber-500 font-semibold">stock faible</span>
+                  </span>
+                )}
+
+                {/* Online status */}
+                <span className={`desktop-stat-badge ${isOnline ? 'bg-emerald-50/80 border-emerald-200/50 text-emerald-700' : 'bg-rose-50/80 border-rose-200/50 text-rose-700'}`}>
+                  <span className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                  <span className="font-semibold">{isOnline ? 'En ligne' : 'Hors-ligne'}</span>
+                </span>
+              </div>
+            )}
           </motion.div>
 
-          {/* Action icons: always reachable with the thumb, never wrap, never crowd the title */}
-          <motion.div 
+          {/* Action icons */}
+          <motion.div
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="flex flex-shrink-0 items-center gap-1.5"
           >
+            {/* Desktop: user email badge */}
+            {isDesktop && (
+              <span className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-200 bg-white text-xs font-semibold text-stone-600 shadow-xs mr-1">
+                <User className="h-3.5 w-3.5 text-stone-400" />
+                <span className="max-w-[180px] truncate">{email}</span>
+              </span>
+            )}
+
             {canSync && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -79,15 +141,23 @@ export function Header({
                 onClick={onSyncNow}
                 disabled={isSyncing}
                 aria-label={isSyncing ? "Synchronisation en cours" : "Synchroniser les modifications en attente"}
-                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-xs"
+                className={`touch-target grid place-items-center rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${
+                  isDesktop
+                    ? 'h-9 px-3 flex items-center gap-2 w-auto'
+                    : 'h-10 w-10'
+                }`}
               >
                 {isSyncing ? (
                   <RefreshCw className="h-4 w-4 animate-spin text-amber-700" />
                 ) : (
                   <CloudUpload className="h-4 w-4 text-amber-700" />
                 )}
+                {isDesktop && (
+                  <span className="text-xs font-bold">{isSyncing ? 'Sync...' : 'Synchroniser'}</span>
+                )}
               </motion.button>
             )}
+
             {showExport && (embeddedCount < inventoryLength || isRunning) && (
               <div className="relative">
                 <motion.button
@@ -99,12 +169,12 @@ export function Header({
                     isRunning ? (isPaused ? "Reprendre la génération" : "Mettre en pause")
                       : `Générer les embeddings (${embeddedCount}/${inventoryLength})`
                   }
-                  className={`touch-target grid h-10 w-10 place-items-center rounded-xl border transition-all duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${isRunning
+                  className={`touch-target grid place-items-center rounded-xl border transition-all duration-200 disabled:opacity-50 cursor-pointer shadow-xs ${isRunning
                     ? isPaused
                       ? "border-amber-200 bg-amber-50/50 text-amber-600 animate-pulse"
                       : "border-indigo-200 bg-indigo-50/55 text-indigo-600 animate-glow-pulse"
                     : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900"
-                    }`}
+                    } ${isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'}`}
                 >
                   {isRunning ? (
                     isPaused ? (
@@ -114,6 +184,11 @@ export function Header({
                     )
                   ) : (
                     <Brain className="h-4 w-4" />
+                  )}
+                  {isDesktop && (
+                    <span className="text-xs font-bold">
+                      {isRunning ? (isPaused ? 'Reprendre' : 'Pause') : 'Vectoriser'}
+                    </span>
                   )}
                 </motion.button>
                 {isRunning && (
@@ -130,35 +205,47 @@ export function Header({
                 )}
               </div>
             )}
-            {/* Help button — always visible */}
+
+            {/* Help */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowHelp(true)}
               aria-label="Guide des fonctionnalités"
-              className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200"
+              className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${
+                isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+              }`}
             >
               <HelpCircle className="h-4 w-4" />
+              {isDesktop && <span className="text-xs font-bold">Aide</span>}
             </motion.button>
+
             {showExport && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onExport}
                 aria-label="Exporter l'inventaire en CSV"
-                className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-xs transition-colors duration-200 hover:bg-stone-50 hover:text-stone-900"
+                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-xs transition-colors duration-200 hover:bg-stone-50 hover:text-stone-900 ${
+                  isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+                }`}
               >
                 <Download className="h-4 w-4" />
+                {isDesktop && <span className="text-xs font-bold">Exporter</span>}
               </motion.button>
             )}
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onLogout}
               aria-label="Se déconnecter"
-              className="touch-target grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-rose-600 transition-colors duration-200 shadow-xs"
+              className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-rose-600 transition-colors duration-200 shadow-xs ${
+                isDesktop ? 'h-9 px-3 flex items-center gap-2 w-auto' : 'h-10 w-10'
+              }`}
             >
               <LogOut className="h-4 w-4" />
+              {isDesktop && <span className="text-xs font-bold">Déconnexion</span>}
             </motion.button>
           </motion.div>
         </div>

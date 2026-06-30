@@ -18,79 +18,86 @@ interface Props {
 /* ── State metadata ─────────────────────────────────────────── */
 const STATE_META: Record<
   AssistantState,
-  { label: string; sub: string; accent: string; icon: ReactNode; wave: boolean }
+  { label: string; sub: string; accent: string; icon: ReactNode; wave: boolean; bgPulse: string }
 > = {
   [AssistantState.Idle]: {
     label: 'Prêt',
     sub: 'Dites quelque chose…',
-    accent: 'bg-indigo-600 shadow-indigo-600/20',
-    icon: <Mic className="h-8 w-8" />,
+    accent: 'bg-indigo-600 shadow-indigo-600/30',
+    bgPulse: 'bg-indigo-500',
+    icon: <Mic className="h-5 w-5" />,
     wave: false,
   },
   [AssistantState.Connecting]: {
     label: 'Connexion',
-    sub: 'Établissement de la session…',
-    accent: 'bg-sky-500 shadow-sky-500/20',
-    icon: <Wifi className="h-8 w-8" />,
+    sub: 'Établissement…',
+    accent: 'bg-sky-500 shadow-sky-500/30',
+    bgPulse: 'bg-sky-400',
+    icon: <Wifi className="h-5 w-5" />,
     wave: false,
   },
   [AssistantState.Listening]: {
-    label: 'À l\'écoute',
+    label: "À l'écoute",
     sub: 'Parlez maintenant',
-    accent: 'bg-emerald-600 shadow-emerald-600/20',
-    icon: <Mic className="h-8 w-8" />,
+    accent: 'bg-emerald-500 shadow-emerald-500/30',
+    bgPulse: 'bg-emerald-400',
+    icon: <Mic className="h-5 w-5" />,
     wave: true,
   },
   [AssistantState.Speaking]: {
-    label: 'Répond',
-    sub: 'Lina vous répond…',
-    accent: 'bg-indigo-600 shadow-indigo-600/20',
-    icon: <Volume2 className="h-8 w-8" />,
+    label: 'Lina parle',
+    sub: 'Écoutez la réponse',
+    accent: 'bg-indigo-600 shadow-indigo-600/30',
+    bgPulse: 'bg-indigo-400',
+    icon: <Volume2 className="h-5 w-5" />,
     wave: true,
   },
   [AssistantState.Thinking]: {
-    label: 'Réfléchit',
-    sub: 'Traitement en cours…',
-    accent: 'bg-violet-600 shadow-violet-600/20',
-    icon: <Loader2 className="h-8 w-8 animate-spin" />,
+    label: 'Réflexion',
+    sub: 'Traitement…',
+    accent: 'bg-violet-600 shadow-violet-600/30',
+    bgPulse: 'bg-violet-500',
+    icon: <Loader2 className="h-5 w-5 animate-spin" />,
     wave: false,
   },
   [AssistantState.Muted]: {
     label: 'En pause',
     sub: 'Micro coupé',
-    accent: 'bg-stone-500 shadow-stone-400/20',
-    icon: <MicOff className="h-8 w-8" />,
+    accent: 'bg-stone-500 shadow-stone-500/30',
+    bgPulse: 'bg-stone-400',
+    icon: <MicOff className="h-5 w-5" />,
     wave: false,
   },
   [AssistantState.Error]: {
     label: 'Erreur',
     sub: 'Session interrompue',
-    accent: 'bg-rose-600 shadow-rose-600/20',
-    icon: <AlertTriangle className="h-8 w-8" />,
+    accent: 'bg-rose-500 shadow-rose-500/30',
+    bgPulse: 'bg-rose-400',
+    icon: <AlertTriangle className="h-5 w-5" />,
     wave: false,
   },
 };
 
 /* ── Sound wave bars ────────────────────────────────────────── */
-function SoundWave({ active }: { active: boolean }) {
-  const bars = [0.4, 0.7, 1, 0.8, 0.5, 0.9, 0.6, 1, 0.7, 0.4];
+function SoundWave({ active, colorClass }: { active: boolean, colorClass: string }) {
+  const bars = [0.4, 0.7, 1, 0.8, 0.5, 0.9, 0.6, 1];
   return (
-    <div className="flex items-center justify-center gap-[3px] h-8">
+    <div className={`flex items-center justify-center gap-[2px] h-4 ${colorClass}`}>
       {bars.map((h, i) => (
         <motion.span
           key={i}
-          className="w-[3px] rounded-full bg-current"
+          className="w-[2px] rounded-full bg-current"
           animate={
             active
-              ? { scaleY: [h * 0.5, h, h * 0.3, h * 0.8, h * 0.5], opacity: [0.6, 1, 0.7, 1, 0.6] }
-              : { scaleY: 0.15, opacity: 0.25 }
+              ? { scaleY: [h * 0.4, h, h * 0.3, h * 0.9, h * 0.4], opacity: [0.6, 1, 0.7, 1, 0.6] }
+              : { scaleY: 0.2, opacity: 0.3 }
           }
           transition={
             active
-              ? { duration: 0.8 + i * 0.07, repeat: Infinity, ease: 'easeInOut', delay: i * 0.06 }
+              ? { duration: 0.6 + i * 0.05, repeat: Infinity, ease: 'easeInOut', delay: i * 0.05 }
               : { duration: 0.3 }
           }
-          style={{ height: 28, transformOrigin: 'center' }}
+          style={{ height: 16, transformOrigin: 'center' }}
         />
       ))}
     </div>
@@ -116,133 +123,127 @@ export function GeminiDrawer({
     state === AssistantState.Speaking ||
     state === AssistantState.Thinking;
 
+  // Derive text color for soundwave from accent
+  const waveColorClass = meta.accent.includes('emerald') ? 'text-emerald-500' :
+                         meta.accent.includes('sky') ? 'text-sky-500' :
+                         meta.accent.includes('violet') ? 'text-violet-500' :
+                         meta.accent.includes('rose') ? 'text-rose-500' :
+                         meta.accent.includes('stone') ? 'text-stone-400' :
+                         'text-indigo-500';
+
   return (
-    <motion.section
-      initial={{ y: '100%', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: '100%', opacity: 0 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-      className="fixed inset-x-0 bottom-0 z-50 rounded-t-[2rem] bg-white border-t border-stone-200/60 shadow-2xl shadow-stone-900/20"
-    >
-      {/* Drag handle */}
-      <div className="flex justify-center pt-3 pb-1">
-        <div className="h-1 w-10 rounded-full bg-stone-250" />
-      </div>
+    <div className="fixed inset-0 z-50 pointer-events-none flex flex-col justify-end p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
 
-      <div className="mx-auto max-w-md px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 space-y-5">
+      <motion.section
+        initial={{ y: 150, opacity: 0, scale: 0.95 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 150, opacity: 0, scale: 0.95 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="pointer-events-auto mx-auto w-full max-w-md rounded-[2rem] bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.2)] overflow-hidden"
+      >
+        <div className="p-4 flex flex-col gap-5">
+          
+          {/* Top Row: Avatar & Info */}
+          <div className="flex items-center gap-3">
+            {/* Glowing Avatar */}
+            <div className="relative flex-shrink-0">
+              <AnimatePresence>
+                {isActive && !isMuted && (
+                  <motion.div
+                    className={`absolute -inset-1 rounded-full opacity-20 blur-sm ${meta.bgPulse}`}
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.1, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
+              </AnimatePresence>
+              <div
+                className={`relative flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl ring-1 ring-white/20 ${meta.accent}`}
+              >
+                {meta.icon}
+              </div>
+            </div>
 
-        {/* ── Header row ── */}
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-widest text-indigo-600">
-              Lina
-            </p>
-            <h2 className="text-base font-extrabold text-stone-900 leading-tight">
-              Assistant vocal
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Auto-accept toggle */}
-            <button
-              type="button"
-              onClick={() => setAutoAccept(!autoAccept)}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold transition cursor-pointer select-none ${autoAccept
-                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                : 'bg-stone-100 text-stone-500 border border-stone-200'
+            {/* Status Text & Wave */}
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[14px] font-black text-stone-900 leading-none tracking-tight">
+                  {meta.label}
+                </h2>
+                <SoundWave active={meta.wave && !isMuted} colorClass={waveColorClass} />
+              </div>
+              <p className="text-[11px] font-bold text-stone-400 mt-1 truncate uppercase tracking-widest">
+                {meta.sub}
+              </p>
+            </div>
+
+            {/* Quick Actions (Top Right) */}
+            <div className="flex items-center gap-1.5 self-start">
+              <button
+                type="button"
+                onClick={() => setAutoAccept(!autoAccept)}
+                title="Auto-validation des commandes"
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                  autoAccept 
+                    ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200' 
+                    : 'bg-stone-100 text-stone-400 hover:bg-stone-200 hover:text-stone-600'
                 }`}
-            >
-              {autoAccept && <Check className="h-3 w-3 stroke-[3]" />}
-              Auto-valide
-            </button>
-            <button
-              type="button"
-              aria-label="Réduire"
-              onClick={onMinimize}
-              className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200/80 bg-white text-stone-500 hover:text-stone-900 transition active:scale-95 cursor-pointer"
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Fermer"
-              onClick={onClose}
-              className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200/80 bg-white text-stone-500 hover:text-stone-900 transition active:scale-95 cursor-pointer"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* ── Avatar + Wave ── */}
-        <div className="flex flex-col items-center gap-4 py-3">
-          {/* Avatar */}
-          <div className="relative">
-            {/* Outer sonar rings */}
-            <AnimatePresence>
-              {isActive && !isMuted && (
-                <>
-                  {[1, 2].map((i) => (
-                    <motion.span
-                      key={i}
-                      className={`absolute inset-0 rounded-full ${meta.accent.split(' ')[0]} opacity-20`}
-                      initial={{ scale: 1, opacity: 0.25 }}
-                      animate={{ scale: 1 + i * 0.35, opacity: 0 }}
-                      transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.4, ease: 'easeOut' }}
-                    />
-                  ))}
-                </>
-              )}
-            </AnimatePresence>
-            <div
-              className={`relative grid h-20 w-20 place-items-center rounded-full text-white shadow-xl ${meta.accent}`}
-            >
-              {meta.icon}
+              >
+                <Check className={`h-4 w-4 ${autoAccept ? 'stroke-[3]' : 'stroke-[2]'}`} />
+              </button>
+              <button
+                type="button"
+                onClick={onMinimize}
+                title="Réduire"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-400 hover:bg-stone-200 hover:text-stone-600 transition-colors"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
-          {/* State label */}
-          <div className="text-center">
-            <p className="text-sm font-extrabold text-stone-900 tracking-tight">{meta.label}</p>
-            <p className="text-[11px] font-medium text-stone-400 mt-0.5">{meta.sub}</p>
-          </div>
+          {/* Error Banner */}
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }} 
+                animate={{ opacity: 1, height: 'auto' }} 
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-start gap-2 rounded-xl bg-rose-50/80 border border-rose-100 p-2.5 text-xs font-semibold text-rose-600 mb-1">
+                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                  <p>{error}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Sound wave visualiser */}
-          <div className={`text-${meta.accent.includes('emerald') ? 'emerald' : meta.accent.includes('indigo') ? 'indigo' : 'violet'}-500`}>
-            <SoundWave active={meta.wave && !isMuted} />
-          </div>
-        </div>
-
-        {/* ── Error banner ── */}
-        {error && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-xs font-medium text-rose-700">
-            <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-            {error}
-          </div>
-        )}
-
-        {/* ── Action buttons ── */}
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={onMuteToggle}
-            className={`flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold border transition active:scale-[0.98] cursor-pointer select-none ${isMuted
-              ? 'bg-amber-50 border-amber-200 text-amber-700'
-              : 'bg-white border-stone-200/80 text-stone-600 hover:text-stone-900'
+          {/* Bottom Actions */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={onMuteToggle}
+              className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold border transition-all active:scale-[0.98] ${
+                isMuted
+                  ? 'bg-amber-50 border-amber-200 text-amber-700 shadow-sm'
+                  : 'bg-stone-50 border-stone-200/60 text-stone-600 hover:bg-stone-100 hover:text-stone-900'
               }`}
-          >
-            {isMuted ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-            {isMuted ? 'Reprendre' : 'Couper micro'}
-          </button>
-          <button
-            type="button"
-            onClick={onStop}
-            className="flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/10 transition active:scale-[0.98] cursor-pointer select-none"
-          >
-            <X className="h-4 w-4" />
-            Terminer
-          </button>
+            >
+              {isMuted ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+              {isMuted ? 'Reprendre' : 'Couper micro'}
+            </button>
+            <button
+              type="button"
+              onClick={onStop}
+              className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold bg-rose-50 border border-rose-200/60 text-rose-600 hover:bg-rose-100 hover:border-rose-300 transition-all active:scale-[0.98]"
+            >
+              <X className="h-4 w-4 stroke-[2.5]" />
+              Fermer Lina
+            </button>
+          </div>
+
         </div>
-      </div>
-    </motion.section>
+      </motion.section>
+    </div>
   );
 }

@@ -103,6 +103,182 @@ body::before {
 }
 
 /* ══════════════════════════════════════════════════
+   DESKTOP LAYOUT — ≥ 1024px
+   ══════════════════════════════════════════════════ */
+
+:root {
+  --sidebar-width: 220px;
+  --sidebar-collapsed-width: 72px;
+}
+
+/* Desktop shell: flex row, no bottom nav padding */
+@media (min-width: 1024px) {
+  .app-shell {
+    display: flex;
+    flex-direction: row;
+    padding-bottom: 0;
+    min-height: 100dvh;
+  }
+
+  .app-main {
+    flex: 1;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 1.5rem 2rem;
+    margin-inline: 0;
+  }
+
+  /* Sidebar wrapper maintains the collapsed width in the flex layout */
+  .desktop-sidebar-wrapper {
+    width: 72px; /* collapsed width */
+    flex-shrink: 0;
+    height: 100dvh;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  /* The actual sidebar that expands on hover */
+  .desktop-sidebar {
+    width: 72px;
+    height: 100dvh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba(250, 249, 246, 0.92);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    border-right: 1px solid rgba(24, 22, 20, 0.06);
+    box-shadow: 1px 0 0 rgba(24, 22, 20, 0.03), 4px 0 20px -8px rgba(24, 22, 20, 0.06);
+    padding: 1.25rem 0.5rem;
+    gap: 0.5rem;
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .desktop-sidebar-wrapper:hover .desktop-sidebar {
+    width: var(--sidebar-width);
+    box-shadow: 20px 0 50px -10px rgba(0,0,0,0.1);
+    padding: 1.25rem 0.75rem;
+  }
+
+  /* Desktop header full-width */
+  .desktop-header-inner {
+    max-width: none !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* Visibility helpers */
+.desktop-only {
+  display: none;
+}
+
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+}
+
+/* Desktop sidebar nav item */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #78716c;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-nav-item:hover {
+  color: #1c1917;
+  background: rgba(24, 22, 20, 0.04);
+}
+
+.sidebar-nav-item.active {
+  color: #4f46e5;
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.12);
+  font-weight: 700;
+}
+
+/* Desktop stat badge in header */
+.desktop-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+/* Desktop two-column stock layout */
+@media (min-width: 1024px) {
+  .stock-desktop-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .stock-filters-panel {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stock-main-content {
+    min-width: 0;
+  }
+}
+
+/* Sidebar divider */
+.sidebar-divider {
+  height: 1px;
+  background: rgba(24, 22, 20, 0.07);
+  margin: 0.25rem 0;
+}
+
+/* Premium action button for desktop (text + icon) */
+@media (min-width: 1024px) {
+  .desktop-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+}
+
+/* ══════════════════════════════════════════════════
    SURFACES — Enhanced Glass & Cards
    ══════════════════════════════════════════════════ */
 .surface-card {
