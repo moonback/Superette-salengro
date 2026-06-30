@@ -1,42 +1,31 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import path from "path";
-import { fileURLToPath } from "url";
-const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
-process.env.DIST = path.join(__dirname$1, "../../dist");
-process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, "../public");
-let win;
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+import { app as o, BrowserWindow as s, ipcMain as a } from "electron";
+import n from "path";
+import { fileURLToPath as l } from "url";
+const t = n.dirname(l(import.meta.url));
+process.env.DIST = n.join(t, "../../dist");
+process.env.VITE_PUBLIC = o.isPackaged ? process.env.DIST : n.join(process.env.DIST, "../public");
+let e;
+const i = process.env.VITE_DEV_SERVER_URL;
+function r() {
+  e = new s({
+    icon: n.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     width: 1200,
     height: 800,
-    fullscreen: true,
+    fullscreen: !0,
     webPreferences: {
-      preload: path.join(__dirname$1, "../preload/index.cjs")
+      preload: n.join(t, "../preload/index.cjs")
     }
-  });
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(path.join(process.env.DIST, "index.html"));
-  }
+  }), e.webContents.on("did-finish-load", () => {
+    e == null || e.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), i ? e.loadURL(i) : e.loadFile(n.join(process.env.DIST, "index.html"));
 }
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-    win = null;
-  }
+o.on("window-all-closed", () => {
+  process.platform !== "darwin" && (o.quit(), e = null);
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+o.on("activate", () => {
+  s.getAllWindows().length === 0 && r();
 });
-app.whenReady().then(createWindow);
-ipcMain.on("app:quit", () => {
-  app.quit();
+o.whenReady().then(r);
+a.on("app:quit", () => {
+  o.quit();
 });
