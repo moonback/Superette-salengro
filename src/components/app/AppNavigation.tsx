@@ -60,8 +60,8 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
               <Store className="h-4 w-4 text-white" />
             </div>
             <div className="min-w-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <p className="text-[13px] font-black text-stone-900 leading-none tracking-tight">NeuroStock</p>
-              <p className="text-[10px] text-stone-400 font-semibold mt-0.5 leading-none">Gestion intelligente</p>
+              <p className="text-[13px] font-black text-stone-900 dark:text-stone-100 leading-none tracking-tight">NeuroStock</p>
+              <p className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold mt-0.5 leading-none">Gestion intelligente</p>
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
 
           {/* Nav items */}
           <nav className="flex flex-col gap-0.5 mt-1 flex-1">
-            <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 dark:text-stone-500 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               Navigation
             </p>
             {navItems.map(({ tab, label, icon: Icon }) => {
@@ -85,11 +85,11 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
                   {isActive && (
                     <motion.div
                       layoutId="desktopActiveTabPill"
-                      className="absolute inset-0 bg-indigo-50/80 rounded-[0.875rem] -z-10"
+                      className="absolute inset-0 bg-indigo-50/80 dark:bg-indigo-950/80 rounded-[0.875rem] -z-10"
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-indigo-600 stroke-[2.5]" : "text-stone-500 stroke-[2.5]"}`} />
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400 stroke-[2.5]" : "text-stone-500 dark:text-stone-400 stroke-[2.5]"}`} />
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">{label}</span>
                 </button>
               );
@@ -100,7 +100,7 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
 
           {/* Assistant Lina at bottom */}
           <div className="mt-1">
-            <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <p className="text-[9px] font-extrabold uppercase tracking-widest text-stone-400 dark:text-stone-500 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               Assistant IA
             </p>
             <button
@@ -108,16 +108,16 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
               onClick={() => void assistant.open()}
               aria-label={`Ouvrir l'assistant vocal ${assistantName}`}
               aria-pressed={isAssistantActive}
-              className={`sidebar-nav-item w-full ${isAssistantActive ? "active !text-violet-600 !bg-violet-50/80 !border-violet-200/60" : ""}`}
+              className={`sidebar-nav-item w-full ${isAssistantActive ? "active !text-violet-600 dark:!text-violet-400 !bg-violet-50/80 dark:!bg-violet-950/80 !border-violet-200/60 dark:!border-violet-700/60" : ""}`}
             >
               {isAssistantActive && (
                 <motion.div
                   layoutId="desktopActiveTabPill"
-                  className="absolute inset-0 bg-violet-50/80 rounded-[0.875rem] -z-10"
+                  className="absolute inset-0 bg-violet-50/80 dark:bg-violet-950/80 rounded-[0.875rem] -z-10"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <Bot className={`w-5 h-5 flex-shrink-0 ${isAssistantActive ? "text-violet-600 stroke-[2.5]" : "text-stone-500 stroke-[2.5]"}`} />
+              <Bot className={`w-5 h-5 flex-shrink-0 ${isAssistantActive ? "text-violet-600 dark:text-violet-400 stroke-[2.5]" : "text-stone-500 dark:text-stone-400 stroke-[2.5]"}`} />
               <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">{assistantName}</span>
               {isAssistantActive && (
                 <motion.span
@@ -137,9 +137,9 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
               onClick={() => setShowQuitModal(true)}
               aria-label="Quitter l'application"
               title="Quitter"
-              className="sidebar-nav-item w-full group/quit hover:!bg-red-50/80 hover:!border-red-200/60"
+              className="sidebar-nav-item w-full group/quit hover:!bg-red-50/80 dark:hover:!bg-red-950/80 hover:!border-red-200/60 dark:hover:!border-red-700/60"
             >
-              <Power className="w-5 h-5 flex-shrink-0 text-stone-400 group-hover/quit:text-red-500 stroke-[2.5] transition-colors duration-150" />
+              <Power className="w-5 h-5 flex-shrink-0 text-stone-400 dark:text-stone-500 group-hover/quit:text-red-500 stroke-[2.5] transition-colors duration-150" />
               <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 group-hover/quit:text-red-500">
                 Quitter
               </span>
@@ -153,8 +153,8 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
 
   /* ── Mobile bottom nav ── */
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe bg-gradient-to-t from-stone-100/30 to-transparent pointer-events-none">
-      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-2xl border border-stone-200/60 px-2 py-1.5 shadow-xl shadow-stone-900/5 pointer-events-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe bg-gradient-to-t from-stone-100/30 dark:from-stone-900/50 to-transparent pointer-events-none">
+      <div className="glass-panel mx-auto flex max-w-md justify-around rounded-2xl border border-stone-200/60 dark:border-stone-700/60 px-2 py-1.5 shadow-xl shadow-stone-900/5 dark:shadow-black/30 pointer-events-auto">
         {navItems.filter(item => item.tab !== "pos").map(({ tab, label, icon: Icon }) => {
           const isActive = activeTab === tab;
           return (
@@ -163,14 +163,16 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
               type="button"
               onClick={() => onTabChange(tab)}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${isActive ? "text-indigo-600 font-bold" : "text-stone-400 hover:text-stone-600 active:text-stone-850"
+              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${isActive
+                ? "text-indigo-600 dark:text-indigo-400 font-bold"
+                : "text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300"
                 }`}
               style={{ minHeight: 48 }}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTabPill"
-                  className="absolute inset-0 bg-indigo-50/80 rounded-xl -z-10"
+                  className="absolute inset-0 bg-indigo-50/80 dark:bg-indigo-950/80 rounded-xl -z-10"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
@@ -191,14 +193,16 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
           onClick={() => void assistant.open()}
           aria-label="Ouvrir l'assistant vocal"
           aria-pressed={isAssistantActive}
-          className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${isAssistantActive ? "text-violet-600 font-bold" : "text-stone-400 hover:text-stone-600 active:text-stone-850"
+          className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors duration-250 select-none touch-manipulation [-webkit-tap-highlight-color:transparent] ${isAssistantActive
+            ? "text-violet-600 dark:text-violet-400 font-bold"
+            : "text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300"
             }`}
           style={{ minHeight: 48 }}
         >
           {isAssistantActive && (
             <motion.div
               layoutId="activeTabPill"
-              className="absolute inset-0 bg-violet-50/80 rounded-xl -z-10"
+              className="absolute inset-0 bg-violet-50/80 dark:bg-violet-950/80 rounded-xl -z-10"
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
             />
           )}

@@ -60,7 +60,7 @@ export function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/50 pt-safe transition-all duration-300">
+      <header className="sticky top-0 z-40 glass-panel border-b border-stone-200/50 dark:border-stone-700/50 pt-safe transition-all duration-300">
         <div className={`mx-auto w-full transition-all duration-300 ${isDesktop ? 'px-8 py-1.5 max-w-none' : 'px-4 py-3 max-w-2xl'}`}>
           {/* Identity row */}
           <div className="flex items-center justify-between gap-3">
@@ -72,13 +72,13 @@ export function Header({
             >
               {!isDesktop && (
                 <div className="flex flex-col justify-center min-w-0">
-                  <h1 className="text-base font-black tracking-tight text-stone-900 leading-tight flex items-center gap-1.5">
-                    <Store className="h-4 w-4 text-indigo-600" />
+                  <h1 className="text-base font-black tracking-tight text-stone-900 dark:text-stone-100 leading-tight flex items-center gap-1.5">
+                    <Store className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                     <span>NeuroStock</span>
                   </h1>
-                  <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400">
-                    <span className="flex items-center gap-1 bg-stone-100/60 px-1.5 py-0.5 rounded-md">
-                      <Package className="h-3 w-3 text-stone-400" />
+                  <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400 dark:text-stone-500">
+                    <span className="flex items-center gap-1 bg-stone-100/60 dark:bg-stone-800/60 px-1.5 py-0.5 rounded-md">
+                      <Package className="h-3 w-3 text-stone-400 dark:text-stone-500" />
                       <motion.span key={inventoryLength}>{inventoryLength} articles</motion.span>
                     </span>
                   </div>
@@ -87,10 +87,10 @@ export function Header({
 
               {isDesktop && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="desktop-stat-badge bg-stone-100/80 border-stone-200/60 text-stone-700">
-                    <Package className="h-3.5 w-3.5 text-stone-500" />
+                  <span className="desktop-stat-badge bg-stone-100/80 dark:bg-stone-800/80 border-stone-200/60 dark:border-stone-700/60 text-stone-700 dark:text-stone-300">
+                    <Package className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
                     <span className="tabular">{inventoryLength}</span>
-                    <span className="text-stone-400 font-semibold">articles</span>
+                    <span className="text-stone-400 dark:text-stone-500 font-semibold">articles</span>
                   </span>
 
                   <AnimatePresence>
@@ -101,11 +101,11 @@ export function Header({
                         animate={{ opacity: 1, scale: 1, width: 'auto' }}
                         exit={{ opacity: 0, scale: 0.85, width: 0 }}
                         transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-                        className="desktop-stat-badge bg-indigo-50/80 border-indigo-200/50 text-indigo-700 overflow-hidden whitespace-nowrap"
+                        className="desktop-stat-badge bg-indigo-50/80 dark:bg-indigo-950/80 border-indigo-200/50 dark:border-indigo-700/50 text-indigo-700 dark:text-indigo-300 overflow-hidden whitespace-nowrap"
                       >
-                        <TrendingUp className="h-3.5 w-3.5 text-indigo-500" />
+                        <TrendingUp className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                         <span className="tabular">{totalItems}</span>
-                        <span className="text-indigo-400 font-semibold">unités</span>
+                        <span className="text-indigo-400 dark:text-indigo-500 font-semibold">unités</span>
                       </motion.span>
                     )}
 
@@ -116,28 +116,28 @@ export function Header({
                         animate={{ opacity: 1, scale: 1, width: 'auto' }}
                         exit={{ opacity: 0, scale: 0.85, width: 0 }}
                         transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-                        className="desktop-stat-badge bg-amber-50/80 border-amber-200/50 text-amber-700 overflow-hidden whitespace-nowrap"
+                        className="desktop-stat-badge bg-amber-50/80 dark:bg-amber-950/80 border-amber-200/50 dark:border-amber-700/50 text-amber-700 dark:text-amber-300 overflow-hidden whitespace-nowrap"
                       >
                         <motion.span
                           animate={{ rotate: [0, -8, 8, -8, 0] }}
                           transition={{ duration: 0.5, delay: 0.15 }}
                         >
-                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                         </motion.span>
                         <span className="tabular">{lowStockCount}</span>
-                        <span className="text-amber-500 font-semibold">stock faible</span>
+                        <span className="text-amber-500 dark:text-amber-400 font-semibold">stock faible</span>
                       </motion.span>
                     )}
                   </AnimatePresence>
 
                   <motion.span
                     layout
-                    className={`desktop-stat-badge ${isOnline ? 'bg-emerald-50/80 border-emerald-200/50 text-emerald-700' : 'bg-rose-50/80 border-rose-200/50 text-rose-700'}`}
+                    className={`desktop-stat-badge ${isOnline ? 'bg-emerald-50/80 dark:bg-emerald-950/80 border-emerald-200/50 dark:border-emerald-700/50 text-emerald-700 dark:text-emerald-300' : 'bg-rose-50/80 dark:bg-rose-950/80 border-rose-200/50 dark:border-rose-700/50 text-rose-700 dark:text-rose-300'}`}
                   >
                     <motion.span
                       animate={isOnline ? { scale: 1 } : { scale: [1, 1.3, 1] }}
                       transition={isOnline ? {} : { duration: 1.2, repeat: Infinity }}
-                      className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-rose-500 dark:bg-rose-400'}`}
                     />
                     <span className="font-semibold">{isOnline ? 'En ligne' : 'Hors-ligne'}</span>
                   </motion.span>
@@ -189,7 +189,7 @@ export function Header({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowHelp(true)}
                 aria-label="Guide des fonctionnalités"
-                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
+                className={`touch-target grid place-items-center rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-500 dark:text-stone-400 shadow-xs transition-colors duration-200 hover:bg-indigo-50 dark:hover:bg-indigo-950 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-700 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
                   }`}
               >
                 <HelpCircle className="h-3.5 w-3.5" />
@@ -202,7 +202,7 @@ export function Header({
                   whileTap={{ scale: 0.95 }}
                   onClick={onOpenSettings}
                   aria-label="Paramètres"
-                  className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-xs transition-colors duration-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
+                  className={`touch-target grid place-items-center rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-500 dark:text-stone-400 shadow-xs transition-colors duration-200 hover:bg-indigo-50 dark:hover:bg-indigo-950 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-700 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
                     }`}
                 >
                   <Settings className="h-3.5 w-3.5" />
@@ -313,7 +313,7 @@ export function Header({
                   whileTap={{ scale: 0.95 }}
                   onClick={onExport}
                   aria-label="Exporter l'inventaire en CSV"
-                  className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-xs transition-colors duration-200 hover:bg-stone-50 hover:text-stone-900 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
+                  className={`touch-target grid place-items-center rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 shadow-xs transition-colors duration-200 hover:bg-stone-50 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100 ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
                     }`}
                 >
                   <Download className="h-3.5 w-3.5" />
@@ -326,7 +326,7 @@ export function Header({
                 whileTap={{ scale: 0.95 }}
                 onClick={onLogout}
                 aria-label="Se déconnecter"
-                className={`touch-target grid place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-rose-600 transition-colors duration-200 shadow-xs ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
+                className={`touch-target grid place-items-center rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700 hover:text-rose-600 dark:hover:text-rose-400 transition-colors duration-200 shadow-xs ${isDesktop ? 'h-7 px-2 flex items-center gap-1.5 w-auto' : 'h-10 w-10'
                   }`}
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -348,13 +348,13 @@ export function Header({
                 onClick={canSync ? onSyncNow : undefined}
                 disabled={!canSync}
                 aria-label={`Statut réseau : ${!isOnline ? 'Hors-ligne' : `${pendingCount} en attente`}${canSync ? ', touchez pour synchroniser' : ''}`}
-                className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition overflow-hidden ${!isOnline ? 'text-rose-600 bg-rose-50 border-rose-200' : 'text-amber-600 bg-amber-50 border-amber-200'
+                className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition overflow-hidden ${!isOnline ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-700' : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-700'
                   } ${canSync ? 'tap-active cursor-pointer' : 'cursor-default'}`}
               >
                 {!isOnline ? (
                   <CloudOff className="h-3.5 w-3.5 flex-shrink-0" />
                 ) : (
-                  <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse" />
                 )}
                 <span className="min-w-0 flex-1 truncate">
                   {!isOnline ? 'Hors-ligne' : `${pendingCount} opération${pendingCount > 1 ? 's' : ''} en attente`}

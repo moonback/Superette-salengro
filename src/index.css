@@ -9,11 +9,20 @@
   --color-paper-deep: #f1f0ea;
   --color-ink: #181614;
 
+  /* Dark theme palette */
+  --color-dark-bg: #0f0e0d;
+  --color-dark-bg-elevated: #1a1816;
+  --color-dark-bg-hover: #252321;
+  --color-dark-text: #e8e6e3;
+  --color-dark-text-muted: #a8a29e;
+  --color-dark-border: rgba(255, 255, 255, 0.08);
+
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-500: #6366f1;
   --color-brand-600: #4f46e5;
   --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
 }
 
 /* ══════════════════════════════════════════════════
@@ -24,6 +33,10 @@ html {
   min-height: 100%;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+html.dark {
+  background-color: var(--color-dark-bg);
 }
 
 * {
@@ -42,6 +55,15 @@ body {
   background-attachment: fixed;
 }
 
+body.dark {
+  color: var(--color-dark-text);
+  background-color: var(--color-dark-bg);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 42%),
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 38%),
+    radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.06) 0px, transparent 48%);
+}
+
 /* Subtle paper grain — the signature "instrument" texture */
 body::before {
   content: "";
@@ -51,6 +73,10 @@ body::before {
   pointer-events: none;
   opacity: 0.10;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+body.dark::before {
+  opacity: 0.05;
 }
 
 #root {
@@ -160,10 +186,20 @@ body::before {
     white-space: nowrap;
   }
 
+  .dark .desktop-sidebar {
+    background: rgba(26, 24, 22, 0.95);
+    border-right: 1px solid var(--color-dark-border);
+    box-shadow: 1px 0 0 rgba(255, 255, 255, 0.03), 4px 0 20px -8px rgba(0, 0, 0, 0.3);
+  }
+
   .desktop-sidebar-wrapper:hover .desktop-sidebar {
     width: var(--sidebar-width);
     box-shadow: 20px 0 50px -10px rgba(0,0,0,0.1);
     padding: 1.25rem 0.75rem;
+  }
+
+  .dark .desktop-sidebar-wrapper:hover .desktop-sidebar {
+    box-shadow: 20px 0 50px -10px rgba(0,0,0,0.5);
   }
 
   /* Desktop header full-width */
@@ -212,9 +248,18 @@ body::before {
   overflow: hidden;
 }
 
+.dark .sidebar-nav-item {
+  color: var(--color-dark-text-muted);
+}
+
 .sidebar-nav-item:hover {
   color: #1c1917;
   background: rgba(24, 22, 20, 0.04);
+}
+
+.dark .sidebar-nav-item:hover {
+  color: var(--color-dark-text);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .sidebar-nav-item.active {
@@ -222,6 +267,12 @@ body::before {
   background: rgba(99, 102, 241, 0.08);
   border-color: rgba(99, 102, 241, 0.12);
   font-weight: 700;
+}
+
+.dark .sidebar-nav-item.active {
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.25);
 }
 
 /* Desktop stat badge in header */
@@ -265,6 +316,10 @@ body::before {
   margin: 0.25rem 0;
 }
 
+.dark .sidebar-divider {
+  background: var(--color-dark-border);
+}
+
 /* Premium action button for desktop (text + icon) */
 @media (min-width: 1024px) {
   .desktop-action-btn {
@@ -289,6 +344,14 @@ body::before {
     0 10px 24px -14px rgba(24, 22, 20, 0.1);
 }
 
+.dark .surface-card {
+  background: var(--color-dark-bg-elevated);
+  border: 1px solid var(--color-dark-border);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 10px 24px -14px rgba(0, 0, 0, 0.4);
+}
+
 /* Frosted paper for sticky header / bottom nav */
 .glass-panel {
   background: rgba(250, 249, 246, 0.82);
@@ -296,6 +359,12 @@ body::before {
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   border: 1px solid rgba(24, 22, 20, 0.05);
   box-shadow: 0 1px 2px rgba(24, 22, 20, 0.03);
+}
+
+.dark .glass-panel {
+  background: rgba(26, 24, 22, 0.85);
+  border: 1px solid var(--color-dark-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Translucent white card */
@@ -309,6 +378,14 @@ body::before {
     0 14px 32px -20px rgba(24, 22, 20, 0.10);
 }
 
+.dark .glass-card {
+  background: rgba(26, 24, 22, 0.90);
+  border: 1px solid var(--color-dark-border);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 14px 32px -20px rgba(0, 0, 0, 0.5);
+}
+
 /* ══════════════════════════════════════════════════
    INPUTS
    ══════════════════════════════════════════════════ */
@@ -319,14 +396,30 @@ body::before {
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.dark .glass-input {
+  background: var(--color-dark-bg-elevated);
+  border: 1.5px solid var(--color-dark-border);
+  color: var(--color-dark-text);
+}
+
 .glass-input:focus {
   background: #ffffff;
   border-color: rgba(79, 70, 229, 0.55);
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.10);
 }
 
+.dark .glass-input:focus {
+  background: var(--color-dark-bg-hover);
+  border-color: rgba(99, 102, 241, 0.7);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
 .glass-input::placeholder {
   color: rgba(28, 25, 23, 0.30);
+}
+
+.dark .glass-input::placeholder {
+  color: var(--color-dark-text-muted);
 }
 
 /* ══════════════════════════════════════════════════
@@ -528,6 +621,15 @@ body::before {
   border-radius: 0.5rem;
 }
 
+.dark .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  );
+}
+
 .shimmer-overlay {
   position: relative;
   overflow: hidden;
@@ -546,6 +648,15 @@ body::before {
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
   pointer-events: none;
+}
+
+.dark .shimmer-overlay::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
 }
 
 /* ══════════════════════════════════════════════════
