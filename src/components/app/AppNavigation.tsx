@@ -1,5 +1,5 @@
 import type React from "react";
-import { Bot, Package, Scan, Store, Tags, ShoppingCart, Power, BarChart3, Settings } from "lucide-react";
+import { Bot, Package, Scan, Tags, ShoppingCart, Power, BarChart3 } from "lucide-react";
 import { useGeminiAssistant } from "../../hooks/useGeminiAssistant";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -56,8 +56,12 @@ export function AppNavigation({ activeTab, onTabChange, assistantName }: AppNavi
         <aside className="desktop-sidebar group">
           {/* Logo */}
           <div className="flex items-center gap-2.5 px-3 pb-4 pt-1">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/25 flex-shrink-0">
-              <Store className="h-4 w-4 text-white" />
+            <div className="h-8 w-8 flex items-center justify-center flex-shrink-0">
+              <img
+                src="/logo-transparent.png"
+                alt="NeuroStock"
+                className="h-15 w-15 object-contain"
+              />
             </div>
             <div className="min-w-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <p className="text-[13px] font-black text-stone-900 leading-none tracking-tight">NeuroStock</p>

@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Store, Loader2, Mail, Lock, ArrowRight, AlertTriangle, Power } from "lucide-react";
+import { Loader2, Mail, Lock, ArrowRight, AlertTriangle, Power } from "lucide-react";
 import { quitApp } from "../lib/electronUtils";
 import { motion, AnimatePresence } from "motion/react";
 import { signIn, signUp, UserSession } from "../lib/supabaseAuth";
@@ -99,12 +99,16 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         {/* App Logo & Header */}
         <div className="text-center space-y-4">
           <motion.div
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1, rotate: 0 }}
+            initial={{ opacity: 0, scale: 0.85, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.15 }}
-            className="inline-grid h-16 w-16 place-items-center rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/20 mx-auto"
+            className="flex justify-center"
           >
-            <Store className="h-8 w-8" />
+            <img
+              src="/logo-full-transaparent.png"
+              alt="NeuroStock"
+              className="h-24 w-auto object-contain drop-shadow-sm"
+            />
           </motion.div>
 
           <motion.div
@@ -112,7 +116,6 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <h1 className="text-3xl font-black tracking-tight text-stone-900">NeuroStock</h1>
             <p className="mt-1.5 text-xs text-stone-400 font-semibold leading-relaxed">
               Connectez-vous pour accéder à votre inventaire
             </p>

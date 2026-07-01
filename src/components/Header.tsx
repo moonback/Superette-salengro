@@ -1,4 +1,4 @@
-import { Store, Download, LogOut, CloudOff, CloudUpload, RefreshCw, Brain, Pause, Play, X, Package, HelpCircle, TrendingUp, AlertTriangle, User, Settings } from 'lucide-react';
+import { Download, LogOut, CloudOff, CloudUpload, RefreshCw, Brain, Pause, Play, X, Package, HelpCircle, TrendingUp, AlertTriangle, Settings } from 'lucide-react';
 import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -73,7 +73,7 @@ export function Header({
               {!isDesktop && (
                 <div className="flex flex-col justify-center min-w-0">
                   <h1 className="text-base font-black tracking-tight text-stone-900 leading-tight flex items-center gap-1.5">
-                    <Store className="h-4 w-4 text-indigo-600" />
+                    <img src="/logo-transparent.png" alt="NeuroStock" className="h-15 w-15 object-contain" />
                     <span>NeuroStock</span>
                   </h1>
                   <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400">

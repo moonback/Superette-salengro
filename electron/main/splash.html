@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroStock</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: #0f0f1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    /* Fond dégradé animé */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 25% 35%, rgba(99, 102, 241, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 65%, rgba(139, 92, 246, 0.14) 0%, transparent 55%);
+      animation: pulseBackground 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseBackground {
+      from { opacity: 0.5; }
+      to   { opacity: 1; }
+    }
+
+    /* Grille de points */
+    body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      animation: fadeInUp 0.55s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Wrapper logo avec halo */
+    .logo-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Halo lumineux derrière le logo */
+    .logo-halo {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, transparent 70%);
+      animation: haloPulse 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes haloPulse {
+      from { transform: scale(0.9); opacity: 0.6; }
+      to   { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* Anneau tournant */
+    .logo-ring {
+      position: absolute;
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      background:
+        linear-gradient(#0f0f1a, #0f0f1a) padding-box,
+        linear-gradient(135deg, #6366f1, #8b5cf6, transparent, #06b6d4) border-box;
+      animation: rotateSlow 5s linear infinite;
+    }
+
+    @keyframes rotateSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* Logo image */
+    .logo-img {
+      position: relative;
+      z-index: 2;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      /* Légère lueur sur l'image */
+      filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.55))
+              drop-shadow(0 0 32px rgba(139, 92, 246, 0.25));
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-4px); }
+    }
+
+    /* Tagline */
+    .app-tagline {
+      font-size: 0.78rem;
+      color: rgba(148, 163, 184, 0.6);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* Barre de progression */
+    .progress-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 200px;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 2.5px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+      animation: loadProgress 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      box-shadow: 0 0 6px rgba(99, 102, 241, 0.9);
+    }
+
+    @keyframes loadProgress {
+      0%   { width: 0%; }
+      25%  { width: 30%; }
+      55%  { width: 62%; }
+      80%  { width: 85%; }
+      100% { width: 100%; }
+    }
+
+    .progress-label {
+      font-size: 0.7rem;
+      color: rgba(148, 163, 184, 0.45);
+      letter-spacing: 0.06em;
+    }
+
+    /* Version */
+    .version {
+      position: absolute;
+      bottom: 18px;
+      font-size: 0.68rem;
+      color: rgba(148, 163, 184, 0.25);
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-wrapper">
+      <div class="logo-halo"></div>
+      <div class="logo-ring"></div>
+      <img
+        class="logo-img"
+        src="/logo-full-transaparent.png"
+        alt="NeuroStock"
+        onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
+      />
+      <!-- Fallback SVG si l'image ne charge pas -->
+      <div id="logo-fallback" style="display:none; position:relative; z-index:2; width:96px; height:96px; border-radius:22px; background:linear-gradient(135deg,#6366f1,#8b5cf6,#06b6d4); align-items:center; justify-content:center; box-shadow:0 0 30px rgba(99,102,241,0.5);">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+    </div>
+
+    <p class="app-tagline">Gestion de stock intelligente</p>
+
+    <div class="progress-section">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill"></div>
+      </div>
+      <div class="progress-label" id="status">Initialisation...</div>
+    </div>
+  </div>
+
+  <div class="version">v1.0.0</div>
+
+  <script>
+    const messages = [
+      'Initialisation...',
+      'Chargement des modules...',
+      'Connexion à la base de données...',
+      'Préparation de l\'interface...',
+      'Presque prêt...',
+    ];
+    const el = document.getElementById('status');
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      if (i < messages.length) {
+        el.textContent = messages[i];
+      } else {
+        clearInterval(interval);
+      }
+    }, 480);
+  </script>
+</body>
+</html>
