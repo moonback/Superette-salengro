@@ -12,7 +12,8 @@ Application **mobile-first** de gestion d'inventaire pour points de vente.
 Pensée pour le scan code-barres, la synchronisation temps réel et le pilotage vocal via un assistant IA intégré.
 
 ---
-
+<div align="center">
+<img src="public/header.png" alt="NeuroStock" />
 
 
 ## 🚀 Pourquoi NeuroStock ?
