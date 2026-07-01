@@ -4,7 +4,7 @@ import { CameraBarcodeScanner } from "../CameraBarcodeScanner";
 import { ManualInput } from "../ManualInput";
 import { ScannerInputMode, ScannerInputModeToggle } from "../ScannerInputModeToggle";
 import { AnimatedQuantity } from "../AnimatedQuantity";
-import { InventoryItem } from "../../types";
+import { InventoryItem, StockMovement } from "../../types";
 import { motion, AnimatePresence } from "motion/react";
 
 type ScanTabProps = {
@@ -20,7 +20,7 @@ type ScanTabProps = {
   onScan: (barcode: string) => void;
   onEditProduct: (item: InventoryItem) => void;
   onEditQuantity: (item: InventoryItem) => void;
-  onUpdateQuantity: (barcode: string, delta: number) => void;
+  onUpdateQuantity: (barcode: string, delta: number, source?: StockMovement['source']) => void;
 };
 
 export function ScanTab({
@@ -144,7 +144,7 @@ type RecentScanGridItemProps = {
   item: InventoryItem;
   onEditProduct: (item: InventoryItem) => void;
   onEditQuantity: (item: InventoryItem) => void;
-  onUpdateQuantity: (barcode: string, delta: number) => void;
+  onUpdateQuantity: (barcode: string, delta: number, source?: StockMovement['source']) => void;
 };
 
 const RecentScanGridItem: React.FC<RecentScanGridItemProps> = ({ item, onEditProduct, onEditQuantity, onUpdateQuantity }) => {
@@ -188,7 +188,7 @@ const RecentScanGridItem: React.FC<RecentScanGridItemProps> = ({ item, onEditPro
       <div className="border-t border-stone-100 p-2" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => onUpdateQuantity(item.barcode, -1)}
+            onClick={() => onUpdateQuantity(item.barcode, -1, "scan")}
             className="touch-target grid h-9 w-9 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 active:scale-90 hover:border-stone-300 hover:text-stone-900 transition cursor-pointer"
             aria-label="Diminuer"
           >
@@ -204,7 +204,7 @@ const RecentScanGridItem: React.FC<RecentScanGridItemProps> = ({ item, onEditPro
           </button>
 
           <button
-            onClick={() => onUpdateQuantity(item.barcode, 1)}
+            onClick={() => onUpdateQuantity(item.barcode, 1, "scan")}
             className="touch-target grid h-9 w-9 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 active:scale-90 hover:border-stone-300 hover:text-stone-900 transition cursor-pointer"
             aria-label="Augmenter"
           >

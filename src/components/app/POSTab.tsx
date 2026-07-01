@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { InventoryItem } from "../../types";
+import { InventoryItem, StockMovement } from "../../types";
 import { Search, Plus, Minus, History, Trash2, ArrowDownToLine, ArrowUpFromLine, Package, X, Undo2, ScanLine, AlertTriangle, Calculator, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { triggerHaptic } from "../../lib/haptics";
@@ -16,7 +16,7 @@ type HistoryItem = {
 
 type POSTabProps = {
   inventory: InventoryItem[];
-  onUpdateQuantity: (barcode: string, delta: number) => void;
+  onUpdateQuantity: (barcode: string, delta: number, source?: StockMovement['source']) => void;
 };
 
 export function POSTab({ inventory, onUpdateQuantity }: POSTabProps) {
@@ -108,7 +108,7 @@ export function POSTab({ inventory, onUpdateQuantity }: POSTabProps) {
     }
 
     triggerHaptic("success");
-    onUpdateQuantity(product.barcode, delta);
+    onUpdateQuantity(product.barcode, delta, "pos");
 
     setHistory((prev) => {
       // Find an existing active (non-reverted) entry for this product

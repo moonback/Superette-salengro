@@ -1,4 +1,4 @@
-import { InventoryItem } from '../types';
+import { InventoryItem, StockMovement } from '../types';
 import {
   cacheInventoryItem,
   cacheInventoryItems,
@@ -16,6 +16,7 @@ import {
   isSupabaseConfigured,
   upsertInventoryItem,
 } from './supabaseInventory';
+import { insertStockMovement } from './supabaseMovements';
 
 export type InventoryLoadSource = 'remote' | 'cache';
 
@@ -100,7 +101,10 @@ export async function fetchInventoryItemWithFallback(
   return getCachedInventoryItem(barcode);
 }
 
-export async function syncInventoryItem(item: InventoryItem): Promise<{
+export async function syncInventoryItem(
+  item: InventoryItem,
+  source: StockMovement['source'] = 'manual',
+): Promise<{
   item: InventoryItem;
   queued: boolean;
 }> {
@@ -108,6 +112,18 @@ export async function syncInventoryItem(item: InventoryItem): Promise<{
 
   if (!isSupabaseConfigured) {
     return { item, queued: false };
+  }
+
+  // Log the movement if there's an actual stock delta
+  if (typeof item.lastMovement === 'number' && item.lastMovement !== 0) {
+    const movement: StockMovement = {
+      barcode: item.barcode,
+      delta: item.lastMovement,
+      quantity_after: item.quantity,
+      source,
+      created_at: item.lastUpdated,
+    };
+    void insertStockMovement(movement);
   }
 
   if (!isBrowserOnline()) {

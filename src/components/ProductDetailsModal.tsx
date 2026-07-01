@@ -1,7 +1,8 @@
-import { X, Package, Pencil, ClipboardList, Barcode, Tag, Euro, Clock, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
-import { InventoryItem } from "../types";
+import { X, Package, Pencil, ClipboardList, Barcode, Tag, Euro, Clock, TrendingUp, ArrowUp, ArrowDown, ArrowUpFromLine, ArrowDownToLine, Loader2 } from "lucide-react";
+import { InventoryItem, StockMovement } from "../types";
 import { motion, AnimatePresence } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { fetchMovementsForBarcode } from "../lib/supabaseMovements";
 
 interface ProductDetailsModalProps {
   product: InventoryItem;
@@ -57,6 +58,94 @@ function getStockStyle(quantity: number) {
     movBg: "border-emerald-200 bg-emerald-50",
     movColor: "text-emerald-600",
   };
+}
+
+const SOURCE_LABELS: Record<NonNullable<StockMovement['source']>, string> = {
+  pos: "Caisse",
+  scan: "Scanner",
+  manual: "Manuel",
+  assistant: "Assistant IA",
+  import: "Import",
+};
+
+function MovementHistory({ barcode }: { barcode: string }) {
+  const [movements, setMovements] = useState<StockMovement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetchMovementsForBarcode(barcode, 20).then((data) => {
+      if (!cancelled) {
+        setMovements(data);
+        setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [barcode]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-6 gap-2 text-stone-400">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span className="text-[11px] font-semibold">Chargement...</span>
+      </div>
+    );
+  }
+
+  if (movements.length === 0) {
+    return (
+      <div className="px-4 py-5 text-center">
+        <p className="text-[11px] font-semibold text-stone-400">Aucun mouvement enregistré</p>
+        <p className="text-[10px] text-stone-300 mt-0.5">Les mouvements futurs apparaîtront ici.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-stone-100 max-h-52 overflow-y-auto">
+      {movements.map((m, idx) => {
+        const isIn = m.delta > 0;
+        return (
+          <div key={m.id ?? idx} className="flex items-center gap-3 px-4 py-2.5">
+            {/* Icon */}
+            <div className={`h-7 w-7 rounded-lg flex-shrink-0 flex items-center justify-center ${isIn ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
+              {isIn
+                ? <ArrowDownToLine className="h-3.5 w-3.5" />
+                : <ArrowUpFromLine className="h-3.5 w-3.5" />}
+            </div>
+
+            {/* Delta */}
+            <span className={`text-sm font-black tabular-nums w-10 flex-shrink-0 ${isIn ? "text-emerald-600" : "text-rose-600"}`}>
+              {isIn ? "+" : ""}{m.delta}
+            </span>
+
+            {/* Stock after */}
+            <span className="text-[10px] font-bold text-stone-400 flex-1">
+              → {m.quantity_after} u.
+            </span>
+
+            {/* Source badge */}
+            {m.source && (
+              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-500 flex-shrink-0">
+                {SOURCE_LABELS[m.source] ?? m.source}
+              </span>
+            )}
+
+            {/* Date */}
+            <span className="text-[10px] font-semibold text-stone-400 flex-shrink-0 tabular-nums">
+              {new Intl.DateTimeFormat("fr-FR", {
+                day: "2-digit",
+                month: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              }).format(new Date(m.created_at))}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: ProductDetailsModalProps) {
@@ -256,35 +345,20 @@ export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: P
                 </div>
               </div>
 
-              {/* Historique */}
+              {/* Historique des mouvements */}
               <div className="rounded-2xl border border-stone-200/80 bg-white overflow-hidden shadow-xs">
                 <div className="flex items-center gap-2 px-4 py-2.5 border-b border-stone-100 bg-stone-50/70">
                   <Clock className="h-3.5 w-3.5 text-stone-400" />
-                  <h3 className="text-[10px] font-black uppercase tracking-wider text-stone-500">Historique</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-stone-500">Historique des mouvements</h3>
                 </div>
-                <div className="divide-y divide-stone-100">
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-3.5 w-3.5 text-stone-400" />
-                      <p className="text-[10px] font-bold text-stone-500">Variation récente</p>
-                    </div>
-                    <p className={`text-xs font-bold ${
-                      typeof product.lastMovement === "number"
-                        ? product.lastMovement > 0 ? "text-emerald-600" : product.lastMovement < 0 ? "text-rose-600" : "text-stone-500"
-                        : "text-stone-400"
-                    }`}>
-                      {typeof product.lastMovement === "number"
-                        ? `${product.lastMovement > 0 ? "+" : ""}${product.lastMovement}`
-                        : "—"}
-                    </p>
+                <MovementHistory barcode={product.barcode} />
+                {/* Dernière mise à jour */}
+                <div className="flex items-center justify-between px-4 py-2.5 border-t border-stone-100 bg-stone-50/40">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3 text-stone-300" />
+                    <p className="text-[9px] font-bold text-stone-400 uppercase tracking-wider">Dernière mise à jour</p>
                   </div>
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-3.5 w-3.5 text-stone-400" />
-                      <p className="text-[10px] font-bold text-stone-500">Dernière mise à jour</p>
-                    </div>
-                    <p className="text-xs font-semibold text-stone-700">{formatDate(product.lastUpdated)}</p>
-                  </div>
+                  <p className="text-[10px] font-semibold text-stone-500">{formatDate(product.lastUpdated)}</p>
                 </div>
               </div>
             </div>

@@ -7,124 +7,147 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1-38bdf8)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ecf8e)](https://supabase.com/)
 [![Gemini](https://img.shields.io/badge/Gemini-Live%20API-yellow)](https://ai.google.dev/)
-[![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://web.dev/progressive-web-apps/)
-[![Multi-Actions](https://img.shields.io/badge/🆕%20Multi--Actions-v1.0.0-brightgreen)](./MULTI_ACTIONS_VOCALES.md)
+[![Electron](https://img.shields.io/badge/Electron-Desktop-47848f)](https://www.electronjs.org/)
 
-Application **mobile-first** de gestion d'inventaire pour points de vente.  
+Application **mobile-first & desktop** de gestion d'inventaire pour points de vente.  
 Pensée pour le scan code-barres, la synchronisation temps réel et le pilotage vocal via un assistant IA intégré.
 
 ---
 
-## 🎉 Nouveautés - Juillet 2026
+## 🎉 Nouveautés — Juillet 2026
 
-### 🚀 Fonctionnalités Multi-Actions Vocales (v1.0.0)
+### � Historique des mouvements de stock
 
-**Gagnez 70% de temps** sur vos tâches répétitives ! Lina peut maintenant :
+Chaque produit dispose maintenant d'un **journal complet de ses mouvements** :
 
-- 💰 **Modifier plusieurs prix en une commande** — "Mets le Coca à 1.80, le Fanta à 1.60 et le Sprite à 1.70"
-- 📦 **Faire l'inventaire d'une catégorie** — "Fais l'inventaire des boissons" → rapport complet en 3 secondes
-- 🚨 **Lister les ruptures de stock** — "Qu'est-ce qui manque dans les snacks ?"
-- ⚠️ **Détecter les stocks faibles** — "Quels produits descendent sous 10 ?"
-- 🔄 **Combiner plusieurs actions** — "Fais l'inventaire des boissons et dis-moi ce qui manque"
+- Accès depuis la fiche produit → section **"Historique des mouvements"**
+- Affiche les 20 derniers mouvements : delta coloré (+/-), stock résultant, source et horodatage
+- **Traçabilité par source** : Caisse (POS), Scanner, Manuel, Assistant IA, Import
+- Logging automatique à chaque opération (scan, POS, assistant, ajustement manuel)
+- Stocké dans Supabase (`stock_movements`) — requiert l'exécution de [`stock-mouvement.sql`](stock-mouvement.sql)
 
-**[➡️ Guide de démarrage en 5 minutes](./GUIDE_DEMARRAGE_RAPIDE.md)** | **[📖 Documentation complète](./MULTI_ACTIONS_VOCALES.md)**
+### 🧾 Journal POS fusionné
+
+Dans l'onglet **Caisse / Opérations** :
+
+- Les opérations répétées sur le **même produit se regroupent** en une seule ligne (delta cumulé)
+- La ligne est remontée en tête du journal à chaque nouvelle opération
+- Annuler une ligne et rescanner recrée une entrée propre
+
+### 🔧 Correction boucle infinie
+
+Correction d'une boucle de rendu (`Maximum update depth`) déclenchée lors de la mise à jour des modals produit après un sync Realtime.
 
 ---
 
 ## 🚀 Pourquoi NeuroStock ?
 
-- ⚡ **Scan en 1 geste** — compatibilité douchettes USB/Bluetooth + caméra.
-- 🎙️ **Assistant vocal "Lina"** — reconnaissance vocale et réponse audio temps réel avec Gemini Live.
-- 🧠 **Recherche sémantique** — vectorisation des produits via embeddings OpenRouter.
-- 📴 **Mode hors-ligne robuste** — stockage local + file d'attente de synchronisation.
-- 📊 **Vue action** — filtres dynamiques, alertes stock bas, tri intelligent.
-- 🧾 **Exports** — CSV et PDF prêts pour la comptabilité.
+- ⚡ **Scan en 1 geste** — compatibilité douchettes USB/Bluetooth + caméra
+- 🎙️ **Assistant vocal "Lina"** — reconnaissance vocale et réponse audio temps réel avec Gemini Live
+- 🧠 **Recherche sémantique** — vectorisation des produits via embeddings OpenRouter
+- 📴 **Mode hors-ligne robuste** — stockage local + file d'attente de synchronisation
+- 📊 **Dashboard analytics** — filtres dynamiques, alertes stock bas, tri intelligent
+- 📋 **Historique des mouvements** — traçabilité complète par produit
+- 🧾 **Exports** — CSV et PDF prêts pour la comptabilité
 
 ---
-
-
 
 ## ✨ Fonctionnalités
 
-### 📱 Interface mobile-first
-- Design sombre tactile avec tap targets optimisés, retours haptiques et glassmorphism.
-- 4 onglets principaux : **Scanner**, **Auto** (scan automatique), **Stock**, **Catégories**.
-- Navigation basse fixe + stats instantanées (# produits, total unités, alertes).
+### 📱 Interface mobile-first & desktop
+- Design tactile avec tap targets optimisés, retours haptiques et glassmorphism
+- Navigation basse fixe (mobile) + sidebar rétractable (desktop ≥ 1024px)
+- 5 onglets : **Scanner**, **Stock**, **Catégories**, **Caisse**, **Analyse**
 
 ### 🔍 Scans intelligents
-- **Scans matériels** : capture globale du clavier (douchette USB/BT) sans focus requis.
-- **Scan caméra** : défilement continu sans confirmation manuelle.
-- **Routage après scan** : un produit existant ouvre directement le modal d'ajustement / édition.
-- **Mode Auto** : chaque scan ajoute (+1) ou retire (−1) automatiquement jusqu'à 0.
+- **Scans matériels** : capture globale du clavier (douchette USB/BT) sans focus requis
+- **Scan caméra** : défilement continu sans confirmation manuelle
+- **Routage après scan** : un produit existant ouvre directement le modal d'ajustement
+- Affichage des derniers scans en grille avec contrôles ±1 directs
 
 ### 📦 Gestion d'inventaire avancée
-- Création manuelle, modale quantité, détails produit.
-- Prix d'achat et de vente par référence.
-- Auto-catégorisation via OpenFoodFacts + règles locales.
-- Vues compact / détaillé, filtres par catégorie, stock bas/rupture, tri (nom, récent, quantité).
-- Suppression et modification inline avec confirmation.
+- Création manuelle, modal quantité, fiche produit détaillée
+- Prix d'achat et de vente par référence, calcul de marge automatique
+- Auto-catégorisation via OpenFoodFacts + règles locales
+- Filtres par catégorie, état du stock (rupture / faible / en stock), tri multi-critères
+- Pagination adaptative (20 articles mobile / 36 desktop)
+
+### 🧾 Caisse / Opérations (POS)
+- Mode **Retrait** (vente) / **Ajout** (livraison) avec raccourcis clavier `+` / `-`
+- Multiplicateur de quantité (ex : `12*` avant scan = ×12)
+- **Journal de session fusionné** : une ligne par produit, delta cumulé, remontée automatique
+- Bilan financier temps réel : CA ventes + valeur achats
+- Annulation individuelle (Undo) et clôture de session
+
+### 📋 Historique des mouvements par produit
+- **20 derniers mouvements** dans la fiche produit (section "Historique des mouvements")
+- Chaque ligne : icône entrée/sortie, delta coloré, stock résultant, badge source, date/heure
+- Sources tracées : `pos` · `scan` · `manual` · `assistant` · `import`
+- Chargement asynchrone non-bloquant avec état de chargement
+- Fallback propre si la table n'existe pas encore
 
 ### 🎙️ Assistant vocal Gemini "Lina"
-- Audio temps réel (PCM 16 kHz, duplex) via `Gemini Live`.
-- Bouton flottant + drawer avec contrôles : ouvrir / réduire / couper le micro / arrêter.
-- **Tools IA classiques** : recherche produit, MAJ stock, crée/renomme/supprime catégorie, export CSV.
-- **🆕 Fonctionnalités Multi-Actions** :
-  - 💰 **Modification multiple de prix** — mettez à jour plusieurs prix en une seule commande
-  - 📦 **Inventaire par catégorie** — obtenez un rapport complet d'une catégorie
-  - 🚨 **Liste des ruptures** — identifiez rapidement les produits en rupture de stock
-  - ⚠️ **Liste stock faible** — anticipez les ruptures avec des alertes personnalisables
-  - 🔄 **Actions multi-étapes** — combinez plusieurs actions dans une seule phrase
-- Confirmation explicite pour les actions sensibles (suppression, modifications critiques).
-- **Gain de temps : 70% de réduction** pour les tâches répétitives d'inventaire.
+- Audio temps réel (PCM 16 kHz, duplex) via Gemini Live
+- Bouton flottant + drawer avec contrôles : ouvrir / réduire / couper micro / arrêter
+- **18 tools disponibles** : recherche produit, MAJ stock, CRUD catégories, export CSV, recherche sémantique, dashboard, liste ruptures/stock faible, modification de prix en batch, inventaire par catégorie…
+- Confirmation explicite pour les actions sensibles
+- Annonce vocale automatique lors des scans
 
 ### 🧠 Recherche sémantique
-- Génération d'**embeddings** stockés localement (IndexedDB) pour chaque produit.
-- Recherche par similarité : préfixe, inclusion, correspondance exacte.
-- Fallback automatique sans clé OpenRouter (hash local + couple code-barres/brand).
+- Génération d'embeddings stockés en IndexedDB pour chaque produit
+- Recherche par similarité vectorielle via OpenRouter
+- Fallback automatique sans clé API (hash local)
 
 ### ☁️ Synchronisation & résilience
-- **Supabase** : appels REST sécurisés via client dédié.
-- **RLS** : politiques par table (`inventory_items`, `categories`, `storage`).
-- **Offline-first** : `IndexedDB` + file d'opérations différées.
-- **Realtime** : souscription live pour conflits `lastUpdated` (last-write-wins).
-
-### 📁 Gestion des catégories
-- CRUD complet, émojis, tri alphabétique.
-- Suggestions automatiques depuis la base OpenFoodFacts.
-- Filtrage modal avec scroll horizontal.
+- **Supabase** : appels REST sécurisés, RLS activé sur toutes les tables
+- **Offline-first** : IndexedDB + file d'opérations différées avec flush automatique au retour en ligne
+- **Realtime** : souscription live, résolution de conflits `lastUpdated` (last-write-wins)
 
 ---
-
-
 
 ## 🛠️ Stack technique
 
 | Couche | Outils |
 |---|---|
 | Frontend | React 19, TypeScript 5.8, Vite 6 |
-| UI | Tailwind CSS v4, Lucide React, Motion |
+| UI | Tailwind CSS v4, Lucide React, Motion (Framer) |
+| Desktop | Electron |
 | Backend | Supabase (PostgreSQL + Storage + Realtime) |
 | IA | Google Gemini Live (assistant vocal), OpenRouter (embeddings) |
 | Données externes | OpenFoodFacts API v2 |
 | Hors-ligne | IndexedDB, localStorage |
 | Build | Vite, esbuild |
-| Distribution | PWA (manifest.json) |
+| Distribution | PWA (manifest.json) + Electron installer |
 
 ---
 
-
-
-## ⚙️ Installation & configuration minimale
+## ⚙️ Installation & configuration
 
 ### 1. Base de données Supabase
 
-Exécutez [`supabase-schema.sql`](supabase-schema.sql) dans l'éditeur SQL Supabase :
+Exécutez dans l'éditeur SQL Supabase dans cet ordre :
+
+```bash
+# 1. Schéma principal (inventory_items, categories, bucket product-photos)
+supabase-schema.sql
+
+# 2. Table des mouvements de stock
+stock-mouvement.sql
+```
+
+Le fichier `stock-mouvement.sql` crée la table `stock_movements` et configure le RLS :
 
 ```sql
--- Tables : inventory_items, categories
--- Bucket : product-photos (public)
--- RLS + politiques publiques
--- Données initiales de catégories
+create table stock_movements (
+  id             uuid primary key default gen_random_uuid(),
+  barcode        text not null,
+  delta          integer not null,
+  quantity_after integer not null,
+  source         text,           -- 'pos' | 'scan' | 'manual' | 'assistant' | 'import'
+  note           text,
+  created_at     bigint not null  -- timestamp ms
+);
+-- Index + politique RLS pour les utilisateurs authentifiés
 ```
 
 ### 2. Variables d'environnement
@@ -132,7 +155,7 @@ Exécutez [`supabase-schema.sql`](supabase-schema.sql) dans l'éditeur SQL Supab
 Créez `.env` à la racine :
 
 ```env
-# Supabase (obligatoires pour la synchro cloud)
+# Supabase (obligatoires)
 VITE_SUPABASE_URL=https://votre-projet.supabase.co
 VITE_SUPABASE_ANON_KEY=votre-cle-api-anonyme
 
@@ -146,200 +169,123 @@ VITE_OPENROUTER_EMBED_MODEL=openai/text-embedding-3-large
 VITE_OPENROUTER_EMBED_DIMENSIONS=3072
 ```
 
-Notes :
-- `VITE_GEMINI_API_KEY` active l'assistant vocal et les tools métiers.
-- Sans `VITE_OPENROUTER_API_KEY`, la recherche sémantique utilise un fallback local.
-- Le navigateur demande l'accès au microphone au premier lancement de l'assistant.
-
 ### 3. Lancer en développement
 
 ```bash
 npm install
-npm run dev
+npm run dev        # Vite — http://localhost:3000
+npm run electron   # Mode desktop Electron (si configuré)
 ```
 
-Accès local : `http://localhost:3000`
-
 ---
-
-
 
 ## 📦 Scripts utiles
 
 | Commande | Description |
 |---|---|
-| `npm run dev` | Serveur de développement Vite sur le port 3000 |
-| `npm run build` | Build optimisé pour la production |
-| `npm run preview` | Prévisualiser le build localement |
-| `tsc --noEmit` | Vérification TypeScript sans compilation |
+| `npm run dev` | Serveur de développement Vite |
+| `npm run build` | Build optimisé production |
+| `npm run preview` | Prévisualiser le build |
+| `tsc --noEmit` | Vérification TypeScript |
 
 ---
-
-
 
 ## 🧠 Guide rapide — Assistant vocal "Lina"
 
-### Démarrage rapide
-1. Taper sur l'onglet **Lina** dans la navigation basse.
-2. Autoriser le microphone.
-3. Parler naturellement en français.
-4. Confirmer les actions sensibles quand l'interface le demande.
-
-### Commandes classiques
 ```
-"Mets le stock du code-barres 1234567890123 à 8."
-"Crée une catégorie boissons."
-"Renomme la catégorie épicerie en épicerie salée."
-"Exporte l'inventaire en CSV."
-"Trouve tous les produits avec moins de 2 unités."
-```
+# Stock
+"Mets le stock du Coca à 24"
+"Retire 3 bouteilles de Fanta"
+"Ajoute 50 unités de sucre"
 
-### 🆕 Commandes Multi-Actions
-
-#### Modification de prix groupée 💰
-```
+# Prix (batch)
 "Mets le Coca à 1.80, le Fanta à 1.60 et le Sprite à 1.70"
-"Change les prix : Coca 1.80, Fanta 1.60, Sprite 1.70"
-```
 
-#### Inventaire par catégorie 📦
-```
+# Inventaire
 "Fais l'inventaire des boissons"
-"Montre-moi tous les snacks"
-"Liste les produits de la catégorie fruits et légumes"
-```
-
-#### Gestion des ruptures et alertes 🚨
-```
 "Quels produits sont en rupture ?"
-"Qu'est-ce qui manque dans les boissons ?"
-"Quels produits ont un stock faible ?"
-"Liste les snacks qui descendent sous 10"
-```
+"Liste les snacks avec moins de 5 unités"
 
-#### Actions multi-étapes 🔄
+# Navigation
+"Va sur le dashboard"
+"Ouvre la fiche du Coca"
 ```
-"Fais l'inventaire des boissons et dis-moi ce qui manque"
-"Montre-moi les ruptures et les produits en stock faible"
-"Cherche le Coca puis mets son prix à 1.80"
-```
-
-### 📚 Documentation complète
-- **[Guide de démarrage rapide](./GUIDE_DEMARRAGE_RAPIDE.md)** - Commencer en 5 minutes
-- **[Documentation Multi-Actions](./MULTI_ACTIONS_VOCALES.md)** - Guide complet des fonctionnalités
-- **[Guide de test](./TEST_MULTI_ACTIONS.md)** - Tests et validation
-- **[Changelog](./CHANGELOG_MULTI_ACTIONS.md)** - Historique des versions
 
 ---
-
-
 
 ## 📁 Structure du projet
 
 ```
 src/
-├── App.tsx                     # Root state, orchestration, sync offline + realtime
+├── App.tsx                        # Root state, orchestration, sync
+├── types.ts                       # InventoryItem, StockMovement, CategoryItem…
 ├── components/
-│   ├── AuthScreen.tsx          # Connexion / déconnexion
-│   ├── Header.tsx              # Brand, stats, sync, export, logout
-│   ├── InventoryGrid.tsx       # Vue compact / détail
 │   ├── app/
-│   │   ├── AppNavigation.tsx   # Nav basse 4 onglets + assistant
-│   │   ├── ScanTab.tsx         # Scan caméra + handleScan
-│   │   ├── StockTab.tsx        # Liste stock + filtres + tri
+│   │   ├── AppNavigation.tsx      # Nav mobile + sidebar desktop
+│   │   ├── ScanTab.tsx            # Scan caméra + derniers scans
+│   │   ├── StockTab.tsx           # Inventaire + filtres + pagination
+│   │   ├── POSTab.tsx             # Caisse, journal fusionné, bilan session
+│   │   ├── DashboardTab.tsx       # KPIs, top 5, répartition catégories
+│   │   ├── SettingsTab.tsx        # Caméra, nom assistant, vectorisation
 │   │   ├── CategoryFilterModal.tsx
 │   │   └── SyncNotice.tsx
-│   ├── GeminiAssistant/        # Drawer, LiveSession, AudioManager, tools
-│   │   ├── tools.ts            # Définitions des 18 tools (4 multi-actions)
-│   │   ├── systemPrompt.ts     # Instructions étendues pour Lina
-│   │   ├── FunctionDispatcher.ts
-│   │   ├── types.ts            # 12 nouveaux types pour multi-actions
-│   │   └── multiActionsExamples.ts  # Exemples et tests
-│   ├── gestures/
-│   │   └── SwipeableModal.tsx
-│   └── *.tsx                   # Modals, toasts, exports
+│   ├── GeminiAssistant/           # Drawer, LiveSession, AudioManager, tools
+│   ├── ProductDetailsModal.tsx    # Fiche produit + historique mouvements
+│   └── *.tsx                      # Modals, toasts, exports
 ├── lib/
-│   ├── supabase*.ts            # Clients dédiés (inventory, categories, auth, rest)
-│   ├── inventorySync.ts        # CRUD + file hors-ligne
-│   ├── offlineDb.ts            # IndexedDB schema
-│   ├── embeddingService.ts     # OpenRouter + fallback local
-│   ├── autoCategorization.ts   # Suggestions depuis OFF
-│   ├── haptics.ts              # Vibrations tactiles
-│   ├── api.ts                  # OpenFoodFacts v0/v2
-│   └── utils.ts
+│   ├── supabaseInventory.ts       # CRUD inventory_items
+│   ├── supabaseMovements.ts       # CRUD stock_movements (nouveau)
+│   ├── supabaseCategories.ts      # CRUD categories
+│   ├── supabaseSettings.ts        # Clé/valeur paramètres
+│   ├── supabaseAuth.ts            # Sessions
+│   ├── supabaseRest.ts            # Client REST bas niveau
+│   ├── inventorySync.ts           # CRUD + file hors-ligne + logging mouvements
+│   ├── offlineDb.ts               # IndexedDB schema
+│   ├── embeddingService.ts        # OpenRouter + fallback local
+│   ├── autoCategorization.ts      # Suggestions OFF
+│   ├── haptics.ts                 # Retours haptiques
+│   └── api.ts                     # OpenFoodFacts v0/v2
 ├── hooks/
-│   ├── useHardwareScanner.ts   # Capture douchette globale
-│   ├── useSupabaseRealtime.ts  # Souscriptions live
-│   ├── useOfflineSync.ts       # Flush file différé
-│   ├── useEmbeddingGenerator.ts# Vectorisation batch
-│   └── useGeminiAssistant.ts   # UX assistant vocal
-└── types.ts
+│   ├── useHardwareScanner.ts      # Capture douchette globale
+│   ├── useSupabaseRealtime.ts     # Souscriptions live
+│   ├── useOfflineSync.ts          # Flush file différé
+│   ├── useEmbeddingGenerator.ts   # Vectorisation batch
+│   └── useGeminiAssistant.ts      # UX assistant vocal
+└── providers/
+    └── GeminiAssistantProvider.tsx
 ```
 
 ---
 
+## 🔐 Sécurité
 
-
-## 🔐 Sécurité & données
-
-- **RLS Supabase** : politiques par table verrouillant les accès selon le scope.
-- **Variables d'environnement** : aucune clé hardcodée ; toutes via `VITE_*`.
-- **IndexedDB** : stockage local chiffré par le navigateur, jamais exposé en erreur.
-- **Confirmation actions** : suppressions et modifications sensibles passent par un flux utilisateur explicite.
+- **RLS Supabase** activé sur toutes les tables (`inventory_items`, `categories`, `stock_movements`)
+- **Variables d'environnement** : aucune clé hardcodée, toutes via `VITE_*`
+- **Confirmation** requise pour suppressions et modifications critiques
+- **IndexedDB** : jamais exposé dans les messages d'erreur
 
 ---
-
-
-
-## 🧪 Tests & vérification
-
-```bash
-# Type-check uniquement (rapide)
-tsc --noEmit
-
-# Build complet
-npm run build
-```
-
----
-
-
-
-## 📄 Licences & mentions
-
-- Dépendances open-source : React, Vite, Tailwind, Supabase, Lucide, Motion, OpenFoodFacts, OpenRouter, Google Gemini.
-- Application propriétaire : [`NeuroStock`](https://github.com/moonback/NeuroStock).
-
----
-
-
 
 ## 🛣️ Roadmap
 
 - [x] Scan code-barres + OpenFoodFacts
-- [x] Assistant vocal avec tools métiers
+- [x] Assistant vocal Lina (Gemini Live) avec 18 tools
 - [x] Recherche sémantique + embeddings
 - [x] Mode hors-ligne + file de sync
 - [x] Exports CSV et PDF
 - [x] Gestion des catégories
-- [x] PWA installable
-- [x] 🆕 **Fonctionnalités Multi-Actions vocales** (v1.0.0 - Juillet 2026)
-  - [x] Modification multiple de prix en batch
-  - [x] Inventaire par catégorie avec statistiques
-  - [x] Listes des ruptures de stock
-  - [x] Alertes stock faible personnalisables
-  - [x] Actions multi-étapes combinées
-- [ ] Authentification email/mot de passe native (en cours)
+- [x] PWA + Electron desktop
+- [x] Dashboard analytics
+- [x] Fonctionnalités Multi-Actions vocales (batch prix, inventaire catégorie, ruptures)
+- [x] **Journal POS fusionné** — opérations groupées par produit
+- [x] **Historique des mouvements par produit** — traçabilité complète avec source
 - [ ] Multi-utilisateur + rôles (admin / employé)
 - [ ] Import/export Excel
-- [ ] Dashboard analytics
-- [ ] 🔜 **Prochaines fonctionnalités vocales** (v1.1.0)
-  - [ ] Export automatique des listes (PDF, CSV)
-  - [ ] Alertes proactives de Lina
-  - [ ] Suggestions de prix basées sur l'historique
-  - [ ] Commandes fournisseurs vocales
+- [ ] Thème sombre
+- [ ] Alertes proactives de Lina (stock bas automatique)
+- [ ] Seuil d'alerte personnalisable par produit
 
 ---
 
 _Dernière mise à jour : Juillet 2026_  
-_Version : 1.0.0 avec fonctionnalités Multi-Actions vocales_
+_Version : 1.1.0_

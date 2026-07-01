@@ -32,3 +32,15 @@ export interface CategoryItem {
   icon?: string;
 }
 
+export interface StockMovement {
+  id?: string;
+  barcode: string;
+  delta: number;
+  /** Quantité après mouvement */
+  quantity_after: number;
+  /** Source de l'opération */
+  source?: "pos" | "scan" | "manual" | "assistant" | "import";
+  note?: string;
+  created_at: number; // timestamp ms
+}
+

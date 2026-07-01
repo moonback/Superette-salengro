@@ -43,6 +43,7 @@ import { SyncNotice } from "./components/app/SyncNotice";
 import { GeminiAssistantProvider } from "./providers/GeminiAssistantProvider";
 import { generateProductEmbedding, fullSemanticSearch } from "./lib/embeddingService";
 import { speakAssistantText } from "./components/GeminiAssistant/assistantBridge";
+import type { StockMovement } from "./types";
 
 
 type ActionModalState =
@@ -546,7 +547,7 @@ export default function App() {
     onDelete: handleRealtimeDelete,
   });
 
-  const handleUpdateQuantity = async (barcode: string, delta: number) => {
+  const handleUpdateQuantity = async (barcode: string, delta: number, source: StockMovement['source'] = 'manual') => {
     triggerHaptic("light");
     const existingItem = inventory.find((item) => item.barcode === barcode);
     if (!existingItem) return;
@@ -563,7 +564,7 @@ export default function App() {
     );
 
     try {
-      await syncItem(updatedItem);
+      await syncItem(updatedItem, source);
     } catch (error) {
       console.error("Erreur de synchronisation Supabase:", error);
       setInventory((prev) =>
@@ -810,6 +811,13 @@ export default function App() {
     const refreshed = inventory.find((item) => item.barcode === barcode);
     if (!refreshed) return;
 
+    // Only update if something actually changed — avoids infinite loop
+    if (
+      refreshed.quantity === actionModal.product.quantity &&
+      refreshed.lastUpdated === actionModal.product.lastUpdated &&
+      refreshed.name === actionModal.product.name
+    ) return;
+
     setActionModal((prev) => {
       if (!prev) return prev;
       switch (prev.type) {
@@ -822,7 +830,8 @@ export default function App() {
           return prev;
       }
     });
-  }, [inventory, actionModal]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inventory]);
 
   const filteredInventory = useMemo(() => {
     let result = [...inventory];
