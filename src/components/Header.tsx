@@ -87,6 +87,12 @@ export function Header({
 
               {isDesktop && (
                 <div className="flex items-center gap-2 flex-wrap">
+                  {/* Logo desktop */}
+                  <div className="flex items-center gap-2 mr-2">
+                    <img src="/logo-transparent.png" alt="NeuroStock" className="h-8 w-8 object-contain" />
+                    <span className="text-base font-black tracking-tight text-stone-900">NeuroStock</span>
+                  </div>
+
                   {/* Stat: articles */}
                   <span className="desktop-stat-badge bg-stone-100/80 border-stone-200/60 text-stone-700 px-2.5 py-1 text-[12px]">
                     <Package className="h-3.5 w-3.5 text-stone-500" />
