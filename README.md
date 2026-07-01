@@ -26,18 +26,6 @@ Chaque produit dispose maintenant d'un **journal complet de ses mouvements** :
 - Logging automatique à chaque opération (scan, POS, assistant, ajustement manuel)
 - Stocké dans Supabase (`stock_movements`) — requiert l'exécution de [`stock-mouvement.sql`](stock-mouvement.sql)
 
-### 🧾 Journal POS fusionné
-
-Dans l'onglet **Caisse / Opérations** :
-
-- Les opérations répétées sur le **même produit se regroupent** en une seule ligne (delta cumulé)
-- La ligne est remontée en tête du journal à chaque nouvelle opération
-- Annuler une ligne et rescanner recrée une entrée propre
-
-### 🔧 Correction boucle infinie
-
-Correction d'une boucle de rendu (`Maximum update depth`) déclenchée lors de la mise à jour des modals produit après un sync Realtime.
-
 ---
 
 ## 🚀 Pourquoi NeuroStock ?
