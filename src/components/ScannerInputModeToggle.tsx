@@ -36,7 +36,7 @@ export function ScannerInputModeToggle({
             />
           )}
           <ScanLine className="h-4 w-4" />
-          Scanner physique
+          {cameraEnabled && 'Scanner physique'}
         </button>
         {cameraEnabled && (
           <button
