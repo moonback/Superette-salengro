@@ -1,4 +1,5 @@
 # ⚡ NeuroStock — Inventaire PWA nouvelle génération
+<img src="public/header.png" alt="NeuroStock" />
 
 [![React](https://img.shields.io/badge/React-19.0-61dafb)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6)](https://www.typescriptlang.org/)
@@ -12,9 +13,6 @@ Application **mobile-first** de gestion d'inventaire pour points de vente.
 Pensée pour le scan code-barres, la synchronisation temps réel et le pilotage vocal via un assistant IA intégré.
 
 ---
-<div align="center">
-<img src="public/header.png" alt="NeuroStock" />
-
 
 ## 🚀 Pourquoi NeuroStock ?
 
