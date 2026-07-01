@@ -1,51 +1,39 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
-process.env.DIST = path.join(__dirname$1, "../../dist");
-process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, "../public");
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-let win = null;
-let splashWin = null;
-function resolveLogoBase64() {
-  const candidates = [
-    path.join(__dirname$1, "logo-full-transaparent.png"),
-    path.join(process.env.VITE_PUBLIC, "logo-full-transaparent.png"),
-    path.join(__dirname$1, "../../public/logo-full-transaparent.png")
+import { app as i, BrowserWindow as l, ipcMain as g } from "electron";
+import d from "fs";
+import t from "path";
+import { fileURLToPath as f } from "url";
+const s = t.dirname(f(import.meta.url));
+process.env.DIST = t.join(s, "../../dist");
+process.env.VITE_PUBLIC = i.isPackaged ? process.env.DIST : t.join(process.env.DIST, "../public");
+const c = process.env.VITE_DEV_SERVER_URL;
+let e = null, a = null;
+function m() {
+  const o = [
+    t.join(s, "logo-full-transaparent.png"),
+    t.join(process.env.VITE_PUBLIC, "logo-full-transaparent.png"),
+    t.join(s, "../../public/logo-full-transaparent.png")
   ];
-  for (const p of candidates) {
-    if (fs.existsSync(p)) {
-      const data = fs.readFileSync(p).toString("base64");
-      return `data:image/png;base64,${data}`;
-    }
-  }
+  for (const n of o)
+    if (d.existsSync(n))
+      return `data:image/png;base64,${d.readFileSync(n).toString("base64")}`;
   return "";
 }
-function createSplash() {
-  splashWin = new BrowserWindow({
+function h() {
+  a = new l({
     width: 460,
     height: 420,
-    frame: false,
-    transparent: true,
-    resizable: false,
-    center: true,
-    alwaysOnTop: true,
-    skipTaskbar: true,
+    frame: !1,
+    transparent: !0,
+    resizable: !1,
+    center: !0,
+    alwaysOnTop: !0,
+    skipTaskbar: !0,
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true
+      nodeIntegration: !1,
+      contextIsolation: !0
     }
   });
-  const logoDataUrl = resolveLogoBase64();
-  const logoMarkup = logoDataUrl ? `<img class="logo-img" src="${logoDataUrl}" alt="NeuroStock" />` : `<div class="logo-fallback">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-          <line x1="12" y1="22.08" x2="12" y2="12"/>
-        </svg>
-       </div>`;
-  const html = (
+  const o = m(), r = (
     /* html */
     `<!DOCTYPE html>
 <html lang="fr">
@@ -163,7 +151,13 @@ function createSplash() {
   <div class="logo-wrapper">
     <div class="logo-halo"></div>
     <div class="logo-ring"></div>
-    ${logoMarkup}
+    ${o ? `<img class="logo-img" src="${o}" alt="NeuroStock" />` : `<div class="logo-fallback">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+       </div>`}
   </div>
   <p class="tagline">Gestion de stock intelligente</p>
   <div class="progress-section">
@@ -181,63 +175,41 @@ function createSplash() {
 </body>
 </html>`
   );
-  splashWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
-  splashWin.on("closed", () => {
-    splashWin = null;
+  a.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(r)}`), a.on("closed", () => {
+    a = null;
   });
 }
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "icon.svg"),
+function p() {
+  e = new l({
+    icon: t.join(process.env.VITE_PUBLIC, "icon.svg"),
     width: 1280,
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    show: false,
+    show: !1,
     webPreferences: {
-      preload: path.join(__dirname$1, "../preload/index.cjs"),
-      nodeIntegration: false,
-      contextIsolation: true
+      preload: t.join(s, "../preload/index.cjs"),
+      nodeIntegration: !1,
+      contextIsolation: !0
     }
-  });
-  win.once("ready-to-show", () => {
-    const SPLASH_MIN_DURATION = 2500;
-    const readyAt = Date.now();
-    const remaining = Math.max(0, SPLASH_MIN_DURATION - (Date.now() - readyAt));
+  }), e.once("ready-to-show", () => {
+    const n = Date.now(), r = Math.max(0, 2500 - (Date.now() - n));
     setTimeout(() => {
-      if (splashWin && !splashWin.isDestroyed()) {
-        splashWin.close();
-      }
-      if (win && !win.isDestroyed()) {
-        win.show();
-        win.focus();
-      }
-    }, remaining);
-  });
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(path.join(process.env.DIST, "index.html"));
-  }
+      a && !a.isDestroyed() && a.close(), e && !e.isDestroyed() && (e.show(), e.focus());
+    }, r);
+  }), e.webContents.on("did-finish-load", () => {
+    e == null || e.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), c ? e.loadURL(c) : e.loadFile(t.join(process.env.DIST, "index.html"));
 }
-app.whenReady().then(() => {
-  createSplash();
-  createWindow();
+i.whenReady().then(() => {
+  h(), p();
 });
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-    win = null;
-  }
+i.on("window-all-closed", () => {
+  process.platform !== "darwin" && (i.quit(), e = null);
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+i.on("activate", () => {
+  l.getAllWindows().length === 0 && p();
 });
-ipcMain.on("app:quit", () => {
-  app.quit();
+g.on("app:quit", () => {
+  i.quit();
 });

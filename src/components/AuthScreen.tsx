@@ -3,6 +3,7 @@ import { Loader2, Mail, Lock, ArrowRight, AlertTriangle, Power } from "lucide-re
 import { quitApp } from "../lib/electronUtils";
 import { motion, AnimatePresence } from "motion/react";
 import { signIn, signUp, UserSession } from "../lib/supabaseAuth";
+import logoFullUrl from "/logo-full-transaparent.png";
 
 interface AuthScreenProps {
   onAuthSuccess: (session: UserSession) => void;
@@ -105,7 +106,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             className="flex justify-center"
           >
             <img
-              src="/logo-full-transaparent.png"
+              src={logoFullUrl}
               alt="NeuroStock"
               className="h-24 w-auto object-contain drop-shadow-sm"
             />

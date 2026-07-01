@@ -3,6 +3,7 @@ import type { useEmbeddingGenerator } from '../hooks/useEmbeddingGenerator';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { HelpModal } from './HelpModal';
+import logoUrl from '/logo-transparent.png';
 
 interface HeaderProps {
   email: string;
@@ -73,7 +74,7 @@ export function Header({
               {!isDesktop && (
                 <div className="flex flex-col justify-center min-w-0">
                   <h1 className="text-base font-black tracking-tight text-stone-900 leading-tight flex items-center gap-1.5">
-                    <img src="/logo-transparent.png" alt="NeuroStock" className="h-15 w-15 object-contain" />
+                    <img src={logoUrl} alt="NeuroStock" className="h-15 w-15 object-contain" />
                     <span>NeuroStock</span>
                   </h1>
                   <div className="mt-1 flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[10px] font-bold text-stone-400">
@@ -89,7 +90,7 @@ export function Header({
                 <div className="flex items-center gap-2 flex-wrap">
                   {/* Logo desktop */}
                   <div className="flex items-center gap-2 mr-2">
-                    <img src="/logo-transparent.png" alt="NeuroStock" className="h-8 w-8 object-contain" />
+                    <img src={logoUrl} alt="NeuroStock" className="h-8 w-8 object-contain" />
                     <span className="text-base font-black tracking-tight text-stone-900">NeuroStock</span>
                   </div>
 
