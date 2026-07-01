@@ -391,27 +391,7 @@ function TabButton({
           }`}
         />
 
-        {/* Badge */}
-        {/* <AnimatePresence>
-          {badge > 0 && (
-            <motion.span
-              key="badge"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-              className="
-                absolute -top-1.5 -right-1.5
-                min-w-[16px] h-4 px-1
-                rounded-full bg-amber-500 text-white
-                text-[9px] font-black leading-none
-                flex items-center justify-center shadow-sm
-              "
-            >
-              {badge > 99 ? '99+' : badge}
-            </motion.span>
-          )}
-        </AnimatePresence> */}
+        
       </motion.div>
 
       {/* Label — always visible */}

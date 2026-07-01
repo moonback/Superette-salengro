@@ -68,7 +68,7 @@ const SOURCE_LABELS: Record<NonNullable<StockMovement['source']>, string> = {
   import: "Import",
 };
 
-function MovementHistory({ barcode }: { barcode: string }) {
+function MovementHistory({ barcode, lastUpdated }: { barcode: string; lastUpdated: number }) {
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,7 +82,7 @@ function MovementHistory({ barcode }: { barcode: string }) {
       }
     });
     return () => { cancelled = true; };
-  }, [barcode]);
+  }, [barcode, lastUpdated]); // re-fetch dès que le produit est mis à jour
 
   if (loading) {
     return (
@@ -351,7 +351,7 @@ export function ProductDetailsModal({ product, onClose, onEdit, onEditStock }: P
                   <Clock className="h-3.5 w-3.5 text-stone-400" />
                   <h3 className="text-[10px] font-black uppercase tracking-wider text-stone-500">Historique des mouvements</h3>
                 </div>
-                <MovementHistory barcode={product.barcode} />
+                <MovementHistory barcode={product.barcode} lastUpdated={product.lastUpdated} />
                 {/* Dernière mise à jour */}
                 <div className="flex items-center justify-between px-4 py-2.5 border-t border-stone-100 bg-stone-50/40">
                   <div className="flex items-center gap-2">
