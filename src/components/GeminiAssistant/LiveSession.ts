@@ -40,6 +40,9 @@ export class LiveSession {
       model: MODEL,
       config: {
         responseModalities: ['AUDIO'],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Aoede' } }
+        },
         systemInstruction: { parts: [{ text: prompt }] },
         tools: [{ functionDeclarations }],
       },
